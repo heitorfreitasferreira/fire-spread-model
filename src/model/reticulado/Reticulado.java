@@ -1,6 +1,8 @@
 package model.reticulado;
 
-import model.analise.observers.*;
+import model.analise.observers.SubPegouFogo;
+import model.analise.observers.SubReticuladoAvancou;
+import model.analise.observers.SubReticuladoTerminou;
 import model.estados.Celula;
 import model.estados.Estados;
 import model.modelos.Modelo;
@@ -27,7 +29,7 @@ public class Reticulado implements ReticuladoI {
     private ArrayList<SubReticuladoTerminou> fofoqueirosTerminou;
 
     private String tipoInicial;
-    Reticulado(ArrayList<Tuple<Integer,Integer>> ponto, int size, double umidade, DirecoesVento direcaoVento, Modelo modelo, Estados estadoInicial){
+    public Reticulado(ArrayList<Tuple<Integer,Integer>> ponto, int size, double umidade, DirecoesVento direcaoVento, Modelo modelo, Estados estadoInicial){
         if(size<16) throw new IllegalArgumentException("Tamanho do reticulado deve ser maior que 16");
         this.size = size;
         if(umidade<0 || umidade>1) throw new IllegalArgumentException("Umidade deve ser entre 0 e 1");
@@ -40,12 +42,12 @@ public class Reticulado implements ReticuladoI {
         fofoqueirosAvancou = new ArrayList<>();
         ArrayList<SubPegouFogo> fofoqueirosPegouFogo = new ArrayList<>();
 
-        setupReticuladoInicial(estadoInicial);
+        setupReticuladoInicial(estadoInicial, ponto);
         this.iteracao = 0;
         this.modelo = modelo;
     }
 
-    private void setupReticuladoInicial(Estados estadoInicial){
+    private void setupReticuladoInicial(Estados estadoInicial, ArrayList<Tuple<Integer,Integer>> ponto){
         for(int i = 0; i < size + 1; i++){
             for(int j = 0; j < size; j++){
                 if (i == size){
@@ -89,8 +91,7 @@ public class Reticulado implements ReticuladoI {
         return iteracao;
     }
     public int getExecucaoAtual() {
-        int execucao = 0;
-        return execucao;
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
     public double getUmidade() {
         return umidade;
@@ -109,11 +110,12 @@ public class Reticulado implements ReticuladoI {
     }
 
 
-    //TODO
+
     public void avanzarIteracion() {
         //CALCULA O ESTADO FUTURO DO RETICULADO
         for (int i = 0; i < size; ++i) {
             for (int j = 0; j < size; ++j) {
+                //TODO essa parte ta saindo da matriz
                 int up, down, left, right;
                 if (j == 0)
                     left = size;
@@ -126,15 +128,17 @@ public class Reticulado implements ReticuladoI {
                     up = i - 1;
                 down = i + 1;
 
-                modelo.avanca(                      reticulado[up][j],      // n
-                                                    reticulado[down][j],    // s
-                                                    reticulado[i][left],    // o
-                                                    reticulado[i][right],   // l
-                                                    reticulado[up][right],  // ne
-                                                    reticulado[up][left],   // no
-                                                    reticulado[down][right],// se
-                                                    reticulado[down][left], // so,
-                                                    reticulado[i][j]);
+                modelo.avanca(
+                        reticulado[up][j],      // n
+                        reticulado[down][j],    // s
+                        reticulado[i][left],    // o
+                        reticulado[i][right],   // l
+                        reticulado[up][right],  // ne
+                        reticulado[up][left],   // no
+                        reticulado[down][right],// se
+                        reticulado[down][left], // so,
+                        reticulado[i][j]
+                );
 
             }
         }
@@ -143,10 +147,12 @@ public class Reticulado implements ReticuladoI {
     }
     //TODO Execução de uma simulação
     public void run() {
+        for (int i = 0; i < QNT_EXECUCOES; i++) {
+            for (int j = 0; j < QNT_ITERACOES; j++) {
 
-
-        //TODO
-        //...
+                avanzarIteracion();
+            }
+        }
         reticuladoTerminou(this);
     }
 
