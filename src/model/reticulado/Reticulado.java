@@ -1,5 +1,6 @@
 package model.reticulado;
 
+import model.analise.Bruto;
 import model.analise.observers.SubPegouFogo;
 import model.analise.observers.SubReticuladoAvancou;
 import model.analise.observers.SubReticuladoTerminou;
@@ -34,29 +35,30 @@ public class Reticulado implements ReticuladoI {
         this.size = size;
         if(umidade<0 || umidade>1) throw new IllegalArgumentException("Umidade deve ser entre 0 e 1");
         this.umidade = umidade;
-        this.reticulado = new Celula[size+1][size];
+        this.reticulado = new Celula[size+1][size+1];
         this.matrizVento = MatrizVento.getInstance(1, 0.16, 0.03, direcaoVento);
         this.tipoInicial = estadoInicial.NOME;
 
         fofoqueirosTerminou = new ArrayList<>();
         fofoqueirosAvancou = new ArrayList<>();
+        fofoqueirosAvancou.add(new Bruto(this, "bruto" + tipoInicial + ".csv"));
         ArrayList<SubPegouFogo> fofoqueirosPegouFogo = new ArrayList<>();
 
         setupReticuladoInicial(estadoInicial, ponto);
         this.iteracao = 0;
         this.modelo = modelo;
+
     }
 
     private void setupReticuladoInicial(Estados estadoInicial, ArrayList<Tuple<Integer,Integer>> ponto){
         for(int i = 0; i < size + 1; i++){
-            for(int j = 0; j < size; j++){
-                if (i == size){
-                    this.reticulado[i][j] = new Celula(Estados.SOLO_EXPOSTO,this);
+            for(int j = 0; j < size+ 1 ; j++){
+                if (i == size || j == size){
+                    this.reticulado[i][j] = new Celula(Estados.AGUA,this);
                 }else{
                     this.reticulado[i][j] = new Celula(estadoInicial,this);
-                    fofoqueirosAvancou.add(reticulado[i][j]);
-
                 }
+                fofoqueirosAvancou.add(reticulado[i][j]);
             }
         }
         for(Tuple<Integer,Integer> p : ponto){
@@ -81,7 +83,7 @@ public class Reticulado implements ReticuladoI {
         int[][] ret = new int[size][size];
         for(int i = 0; i < size; i++){
             for(int j = 0; j < size; j++){
-                ret[i][j] = reticulado[i][j].getEstado();
+                ret[i][j] = reticulado[i][j].getEstado().VALOR;
             }
         }
         return ret;
@@ -115,7 +117,7 @@ public class Reticulado implements ReticuladoI {
         //CALCULA O ESTADO FUTURO DO RETICULADO
         for (int i = 0; i < size; ++i) {
             for (int j = 0; j < size; ++j) {
-                //TODO essa parte ta saindo da matriz
+
                 int up, down, left, right;
                 if (j == 0)
                     left = size;
@@ -152,14 +154,14 @@ public class Reticulado implements ReticuladoI {
 
                 avanzarIteracion();
             }
+            reticuladoTerminou(this);
         }
-        reticuladoTerminou(this);
     }
 
 
 
 
-
+    //Está avisando as celulas para trocar o estado
     public void reticuladoAvancou(ReticuladoI reticuladoAtual) {
         for (SubReticuladoAvancou subscriber : fofoqueirosAvancou) {
             subscriber.reticuladoAvancou(reticuladoAtual);

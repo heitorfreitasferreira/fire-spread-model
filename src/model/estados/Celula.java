@@ -15,17 +15,24 @@ public class Celula implements SubReticuladoAvancou {
         this.estadoAux = estado;
         this.estadoInicial = estado;
         this.reticulado = reticulado;
+        this.tempoNoEstado = 0;
     }
 
     public void setEstado(Estados estado) {
+        tempoNoEstado = 0;
         this.estado = estado;
     }
-
+    public void proxEstado(Estados proximoEstado) {
+        this.estadoAux = proximoEstado;
+    }
+    public int getTempoNoEstado() {
+        return tempoNoEstado;
+    }
     public int getEstadoInicial(){
         return estadoInicial.VALOR;
     }
-    public int getEstado(){
-        return estado.VALOR;
+    public Estados getEstado(){
+        return estado;
     }
     public void reticuladoAvancou(ReticuladoI reticuladoAtual){
         tempoNoEstado++;

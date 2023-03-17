@@ -15,8 +15,7 @@ public class Main {
     public static void main(String[] args) {
         var focosIniciais =   new ArrayList<Tuple<Integer, Integer>>();
         focosIniciais.add(new Tuple<>(TAMANHO / 2, TAMANHO / 2));
-
-        var reticulado = new Reticulado(focosIniciais, TAMANHO, UMIDADE, DirecoesVento.N, new Heitorzera2(), Estados.CAMPESTRE);
+        var reticulado = new Reticulado(focosIniciais, TAMANHO, UMIDADE, DirecoesVento.N, new Heitorzera2(), Estados.FLORESTAL);
         reticulado.run();
     }
 }
