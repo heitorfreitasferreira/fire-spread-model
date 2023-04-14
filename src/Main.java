@@ -9,13 +9,13 @@ import java.util.ArrayList;
 public class Main {
 
     final static int TAMANHO = 32;
-    final static double UMIDADE = 0.5;
+    final static double UMIDADE = 0.1;
 
 
     public static void main(String[] args) {
         var focosIniciais =   new ArrayList<Tuple<Integer, Integer>>();
         focosIniciais.add(new Tuple<>(TAMANHO / 2, TAMANHO / 2));
-        var reticulado = new Reticulado(focosIniciais, TAMANHO, UMIDADE, DirecoesVento.N, new Heitorzera2(), Estados.FLORESTAL);
+        var reticulado = new Reticulado(focosIniciais, TAMANHO, UMIDADE, DirecoesVento.N, new Heitorzera2(), Estados.SAVANICA);
         reticulado.run();
     }
 }

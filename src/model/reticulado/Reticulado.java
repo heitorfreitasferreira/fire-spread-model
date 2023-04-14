@@ -22,8 +22,8 @@ public class Reticulado implements ReticuladoI {
 
     private MatrizVento matrizVento;
     private int iteracao;
-    public static final int QNT_ITERACOES = 300;
-    public static final int QNT_EXECUCOES = 300;
+    public static final int QNT_ITERACOES = 50;
+    public static final int QNT_EXECUCOES = 1;
 
     private Modelo modelo;
     private ArrayList<SubReticuladoAvancou> fofoqueirosAvancou;
@@ -41,7 +41,7 @@ public class Reticulado implements ReticuladoI {
 
         fofoqueirosTerminou = new ArrayList<>();
         fofoqueirosAvancou = new ArrayList<>();
-        fofoqueirosAvancou.add(new Bruto(this, "bruto" + tipoInicial + ".csv"));
+        fofoqueirosAvancou.add(new Bruto(this, "bruto" + tipoInicial + ""));
         ArrayList<SubPegouFogo> fofoqueirosPegouFogo = new ArrayList<>();
 
         setupReticuladoInicial(estadoInicial, ponto);
@@ -57,8 +57,8 @@ public class Reticulado implements ReticuladoI {
                     this.reticulado[i][j] = new Celula(Estados.AGUA,this);
                 }else{
                     this.reticulado[i][j] = new Celula(estadoInicial,this);
+                    fofoqueirosAvancou.add(reticulado[i][j]);
                 }
-                fofoqueirosAvancou.add(reticulado[i][j]);
             }
         }
         for(Tuple<Integer,Integer> p : ponto){
@@ -83,7 +83,9 @@ public class Reticulado implements ReticuladoI {
         int[][] ret = new int[size][size];
         for(int i = 0; i < size; i++){
             for(int j = 0; j < size; j++){
-                ret[i][j] = reticulado[i][j].getEstado().VALOR;
+                if(reticulado[i][j].getEstado() != null){
+                    ret[i][j] = reticulado[i][j].getEstado().VALOR;
+               }
             }
         }
         return ret;

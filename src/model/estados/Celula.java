@@ -25,6 +25,9 @@ public class Celula implements SubReticuladoAvancou {
     public void proxEstado(Estados proximoEstado) {
         this.estadoAux = proximoEstado;
     }
+    public Estados getProxEstado(){
+        return estadoAux;
+    }
     public int getTempoNoEstado() {
         return tempoNoEstado;
     }
@@ -36,7 +39,8 @@ public class Celula implements SubReticuladoAvancou {
     }
     public void reticuladoAvancou(ReticuladoI reticuladoAtual){
         tempoNoEstado++;
-        estado = estadoAux;
+        if(estado != estadoAux)
+            setEstado(estadoAux);
     }
 
 }

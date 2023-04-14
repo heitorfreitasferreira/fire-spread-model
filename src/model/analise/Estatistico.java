@@ -4,7 +4,6 @@ import model.analise.observers.SubPegouFogo;
 import model.analise.observers.SubReticuladoAvancou;
 import model.reticulado.Reticulado;
 import model.reticulado.ReticuladoI;
-import org.jetbrains.annotations.NotNull;
 
 import java.io.FileWriter;
 import java.io.IOException;
@@ -32,7 +31,7 @@ public class Estatistico extends Analisador implements SubPegouFogo, SubReticula
         }
     }
 
-    public void printaEstados(@NotNull ReticuladoI reticulado) {
+    public void printaEstados(ReticuladoI reticulado) {
 
     }
 
