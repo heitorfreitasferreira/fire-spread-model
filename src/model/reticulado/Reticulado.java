@@ -51,7 +51,9 @@ public class Reticulado implements ReticuladoI {
     }
     public void setModelo(Modelo modelo){
         this.modelo = modelo;
+
     }
+
     private void setupReticuladoInicial(Estados estadoInicial, ArrayList<Tuple<Integer,Integer>> ponto){
         for(int i = 0; i < size + 1; i++){
             for(int j = 0; j < size+ 1 ; j++){
@@ -59,8 +61,8 @@ public class Reticulado implements ReticuladoI {
                     this.reticulado[i][j] = new Celula(Estados.AGUA,this);
                 }else{
                     this.reticulado[i][j] = new Celula(estadoInicial,this);
+                    fofoqueirosAvancou.add(reticulado[i][j]);
                 }
-                fofoqueirosAvancou.add(reticulado[i][j]);
             }
         }
         for(Tuple<Integer,Integer> p : ponto){
