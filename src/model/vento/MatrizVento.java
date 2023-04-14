@@ -21,9 +21,9 @@ public class MatrizVento {
         setDirecao(direcao);
     }
     /**
-     * @param coef - Coeficiente base do vento
-     * @param mult_base - Multiplicador base do vento
-     * @param decai - Quão maior mais direcional éo vento
+     * @param coef Coeficiente base do vento
+     * @param mult_base Multiplicador base do vento
+     * @param decai Quão maior mais direcional éo vento
      * @return Singleton da classe MatrizVento
      */
     public static MatrizVento getInstance(double coef, double mult_base, double decai, Enum<DirecoesVento> direcao){

@@ -22,15 +22,15 @@ public class Reticulado implements ReticuladoI {
 
     private MatrizVento matrizVento;
     private int iteracao;
-    public static final int QNT_ITERACOES = 300;
-    public static final int QNT_EXECUCOES = 300;
+    public static final int QNT_ITERACOES = 30;//0;
+    public static final int QNT_EXECUCOES = 1;//300;
 
     private Modelo modelo;
     private ArrayList<SubReticuladoAvancou> fofoqueirosAvancou;
     private ArrayList<SubReticuladoTerminou> fofoqueirosTerminou;
 
     private String tipoInicial;
-    public Reticulado(ArrayList<Tuple<Integer,Integer>> ponto, int size, double umidade, DirecoesVento direcaoVento, Modelo modelo, Estados estadoInicial){
+    public Reticulado(ArrayList<Tuple<Integer,Integer>> ponto, int size, double umidade, DirecoesVento direcaoVento, Estados estadoInicial){
         if(size<16) throw new IllegalArgumentException("Tamanho do reticulado deve ser maior que 16");
         this.size = size;
         if(umidade<0 || umidade>1) throw new IllegalArgumentException("Umidade deve ser entre 0 e 1");
@@ -41,15 +41,17 @@ public class Reticulado implements ReticuladoI {
 
         fofoqueirosTerminou = new ArrayList<>();
         fofoqueirosAvancou = new ArrayList<>();
-        fofoqueirosAvancou.add(new Bruto(this, "bruto" + tipoInicial + ".csv"));
+        fofoqueirosAvancou.add(new Bruto(this, "bruto"));
         ArrayList<SubPegouFogo> fofoqueirosPegouFogo = new ArrayList<>();
 
         setupReticuladoInicial(estadoInicial, ponto);
         this.iteracao = 0;
-        this.modelo = modelo;
+        //this.modelo = modelo;
 
     }
-
+    public void setModelo(Modelo modelo){
+        this.modelo = modelo;
+    }
     private void setupReticuladoInicial(Estados estadoInicial, ArrayList<Tuple<Integer,Integer>> ponto){
         for(int i = 0; i < size + 1; i++){
             for(int j = 0; j < size+ 1 ; j++){
@@ -62,7 +64,7 @@ public class Reticulado implements ReticuladoI {
             }
         }
         for(Tuple<Integer,Integer> p : ponto){
-            this.reticulado[p.i][p.j] = new Celula(Estados.INICIO_FOGO,this);
+            this.reticulado[p.i][p.j].proxEstado(Estados.INICIO_FOGO);
         }
     }
 
@@ -79,10 +81,11 @@ public class Reticulado implements ReticuladoI {
         return matrizVento.getMatrizVento();
     }
 
-    public int[][] getReticulado() {
+    public int[][] getReticulado() throws NullPointerException{
         int[][] ret = new int[size][size];
         for(int i = 0; i < size; i++){
             for(int j = 0; j < size; j++){
+                if(reticulado[i][j].getEstado() == null) throw new NullPointerException("Celula nula na posição [" + i + "][" + j + "]");
                 ret[i][j] = reticulado[i][j].getEstado().VALOR;
             }
         }
@@ -148,7 +151,8 @@ public class Reticulado implements ReticuladoI {
         iteracao++;
     }
     //TODO Execução de uma simulação
-    public void run() {
+    public void run() throws IllegalStateException{
+        if (modelo == null) throw new IllegalStateException("Modelo não foi setado");
         for (int i = 0; i < QNT_EXECUCOES; i++) {
             for (int j = 0; j < QNT_ITERACOES; j++) {
 
