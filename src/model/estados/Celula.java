@@ -11,14 +11,16 @@ public class Celula implements SubReticuladoAvancou {
     private int tempoNoEstado;
     private Estados estadoAux;
     private boolean temQueTrocar;
+    private double altura;
 
-    public Celula(Estados estado, ReticuladoI reticulado){
+    public Celula(Estados estado, ReticuladoI reticulado, double altura){
         this.estado = estado;
         this.estadoAux = estado;
         this.estadoInicial = estado;
         this.reticulado = reticulado;
         this.tempoNoEstado = 0;
         this.temQueTrocar = false;
+        this.altura = altura;
     }
 
     public void setEstado(@NotNull Estados estado) {

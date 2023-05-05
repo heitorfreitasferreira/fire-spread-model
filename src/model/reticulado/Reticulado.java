@@ -7,6 +7,8 @@ import model.analise.observers.SubReticuladoTerminou;
 import model.estados.Celula;
 import model.estados.Estados;
 import model.modelos.Modelo;
+import model.terreno.GeradorLateral;
+import model.terreno.GeradorTerreno;
 import model.utils.Tuple;
 import model.vento.DirecoesVento;
 import model.vento.MatrizVento;
@@ -44,7 +46,7 @@ public class Reticulado implements ReticuladoI {
         fofoqueirosAvancou.add(new Bruto(this, "bruto"));
         ArrayList<SubPegouFogo> fofoqueirosPegouFogo = new ArrayList<>();
 
-        setupReticuladoInicial(estadoInicial, ponto);
+        setupReticuladoInicial(estadoInicial, ponto, new GeradorLateral());
         this.iteracao = 0;
         //this.modelo = modelo;
 
@@ -54,13 +56,14 @@ public class Reticulado implements ReticuladoI {
 
     }
 
-    private void setupReticuladoInicial(Estados estadoInicial, ArrayList<Tuple<Integer,Integer>> ponto){
+    private void setupReticuladoInicial(Estados estadoInicial, ArrayList<Tuple<Integer,Integer>> ponto, GeradorTerreno geradorTerreno){
+        var terreno = geradorTerreno.gerarTerreno(size);
         for(int i = 0; i < size + 1; i++){
             for(int j = 0; j < size+ 1 ; j++){
                 if (i == size || j == size){
-                    this.reticulado[i][j] = new Celula(Estados.AGUA,this);
+                    this.reticulado[i][j] = new Celula(Estados.AGUA,this, 0);
                 }else{
-                    this.reticulado[i][j] = new Celula(estadoInicial,this);
+                    this.reticulado[i][j] = new Celula(estadoInicial,this, terreno[i][j]);
                     fofoqueirosAvancou.add(reticulado[i][j]);
                 }
             }

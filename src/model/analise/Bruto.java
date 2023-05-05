@@ -7,8 +7,11 @@ import java.io.FileWriter;
 import java.io.IOException;
 
 public class Bruto extends Analisador implements SubReticuladoAvancou {
+    char[] emojis;
     public Bruto(ReticuladoI reticulado,String fileName) {
         super(reticulado, fileName);
+        emojis = new char[]{'🟫', '🟨', '🔥', '🔺', '🌵', '🟩', '🌳', '🟦'};
+
     }
 
 
@@ -16,7 +19,7 @@ public class Bruto extends Analisador implements SubReticuladoAvancou {
         int[][] reticuladoNumber = reticulado.getReticulado();
         for (int i = 0; i < reticuladoNumber.length; i++) {
             for (int j = 0; j < reticuladoNumber[i].length; j++) {
-                System.out.print(reticuladoNumber[i][j] + " ");
+                System.out.print(emojis[reticuladoNumber[i][j]] + " ");
             }
             System.out.println();
         }

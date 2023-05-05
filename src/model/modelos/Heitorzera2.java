@@ -8,12 +8,12 @@ import org.jetbrains.annotations.Contract;
 import java.util.HashMap;
 
 public class Heitorzera2 implements Modelo{
-    private HashMap<Estados, Double> probEspalhamentoFogo;
-    private HashMap<Estados, Double> influenciaVegetacao;
-    private HashMap<Estados,Estados> transicao;
-    private HashMap<Estados, Integer> tempoNoEstado;
-    private ReticuladoI reticulado;
-    private double influenciaUmidade;
+    protected HashMap<Estados, Double> probEspalhamentoFogo;
+    protected HashMap<Estados, Double> influenciaVegetacao;
+    protected HashMap<Estados,Estados> transicao;
+    protected HashMap<Estados, Integer> tempoNoEstado;
+    protected ReticuladoI reticulado;
+    protected double influenciaUmidade;
     public Heitorzera2(ReticuladoI reticulado){
         this.reticulado = reticulado;
 
@@ -39,7 +39,7 @@ public class Heitorzera2 implements Modelo{
         setInfluenciaUmidade();
 
     }
-    private void setTempoNoEstado(){
+    protected void setTempoNoEstado(){
         this.tempoNoEstado = new HashMap<Estados,Integer>();
         if(reticulado.getUmidade()<=0.25){
             tempoNoEstado.put(Estados.INICIO_FOGO, 3);
@@ -51,7 +51,7 @@ public class Heitorzera2 implements Modelo{
             tempoNoEstado.put(Estados.QUEIMA_LENTA, 10);
         }
     }
-    private void setInfluenciaUmidade() throws IllegalStateException{
+    protected void setInfluenciaUmidade() throws IllegalStateException{
         if(reticulado.getUmidade() > 0.0 && reticulado.getUmidade() <=0.25){
             this.influenciaUmidade = 1.5;
         }
@@ -77,7 +77,7 @@ public class Heitorzera2 implements Modelo{
         return matriz;
     }
     @Contract(pure = true)
-    private int sumMatriz(boolean[][] matriz) {
+    protected int sumMatriz(boolean[][] matriz) {
         int sum = 0;
         for (int i = 0; i < matriz.length; i++) {
             for (int j = 0; j < matriz[i].length; j++) {
@@ -88,7 +88,7 @@ public class Heitorzera2 implements Modelo{
         }
         return sum;
     }
-    private void avancaFogo(Celula celula){
+    protected void avancaFogo(Celula celula){
         if(!isFogo(celula)){
             throw new IllegalStateException("Celula no estado: "+celula.getEstado()+", nao pode ser queimada");
         }
@@ -107,14 +107,17 @@ public class Heitorzera2 implements Modelo{
     public boolean isFogo(Celula celula){
         return celula.getEstado() == Estados.INICIO_FOGO || celula.getEstado() == Estados.ARVORE_QUEIMANDO || celula.getEstado() == Estados.QUEIMA_LENTA;
     }
-    private boolean isQueimavel(Celula celula, HashMap<Estados,boolean[][]> estadoMatriz){
+    public double influenciaRelevo(Celula central, Celula ondeTemFogo){
+        return 1;
+    }
+    protected boolean isQueimavel(Celula celula, HashMap<Estados,boolean[][]> estadoMatriz){
         var temQueimaSoma = sumMatriz(estadoMatriz.get(Estados.INICIO_FOGO));
         var temInicioFogoSoma = sumMatriz(estadoMatriz.get(Estados.ARVORE_QUEIMANDO));
         var temBrasaSoma = sumMatriz(estadoMatriz.get(Estados.QUEIMA_LENTA));
         var temFogo = temQueimaSoma + temInicioFogoSoma + temBrasaSoma > 0;
         return temFogo && (celula.getEstado() == Estados.CAMPESTRE || celula.getEstado() == Estados.SAVANICA || celula.getEstado() == Estados.FLORESTAL);
     }
-    private double[][] getRandomMatriz(){
+    protected double[][] getRandomMatriz(){
         double[][] matriz = new double[3][3];
         for (int i = 0; i < matriz.length; i++) {
             for (int j = 0; j < matriz[i].length; j++) {
@@ -126,7 +129,7 @@ public class Heitorzera2 implements Modelo{
         }
         return matriz;
     }
-    private void avancarQueimavel(Celula celula, HashMap<Estados,boolean[][]> estadoMatriz){
+    protected void avancarQueimavel(Celula celula, HashMap<Estados,boolean[][]> estadoMatriz){
         if(!isQueimavel(celula, estadoMatriz)) return;
         double[][] probMatriz= getRandomMatriz();
 
@@ -138,15 +141,16 @@ public class Heitorzera2 implements Modelo{
                                 probEspalhamentoFogo.get(estado) *
                                 influenciaVegetacao.get(celula.getEstado()) *
                                 reticulado.getMatrizVento()[i][j] *
-                                influenciaUmidade
+                                influenciaUmidade //*
+                                //influenciaRelevo(celula, estadoMatriz.get(estado)[i][j])
                         ) {
-                            celula.proxEstado(transicao.get(estado));
+                            celula.proxEstado(transicao.get(celula.getEstado()));
                         }
                 }
             }
         }
     }
-    private HashMap<Estados,boolean[][]> generateHasQueimaMatriz(Celula n, Celula s, Celula o, Celula l, Celula ne, Celula no, Celula se, Celula so, Celula central){
+    protected HashMap<Estados,boolean[][]> generateHasQueimaMatriz(Celula n, Celula s, Celula o, Celula l, Celula ne, Celula no, Celula se, Celula so, Celula central){
         var estadoMatriz = new HashMap<Estados,boolean[][]>();
         estadoMatriz.put(Estados.INICIO_FOGO, getMatrizQueima(n, s, o, l, ne, no, se, so, central, Estados.INICIO_FOGO));
         estadoMatriz.put(Estados.ARVORE_QUEIMANDO, getMatrizQueima(n, s, o, l, ne, no, se, so, central, Estados.ARVORE_QUEIMANDO));
