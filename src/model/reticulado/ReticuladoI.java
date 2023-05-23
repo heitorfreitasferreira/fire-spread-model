@@ -14,4 +14,9 @@ public interface ReticuladoI extends Runnable{
     Celula getCelula(int i, int j);
     String getTipoInicial();
     void avanzarIteracion();
+    String getDirecaoVento();
+    public void reticuladoAvancou();
+    public void reticuladoTerminou() ;
+    public void reticuladoPegouFogo(int i, int j) ;
+
 }

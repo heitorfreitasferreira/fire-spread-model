@@ -1,7 +1,6 @@
 package model.analise;
 
 import model.reticulado.ReticuladoI;
-import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.io.IOException;
@@ -11,11 +10,13 @@ import java.util.Date;
 public abstract class Analisador {
     protected String fileName;
     protected final String pathToFolder;
+    protected final ReticuladoI reticulado;
     File file;
 
     Analisador(ReticuladoI reticulado, String pathToFolder) {
         if (reticulado == null) throw new NullPointerException("Reticulado não pode ser nulo");
         this.pathToFolder = pathToFolder;
+        this.reticulado = reticulado;
         this.fileName = generateFileName(reticulado);
         this.file = new File(getFileName());
 
@@ -42,10 +43,11 @@ public abstract class Analisador {
         var formatter = new SimpleDateFormat("[dd-MM-yyyy_HH-mm]");
 
         return formatter.format(new Date()) +
-                "_" +
                 reticulado.getTipoInicial() +
                 "_" +
-                reticulado.getUmidade();
+                reticulado.getUmidade() +
+                "_" +
+                reticulado.getDirecaoVento();
     }
     public abstract String getFileName();
 }

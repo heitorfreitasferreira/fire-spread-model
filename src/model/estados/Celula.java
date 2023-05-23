@@ -2,6 +2,7 @@ package model.estados;
 
 import model.analise.observers.SubReticuladoAvancou;
 import model.reticulado.ReticuladoI;
+import model.utils.Tuple;
 import org.jetbrains.annotations.NotNull;
 
 public class Celula implements SubReticuladoAvancou {
@@ -12,8 +13,10 @@ public class Celula implements SubReticuladoAvancou {
     private Estados estadoAux;
     private boolean temQueTrocar;
     private double altura;
+    public final Tuple<Integer, Integer> posicao;
 
-    public Celula(Estados estado, ReticuladoI reticulado, double altura){
+    public Celula(Estados estado, ReticuladoI reticulado, double altura, Tuple<Integer, Integer> posicao){
+        this.posicao = posicao;
         this.estado = estado;
         this.estadoAux = estado;
         this.estadoInicial = estado;
@@ -46,9 +49,15 @@ public class Celula implements SubReticuladoAvancou {
     public Estados getEstado(){
         return estado;
     }
-    public void reticuladoAvancou(ReticuladoI reticuladoAtual){
+    public void reticuladoAvancou(){
         tempoNoEstado++;
-        if(temQueTrocar) setEstado(estadoAux);
+        if(temQueTrocar) {
+            setEstado(estadoAux);
+            if(estadoAux == Estados.INICIO_FOGO){
+                reticulado.reticuladoPegouFogo(posicao.i, posicao.j);
+            }
+        }
+
     }
 
 }

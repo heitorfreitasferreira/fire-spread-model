@@ -1,13 +1,13 @@
 package model.reticulado;
 
 import model.analise.Bruto;
+import model.analise.Estatistico;
 import model.analise.observers.SubPegouFogo;
 import model.analise.observers.SubReticuladoAvancou;
 import model.analise.observers.SubReticuladoTerminou;
 import model.estados.Celula;
 import model.estados.Estados;
 import model.modelos.Modelo;
-import model.terreno.GeradorLateral;
 import model.terreno.GeradorTerreno;
 import model.utils.Tuple;
 import model.vento.DirecoesVento;
@@ -24,29 +24,37 @@ public class Reticulado implements ReticuladoI {
 
     private MatrizVento matrizVento;
     private int iteracao;
-    public static final int QNT_ITERACOES = 30;//0;
-    public static final int QNT_EXECUCOES = 1;//300;
+    public static final int QNT_ITERACOES = 100;
+    public static final int QNT_EXECUCOES = 10;
+    private int execucaoAtual;
 
     private Modelo modelo;
     private ArrayList<SubReticuladoAvancou> fofoqueirosAvancou;
     private ArrayList<SubReticuladoTerminou> fofoqueirosTerminou;
+    public ArrayList<SubPegouFogo> fofoqueirosPegouFogo;
 
     private String tipoInicial;
-    public Reticulado(ArrayList<Tuple<Integer,Integer>> ponto, int size, double umidade, DirecoesVento direcaoVento, Estados estadoInicial){
+    private String direcaoVento;
+    public Reticulado(ArrayList<Tuple<Integer,Integer>> ponto, int size, double umidade, DirecoesVento direcaoVento, Estados estadoInicial, GeradorTerreno geradorTerreno){
         if(size<16) throw new IllegalArgumentException("Tamanho do reticulado deve ser maior que 16");
         this.size = size;
         if(umidade<0 || umidade>1) throw new IllegalArgumentException("Umidade deve ser entre 0 e 1");
         this.umidade = umidade;
         this.reticulado = new Celula[size+1][size+1];
         this.matrizVento = MatrizVento.getInstance(1, 0.16, 0.03, direcaoVento);
+        this.direcaoVento = direcaoVento.toString();
         this.tipoInicial = estadoInicial.NOME;
 
         fofoqueirosTerminou = new ArrayList<>();
         fofoqueirosAvancou = new ArrayList<>();
+        fofoqueirosPegouFogo = new ArrayList<>();
         fofoqueirosAvancou.add(new Bruto(this, "bruto"));
+        var est = new Estatistico(this, "estatistico");
+        fofoqueirosAvancou.add(est);
+        fofoqueirosPegouFogo.add(est);
         ArrayList<SubPegouFogo> fofoqueirosPegouFogo = new ArrayList<>();
 
-        setupReticuladoInicial(estadoInicial, ponto, new GeradorLateral());
+        setupReticuladoInicial(estadoInicial, ponto, geradorTerreno);
         this.iteracao = 0;
         //this.modelo = modelo;
 
@@ -56,14 +64,19 @@ public class Reticulado implements ReticuladoI {
 
     }
 
+    public String getDirecaoVento() {
+        return direcaoVento;
+    }
+
     private void setupReticuladoInicial(Estados estadoInicial, ArrayList<Tuple<Integer,Integer>> ponto, GeradorTerreno geradorTerreno){
         var terreno = geradorTerreno.gerarTerreno(size);
         for(int i = 0; i < size + 1; i++){
             for(int j = 0; j < size+ 1 ; j++){
                 if (i == size || j == size){
-                    this.reticulado[i][j] = new Celula(Estados.AGUA,this, 0);
+                    var NO_SLOPE_INFLUENCE = 0.0;
+                    this.reticulado[i][j] = new Celula(Estados.AGUA,this, NO_SLOPE_INFLUENCE, new Tuple<>(i,j));
                 }else{
-                    this.reticulado[i][j] = new Celula(estadoInicial,this, terreno[i][j]);
+                    this.reticulado[i][j] = new Celula(estadoInicial,this, terreno[i][j], new Tuple<>(i,j));
                     fofoqueirosAvancou.add(reticulado[i][j]);
                 }
             }
@@ -76,6 +89,7 @@ public class Reticulado implements ReticuladoI {
     //TODO implementar construtor baseado no arquivo JSON
     Reticulado(File file){
 
+        direcaoVento = null;
     }
 
     public int getSize() {
@@ -101,7 +115,8 @@ public class Reticulado implements ReticuladoI {
         return iteracao;
     }
     public int getExecucaoAtual() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return execucaoAtual;
+        //throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
     public double getUmidade() {
         return umidade;
@@ -152,18 +167,19 @@ public class Reticulado implements ReticuladoI {
 
             }
         }
-        reticuladoAvancou(this);
-        iteracao++;
+        reticuladoAvancou();
     }
     //TODO Execução de uma simulação
     public void run() throws IllegalStateException{
+        this.execucaoAtual = 0;
         if (modelo == null) throw new IllegalStateException("Modelo não foi setado");
         for (int i = 0; i < QNT_EXECUCOES; i++) {
             for (int j = 0; j < QNT_ITERACOES; j++) {
-
                 avanzarIteracion();
+                iteracao = j;
             }
-            reticuladoTerminou(this);
+            reticuladoTerminou();
+            this.execucaoAtual++;
         }
     }
 
@@ -171,16 +187,21 @@ public class Reticulado implements ReticuladoI {
 
 
     //Está avisando as celulas para trocar o estado
-    public void reticuladoAvancou(ReticuladoI reticuladoAtual) {
+    public void reticuladoAvancou() {
         for (SubReticuladoAvancou subscriber : fofoqueirosAvancou) {
-            subscriber.reticuladoAvancou(reticuladoAtual);
+            subscriber.reticuladoAvancou();
         }
     }
 
 
-    public void reticuladoTerminou(ReticuladoI reticuladoAtual) {
+    public void reticuladoTerminou() {
         for (SubReticuladoTerminou subscriber : fofoqueirosTerminou) {
-            subscriber.reticuladoTerminou(reticuladoAtual);
+            subscriber.reticuladoTerminou();
+        }
+    }
+    public void reticuladoPegouFogo(int i, int j) {
+        for (SubPegouFogo subscriber : fofoqueirosPegouFogo) {
+            subscriber.pegouFogo( i , j);
         }
     }
 }

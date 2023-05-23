@@ -1,16 +1,16 @@
 package model.analise;
 
 import model.analise.observers.SubReticuladoAvancou;
+import model.reticulado.Reticulado;
 import model.reticulado.ReticuladoI;
-
-import java.io.FileWriter;
-import java.io.IOException;
 
 public class Bruto extends Analisador implements SubReticuladoAvancou {
     char[] emojis;
+    ImpressoraReticulado impressora;
     public Bruto(ReticuladoI reticulado,String fileName) {
         super(reticulado, fileName);
-        emojis = new char[]{'🟫', '🟨', '🔥', '🔺', '🌵', '🟩', '🌳', '🟦'};
+//        emojis = new char[]{'🟫', '🟨', '🔥', '🔺', '🌵', '🟩', '🌳', '🟦'};
+        this.impressora = new ImpressoraBufferizada(Reticulado.QNT_ITERACOES, reticulado, file);
 
     }
 
@@ -19,30 +19,17 @@ public class Bruto extends Analisador implements SubReticuladoAvancou {
         int[][] reticuladoNumber = reticulado.getReticulado();
         for (int i = 0; i < reticuladoNumber.length; i++) {
             for (int j = 0; j < reticuladoNumber[i].length; j++) {
-                System.out.print(emojis[reticuladoNumber[i][j]] + " ");
+                System.out.print(reticuladoNumber[i][j] + " ");
             }
             System.out.println();
         }
+        System.out.println();
     }
 
     @Override
-    public void reticuladoAvancou(ReticuladoI reticuladoAtual) {
-        printaEstados(reticuladoAtual);
-        System.out.println();
-        try {
-            var fw = new FileWriter(file);
-            var matriz = reticuladoAtual.getReticulado();
-            for (int i = 0; i < matriz.length; i++) {
-                for (int j = 0; j < matriz.length; j++)
-                    fw.write(matriz[i][j] + " ");
-                fw.write("\n");
-            }
-            fw.write("-\n");
-            fw.close();
-        } catch (IOException e) {
-            System.out.println("Erro ao abrir o arquivo para escrita.");
-            e.printStackTrace();
-        }
+    public void reticuladoAvancou() {
+        System.out.println("Reticulado "+ fileName + " \t iteração "+ this.reticulado.getIteracao());
+        impressora.printaEstados(file, reticulado);
     }
     public void reticuladoTerminou(ReticuladoI reticuladoAtual){
         System.out.println("Reticulado "+ fileName + " terminou.");
