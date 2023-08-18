@@ -3,6 +3,7 @@ package model.vento;
 public enum DirecoesVento {
     N, NE, E, SE, S, SO, O, NO;
 
+    @Override
     public String toString(){
         return switch (this) {
             case N -> "n";
