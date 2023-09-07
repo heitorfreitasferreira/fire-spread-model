@@ -1,9 +1,7 @@
 package model.reticulado;
 
 import lombok.Getter;
-import lombok.Setter;
 import model.analise.Bruto;
-import model.analise.Estatistico;
 import model.analise.observers.SubPegouFogo;
 import model.analise.observers.SubReticuladoAvancou;
 import model.analise.observers.SubReticuladoTerminou;
@@ -18,12 +16,14 @@ import model.vento.MatrizVento;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 
 @Getter
 public class Reticulado implements ReticuladoI {
 
     private Celula[][] reticulado;
-    private int size;
+    private int altura;
+    private int largura;
     private double umidade;
 
     private MatrizVento matrizVento;
@@ -33,18 +33,19 @@ public class Reticulado implements ReticuladoI {
     private int execucaoAtual;
 
     private Modelo modelo;
-    private ArrayList<SubReticuladoAvancou> fofoqueirosAvancou;
-    private ArrayList<SubReticuladoTerminou> fofoqueirosTerminou;
-    public ArrayList<SubPegouFogo> fofoqueirosPegouFogo;
+    private List<SubReticuladoAvancou> fofoqueirosAvancou;
+    private List<SubReticuladoTerminou> fofoqueirosTerminou;
+    public List<SubPegouFogo> fofoqueirosPegouFogo;
 
     private String tipoInicial;
-    private String direcaoVento;
-    public Reticulado(ArrayList<Tuple<Integer,Integer>> ponto, int size, double umidade, DirecoesVento direcaoVento, Estados estadoInicial, GeradorTerreno geradorTerreno){
-        if(size<16) throw new IllegalArgumentException("Tamanho do reticulado deve ser maior que 16");
-        this.size = size;
+    private final String direcaoVento;
+    public Reticulado(ArrayList<Tuple<Integer,Integer>> ponto, int altura, int largura, double umidade, DirecoesVento direcaoVento, Estados estadoInicial, GeradorTerreno geradorTerreno){
+        if(altura <16) throw new IllegalArgumentException("Tamanho do reticulado deve ser maior que 16");
+        this.altura = altura;
+        this.largura = largura;
         if(umidade<0 || umidade>1) throw new IllegalArgumentException("Umidade deve ser entre 0 e 1");
         this.umidade = umidade;
-        this.reticulado = new Celula[size+1][size+1];
+        this.reticulado = new Celula[altura +1][altura +1];
         this.matrizVento = MatrizVento.getInstance(1, 0.16, 0.03, direcaoVento);
         this.direcaoVento = direcaoVento.toString();
         this.tipoInicial = estadoInicial.NOME;
@@ -56,12 +57,9 @@ public class Reticulado implements ReticuladoI {
 //        var est = new Estatistico(this, "estatistico");
 //        fofoqueirosAvancou.add(est);
 //        fofoqueirosPegouFogo.add(est);
-        ArrayList<SubPegouFogo> fofoqueirosPegouFogo = new ArrayList<>();
 
         setupReticuladoInicial(estadoInicial, ponto, geradorTerreno);
         this.iteracao = 0;
-        //this.modelo = modelo;
-
     }
 
     public String getDirecaoVento() {
@@ -69,10 +67,10 @@ public class Reticulado implements ReticuladoI {
     }
 
     private void setupReticuladoInicial(Estados estadoInicial, ArrayList<Tuple<Integer,Integer>> ponto, GeradorTerreno geradorTerreno){
-        var terreno = geradorTerreno.gerarTerreno(size);
-        for(int i = 0; i < size + 1; i++){
-            for(int j = 0; j < size+ 1 ; j++){
-                if (i == size || j == size){
+        var terreno = geradorTerreno.gerarTerreno(altura, largura);
+        for(int i = 0; i < altura + 1; i++){
+            for(int j = 0; j < largura + 1 ; j++){
+                if (i == altura || j == largura){
                     var NO_SLOPE_INFLUENCE = 0.0;
                     this.reticulado[i][j] = new Celula(Estados.AGUA,this, NO_SLOPE_INFLUENCE, new Tuple<>(i,j));
                 }else{
@@ -86,11 +84,6 @@ public class Reticulado implements ReticuladoI {
         }
     }
 
-    //TODO implementar construtor baseado no arquivo JSON
-    Reticulado(File file){
-
-        direcaoVento = null;
-    }
 
 
     @Override
@@ -100,9 +93,9 @@ public class Reticulado implements ReticuladoI {
 
     @Override
     public int[][] getReticulado() throws NullPointerException{
-        int[][] ret = new int[size][size];
-        for(int i = 0; i < size; i++){
-            for(int j = 0; j < size; j++){
+        int[][] ret = new int[altura][largura];
+        for(int i = 0; i < altura; i++){
+            for(int j = 0; j < largura; j++){
                 if(reticulado[i][j].getEstado() == null) throw new NullPointerException("Celula nula na posição [" + i + "][" + j + "]");
                 ret[i][j] = reticulado[i][j].getEstado().VALOR;
             }
@@ -119,17 +112,17 @@ public class Reticulado implements ReticuladoI {
 
     public void avanzarIteracion() {
         //CALCULA O ESTADO FUTURO DO RETICULADO
-        for (int i = 0; i < size; ++i) {
-            for (int j = 0; j < size; ++j) {
+        for (int i = 0; i < altura; ++i) {
+            for (int j = 0; j < largura; ++j) {
 
                 int up, down, left, right;
                 if (j == 0)
-                    left = size;
+                    left = largura;
                 else
                     left = j - 1;
                 right = j + 1;
                 if (i == 0)
-                    up = size;
+                    up = altura;
                 else
                     up = i - 1;
                 down = i + 1;
@@ -169,9 +162,6 @@ public class Reticulado implements ReticuladoI {
         }
     }
 
-
-
-
     //Está avisando as celulas para trocar o estado
     public void reticuladoAvancou() throws IOException {
         for (SubReticuladoAvancou subscriber : fofoqueirosAvancou) {
@@ -190,4 +180,5 @@ public class Reticulado implements ReticuladoI {
             subscriber.pegouFogo( i , j);
         }
     }
+    //TODO implementar construtor baseado no arquivo JSON
 }

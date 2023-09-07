@@ -3,11 +3,49 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="styles.css">
     <title>Color Divs from File</title>
 </head>
 <body>
-<div class="container">
+<div class="container my-5">
+    <form class="mb-4">
+        <div class="mb-3">
+            <label for="vegetacao" class="form-label">Escolha a vegetação inicial</label>
+            <select class="form-select" id="vegetacao">
+                <option value="campestre">Campestre</option>
+                <option value="savanica">Savanica</option>
+                <option value="florestal">Florestal</option>
+            </select>
+        </div>
+        <div class="mb-3">
+            <label for="umidade" class="form-label">Escolha a humidade</label>
+            <select class="form-select" id="umidade">
+                <option value="0.25">Seco</option>
+                <option value="0.5" selected>Na média</option>
+                <option value="0.75">Úmido</option>
+                <option value="1.0">Muito úmido</option>
+            </select>
+        </div>
+        <div class="mb-3">
+            <label for="vento" class="form-label">Escolha a direção do vento</label>
+            <select class="form-select" id="vento">
+                <option value="n">Norte</option>
+                <option value="ne">Nordeste</option>
+                <option value="e" selected>Leste</option>
+                <option value="se">Sudeste</option>
+                <option value="s">Sul</option>
+                <option value="so">Sudoeste</option>
+                <option value="o">Oeste</option>
+                <option value="no">Noroeste</option>
+            </select>
+        </div>
+        <button class="btn btn-primary">Mostrar cenário</button>
+    </form>
+    <h1>Simulação <span>0</span></h1>
+</div>
+<div class="simulation invisible">
+    <!-- Divs will be added here dynamically -->
 </div>
 <script src="index.js"></script>
 </body>

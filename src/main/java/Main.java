@@ -10,19 +10,20 @@ import java.util.ArrayList;
 
 public class Main {
 
-    final static int TAMANHO = 128;
+    final static int ALTURA = 256;
+    final static int LARGURA = 256;
 
 
     public static void main(String[] args) {
         Instant start = Instant.now();
         var focosIniciais =   new ArrayList<Tuple<Integer, Integer>>();
-        focosIniciais.add(new Tuple<>(TAMANHO / 2, TAMANHO / 2));
+        focosIniciais.add(new Tuple<>(ALTURA / 2, ALTURA / 2));
         var reticulados = new ArrayList<Reticulado>();
         for (double UMIDADE = 0.25; UMIDADE<=1.0; UMIDADE+=0.25) {
-            reticulados.add(new Reticulado(focosIniciais, TAMANHO, UMIDADE, DirecoesVento.N, Estados.CAMPESTRE, new GeradorLateral()));
-            reticulados.add(new Reticulado(focosIniciais, TAMANHO, UMIDADE, DirecoesVento.S, Estados.CAMPESTRE, new GeradorLateral()));
-            reticulados.add(new Reticulado(focosIniciais, TAMANHO, UMIDADE, DirecoesVento.E, Estados.CAMPESTRE, new GeradorLateral()));
-            reticulados.add(new Reticulado(focosIniciais, TAMANHO, UMIDADE, DirecoesVento.O, Estados.CAMPESTRE, new GeradorLateral()));
+            reticulados.add(new Reticulado(focosIniciais, ALTURA, LARGURA, UMIDADE, DirecoesVento.N, Estados.SAVANICA, new GeradorLateral()));
+            reticulados.add(new Reticulado(focosIniciais, ALTURA, LARGURA, UMIDADE, DirecoesVento.S, Estados.SAVANICA, new GeradorLateral()));
+            reticulados.add(new Reticulado(focosIniciais, ALTURA, LARGURA, UMIDADE, DirecoesVento.E, Estados.SAVANICA, new GeradorLateral()));
+            reticulados.add(new Reticulado(focosIniciais, ALTURA, LARGURA, UMIDADE, DirecoesVento.O, Estados.SAVANICA, new GeradorLateral()));
         }
 
 
@@ -33,7 +34,7 @@ public class Main {
         }
         Instant end = Instant.now();
         System.out.println("Tempo de execução:\n" +
-                "\tTamanho: " + TAMANHO + "x" + TAMANHO + "\n" +
+                "\tTamanho: " + ALTURA + "x" + ALTURA + "\n" +
                 "\t Execuções: " + Reticulado.QNT_EXECUCOES + "\n" +
                 "\t Iterações: " + Reticulado.QNT_ITERACOES + "\n" +
                 + (end.toEpochMilli() - start.toEpochMilli())/1000 + "seg");

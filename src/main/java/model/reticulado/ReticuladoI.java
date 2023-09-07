@@ -5,7 +5,8 @@ import model.estados.Celula;
 import java.io.IOException;
 
 public interface ReticuladoI extends Runnable{
-    int getSize();
+    int getAltura();
+    int getLargura();
 
     double[][] getMatrizVento();
     int [][] getReticulado();

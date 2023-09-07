@@ -6,14 +6,17 @@ body {
     margin: 0;
     background-color: #f0f0f0;
 }
+.invisible {
+    display: none;
+}
 
-.container {
+.simulation {
     display: grid;
     grid-template-columns: repeat(128, 1fr);
     gap: 0;
 }
 
-.square {
+.cell {
     width: 4px;
     height: 4px;
 }

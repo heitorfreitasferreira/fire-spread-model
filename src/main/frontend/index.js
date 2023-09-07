@@ -1,8 +1,16 @@
 const timeOutMs = 500;
-const latticeSteps = 5;
-const folder = "./../../../reticulados/campestre/0.5/e/[17-08-2023_10-05]/simulation_0/"
-function setLattice(fileNumber) {
-    const container = document.querySelector('.container');
+const simulationContainer = document.querySelector('.simulation');
+const form = document.querySelector('form');
+const outsideContainer = document.querySelector('.container');
+
+
+const runSimulation = (fileNumber, folder, latticeSteps) => {
+
+    outsideContainer.classList.add('invisible')
+    simulationContainer.classList.remove('invisible')
+    setLattice(fileNumber, folder, latticeSteps)
+}
+function setLattice(fileNumber, folder, latticeSteps) {
 
     const colorMap = [
         "#877473",
@@ -22,26 +30,45 @@ function setLattice(fileNumber) {
                 colorLine.split(" ").forEach(color => {
                     if (color) {
                         const square = document.createElement('div');
-                        square.classList.add('square');
+                        square.classList.add('cell');
                         square.style.backgroundColor = colorMap[color];
-                        container.appendChild(square);
+                        simulationContainer.appendChild(square);
                     }
                 });
             });
 
-            if (fileNumber<99)
-                setTimeout(()=> {
-                    while (container.firstChild) {
-                        container.removeChild(container.firstChild);
+            if (fileNumber<99) {
+                setTimeout(() => {
+                    while (simulationContainer.firstChild) {
+                        simulationContainer.removeChild(simulationContainer.firstChild);
                     }
-                    setLattice(fileNumber+latticeSteps)
+                    setLattice(fileNumber + latticeSteps, folder, latticeSteps)
                 }, timeOutMs);
-
+            }
+            else{
+                outsideContainer.classList.remove('invisible')
+                while (simulationContainer.firstChild) {
+                    simulationContainer.removeChild(simulationContainer.firstChild);
+                }
+                simulationContainer.classList.add('invisible')
+            }
         })
         .catch(error => {
             console.error('Error:', error);
         });
 }
 
-
-setLattice(0)
+/**
+ * @description Gera o nome da pasta de acordo com os valores dos inputs
+ * @returns {`./../../../reticulados/${String}/${Number}/${String}/[17-08-2023_10-05]/simulation_0/`}
+ */
+const generateFolderName = () => {
+    const vegetacao = document.querySelector('#vegetacao').value;
+    const umidade = document.querySelector('#umidade').value;
+    const vento = document.querySelector('#vento').value;
+    return `./../../../reticulados/${vegetacao}/${umidade}/${vento}/[17-08-2023_10-05]/simulation_0/`
+}
+document.querySelector('form button').addEventListener('click', (event) => {
+    event.preventDefault();
+    runSimulation(0, generateFolderName(), 1);
+});

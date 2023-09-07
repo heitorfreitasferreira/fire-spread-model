@@ -12,6 +12,7 @@
 - [ ] [ndvi](https://www.myfarm.com.br/ndvi/)
 ## Melhorias no modelo
 
+- [x] Matriz retangular não quadrada
 - [ ] Rio de fogo
   - [ ] Versão com matriz
   - [ ] Versão com vizinhança maior com  probabilidade menor
