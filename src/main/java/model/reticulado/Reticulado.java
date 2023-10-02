@@ -13,10 +13,11 @@ import model.utils.Tuple;
 import model.vento.DirecoesVento;
 import model.vento.MatrizVento;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+
+import com.google.gson.JsonObject;
 
 @Getter
 public class Reticulado implements ReticuladoI {
@@ -60,6 +61,43 @@ public class Reticulado implements ReticuladoI {
 
         setupReticuladoInicial(estadoInicial, ponto, geradorTerreno);
         this.iteracao = 0;
+    }
+
+    public Reticulado(JsonObject json) {
+        // Get parameters from json:
+
+        // Initial points
+        var initialPoints = new ArrayList<Tuple<Integer, Integer>>();
+        var points = json.get("initialPoints").getAsJsonArray();
+        for (var point : points) {
+            var x = point.getAsJsonObject().get("x").getAsInt();
+            var y = point.getAsJsonObject().get("y").getAsInt();
+            initialPoints.add(new Tuple<>(x, y));
+        }
+
+        // Wind direction
+        var windDirection = DirecoesVento.valueOf(json.get("windDirection").getAsString());
+
+        // Humidity
+        var humidity = json.get("humidity").getAsDouble();
+
+        // Terrain. Is a 2D array of integers of unknown size.
+        var terrain = json.get("terrain").getAsJsonArray();
+        var terrainArray = new int[terrain.size()][terrain.get(0).getAsJsonArray().size()];
+        for (int i = 0; i < terrain.size(); i++) {
+            var row = terrain.get(i).getAsJsonArray();
+            for (int j = 0; j < row.size(); j++) {
+                terrainArray[i][j] = row.get(j).getAsInt();
+            }
+        }
+
+        // Do not print terrain, it is too big.
+        System.out.println("Initial points: " + initialPoints);
+        System.out.println("Wind direction: " + windDirection);
+        System.out.println("Humidity: " + humidity);
+
+        // TODO: setup reticulado from read parameters.
+        throw new UnsupportedOperationException("Not implemented yet.");
     }
 
     public String getDirecaoVento() {
@@ -180,5 +218,4 @@ public class Reticulado implements ReticuladoI {
             subscriber.pegouFogo( i , j);
         }
     }
-    //TODO implementar construtor baseado no arquivo JSON
 }
