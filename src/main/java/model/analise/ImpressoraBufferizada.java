@@ -9,7 +9,7 @@ public class ImpressoraBufferizada implements ImpressoraReticulado {
     public final int BUFFER_SIZE;
     public int[][][] buffer;
 
-    ImpressoraBufferizada(int size, ReticuladoI reticulado){
+    ImpressoraBufferizada(int size, ReticuladoI reticulado) {
         BUFFER_SIZE = size;
         buffer = new int[BUFFER_SIZE][reticulado.getAltura()][reticulado.getLargura()];
     }
@@ -29,8 +29,12 @@ public class ImpressoraBufferizada implements ImpressoraReticulado {
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
-            if (writer != null)
-                writer.close();
+            try {
+                if (writer != null)
+                    writer.close();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
     }
 }
