@@ -19,7 +19,8 @@ public abstract class Analisador {
 
 
     public File getFile() {
-        var file = new File(getFolder(),getFileName());
+//        var file = new File(getFolder(),getFileName());
+        var file = new File(pathToFolder);
         if (!file.exists()) {
             try {
                 file.createNewFile();

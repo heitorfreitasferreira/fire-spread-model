@@ -1,13 +1,14 @@
 package model.analise;
 
 import model.analise.observers.SubReticuladoAvancou;
+import model.reticulado.Reticulado;
 import model.reticulado.ReticuladoI;
 
 public class Bruto extends Analisador implements SubReticuladoAvancou {
     ImpressoraReticulado impressora;
-    public Bruto(ReticuladoI reticulado,String fileName) {
+    public Bruto(Reticulado reticulado, String fileName) {
         super(reticulado, fileName);
-        this.impressora = new ImpressoraBufferizada(1, reticulado);
+        this.impressora = new ImpressoraBufferizada(Reticulado.QNT_ITERACOES, reticulado);
     }
 
     @Override

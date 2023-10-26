@@ -1,3 +1,4 @@
+import lombok.extern.java.Log;
 import model.estados.Estados;
 import model.modelos.Heitorzera2;
 import model.reticulado.Reticulado;
@@ -9,10 +10,12 @@ import model.vento.DirecoesVento;
 import java.time.Instant;
 import java.util.ArrayList;
 
+@Log
 public class Main {
 
-    final static int ALTURA = 256;
-    final static int LARGURA = 256;
+    final static int ALTURA = 64;
+    final static int LARGURA = 64;
+
 
     public static void main(String[] args) {
         // If "-f" is set, read data from json file.
@@ -38,7 +41,7 @@ public class Main {
                 var jsonHandler = new JsonFileHandler();
                 var json = jsonHandler.readJson(inputPath);
 
-                Reticulado r =Reticulado.fromJson(json);
+                Reticulado r =Reticulado.fromJson(json, outputPath);
                 r.setModelo(new Heitorzera2(r));
                 r.run();
 
@@ -63,7 +66,7 @@ public class Main {
         for (var reticulado : reticulados) {
             var modelo = new Heitorzera2(reticulado);
             reticulado.setModelo(modelo);
-            reticulado.run();
+            new Thread(reticulado).start();
         }
         Instant end = Instant.now();
         System.out.println("Tempo de execução:\n" +

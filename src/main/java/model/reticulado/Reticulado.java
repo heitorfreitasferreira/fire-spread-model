@@ -17,7 +17,9 @@ import model.vento.MatrizVento;
 
 import java.io.File;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 @Getter
@@ -54,7 +56,7 @@ public class Reticulado implements ReticuladoI {
         fofoqueirosTerminou = new ArrayList<>();
         fofoqueirosAvancou = new ArrayList<>();
         fofoqueirosPegouFogo = new ArrayList<>();
-        fofoqueirosAvancou.add(new Bruto(this, "bruto"));
+        fofoqueirosAvancou.add(new Bruto(this, getFolderName()));
 //        var est = new Estatistico(this, "estatistico");
 //        fofoqueirosAvancou.add(est);
 //        fofoqueirosPegouFogo.add(est);
@@ -63,7 +65,7 @@ public class Reticulado implements ReticuladoI {
         this.iteracao = 0;
     }
 
-    public Reticulado(ArrayList<Tuple<Integer, Integer>> ponto, int altura, int largura, double umidade, DirecoesVento direcaoVento, int[][] pontos, GeradorTerreno geradorTerreno) {
+    private Reticulado(ArrayList<Tuple<Integer, Integer>> ponto, int altura, int largura, double umidade, DirecoesVento direcaoVento, int[][] pontos, GeradorTerreno geradorTerreno, String output) {
         if (altura < 16) throw new IllegalArgumentException("Tamanho do reticulado deve ser maior que 16");
         this.altura = altura;
         this.largura = largura;
@@ -76,11 +78,24 @@ public class Reticulado implements ReticuladoI {
         fofoqueirosTerminou = new ArrayList<>();
         fofoqueirosAvancou = new ArrayList<>();
         fofoqueirosPegouFogo = new ArrayList<>();
-        fofoqueirosAvancou.add(new Bruto(this, "bruto"));
+        fofoqueirosAvancou.add(new Bruto(this, output));
         setupReticuladoInicial(pontos, ponto, geradorTerreno);
         this.iteracao = 0;
     }
+    protected String getFolderName(){
+        var formatter = new SimpleDateFormat("[dd-MM-yyyy_HH-mm]");
+        return "reticulados/" +
+                this.getTipoInicial() +
+                "/" +
+                this.getUmidade() +
+                "/" +
+                this.getDirecaoVento() +
+                "/" +
+                formatter.format(new Date())+
+                "/simulation_" +
+                this.getExecucaoAtual();
 
+    }
     /**
      * {
      * "initialPoints": [
@@ -105,7 +120,7 @@ public class Reticulado implements ReticuladoI {
      *
      * @param json
      */
-    public static Reticulado fromJson(JsonObject json) {
+    public static Reticulado fromJson(JsonObject json, String outputPath) {
         // Get parameters from json:
 
         // Initial points
@@ -138,7 +153,7 @@ public class Reticulado implements ReticuladoI {
         System.out.println("Wind direction: " + windDirection);
         System.out.println("Humidity: " + humidity);
 
-        return new Reticulado(initialPoints, terrainArray.length, terrainArray[0].length, humidity, windDirection, terrainArray, new GeradorLateral());
+        return new Reticulado(initialPoints, terrainArray.length, terrainArray[0].length, humidity, windDirection, terrainArray, new GeradorLateral(), outputPath);
     }
 
     public String getDirecaoVento() {
