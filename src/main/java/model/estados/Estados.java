@@ -17,6 +17,14 @@ public enum Estados {
         this.VALOR = VALOR;
         this.NOME = nome;
     }
+    public static Estados valueOf(int valor) {
+        for (Estados estado : Estados.values()) {
+            if (estado.VALOR == valor) {
+                return estado;
+            }
+        }
+        throw new IllegalArgumentException("Valor inválido para o estado.");
+    }
 
 
 }

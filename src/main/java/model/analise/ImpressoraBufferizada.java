@@ -16,21 +16,15 @@ public class ImpressoraBufferizada implements ImpressoraReticulado {
 
     public void printaEstados(File file, ReticuladoI reticulado) {
         int[][] reticuladoNumber = reticulado.getReticulado();
-        FileWriter writer = null;
-        try {
-            writer = new FileWriter(file);
+        try (FileWriter writer = new FileWriter(file)){
             for (int[] linhaReticulado : reticuladoNumber) {
                 for (int valorCelula : linhaReticulado) {
                     writer.write(valorCelula);
                 }
                 writer.write("\n");
             }
-            writer.close();
         } catch (Exception e) {
             e.printStackTrace();
-        } finally {
-            if (writer != null)
-                writer.close();
         }
     }
 }

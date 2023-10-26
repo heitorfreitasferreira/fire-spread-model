@@ -9,6 +9,7 @@
 - [ ] Paralelizar as execuções em threads multiplas de 8
   - [ ] Ir alocan``do as threads de acordo com o final das simulações
 - [ ] Usar os dados do reticulado pra setar a seed dos numeros aleatorios
+- [ ] Simplificar construtor de reticulado
 - [ ] [ndvi](https://www.myfarm.com.br/ndvi/)
 ## Melhorias no modelo
 

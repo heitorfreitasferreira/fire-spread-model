@@ -1,5 +1,6 @@
 package model.reticulado;
 
+import com.google.gson.JsonObject;
 import lombok.Getter;
 import model.analise.Bruto;
 import model.analise.observers.SubPegouFogo;
@@ -8,6 +9,7 @@ import model.analise.observers.SubReticuladoTerminou;
 import model.estados.Celula;
 import model.estados.Estados;
 import model.modelos.Modelo;
+import model.terreno.GeradorLateral;
 import model.terreno.GeradorTerreno;
 import model.utils.Tuple;
 import model.vento.DirecoesVento;
@@ -37,18 +39,17 @@ public class Reticulado implements ReticuladoI {
     private List<SubReticuladoTerminou> fofoqueirosTerminou;
     public List<SubPegouFogo> fofoqueirosPegouFogo;
 
-    private String tipoInicial;
     private final String direcaoVento;
-    public Reticulado(ArrayList<Tuple<Integer,Integer>> ponto, int altura, int largura, double umidade, DirecoesVento direcaoVento, Estados estadoInicial, GeradorTerreno geradorTerreno){
-        if(altura <16) throw new IllegalArgumentException("Tamanho do reticulado deve ser maior que 16");
+
+    public Reticulado(ArrayList<Tuple<Integer, Integer>> ponto, int altura, int largura, double umidade, DirecoesVento direcaoVento, Estados estadoInicial, GeradorTerreno geradorTerreno) {
+        if (altura < 16) throw new IllegalArgumentException("Tamanho do reticulado deve ser maior que 16");
         this.altura = altura;
         this.largura = largura;
-        if(umidade<0 || umidade>1) throw new IllegalArgumentException("Umidade deve ser entre 0 e 1");
+        if (umidade < 0 || umidade > 1) throw new IllegalArgumentException("Umidade deve ser entre 0 e 1");
         this.umidade = umidade;
-        this.reticulado = new Celula[altura +1][altura +1];
+        this.reticulado = new Celula[altura + 1][largura + 1];
         this.matrizVento = MatrizVento.getInstance(1, 0.16, 0.03, direcaoVento);
         this.direcaoVento = direcaoVento.toString();
-        this.tipoInicial = estadoInicial.NOME;
 
         fofoqueirosTerminou = new ArrayList<>();
         fofoqueirosAvancou = new ArrayList<>();
@@ -60,6 +61,84 @@ public class Reticulado implements ReticuladoI {
 
         setupReticuladoInicial(estadoInicial, ponto, geradorTerreno);
         this.iteracao = 0;
+    }
+
+    public Reticulado(ArrayList<Tuple<Integer, Integer>> ponto, int altura, int largura, double umidade, DirecoesVento direcaoVento, int[][] pontos, GeradorTerreno geradorTerreno) {
+        if (altura < 16) throw new IllegalArgumentException("Tamanho do reticulado deve ser maior que 16");
+        this.altura = altura;
+        this.largura = largura;
+        if (umidade < 0 || umidade > 1) throw new IllegalArgumentException("Umidade deve ser entre 0 e 1");
+        this.umidade = umidade;
+        this.reticulado = new Celula[altura + 1][largura + 1];
+        this.matrizVento = MatrizVento.getInstance(1, 0.16, 0.03, direcaoVento);
+        this.direcaoVento = direcaoVento.toString();
+
+        fofoqueirosTerminou = new ArrayList<>();
+        fofoqueirosAvancou = new ArrayList<>();
+        fofoqueirosPegouFogo = new ArrayList<>();
+        fofoqueirosAvancou.add(new Bruto(this, "bruto"));
+        setupReticuladoInicial(pontos, ponto, geradorTerreno);
+        this.iteracao = 0;
+    }
+
+    /**
+     * {
+     * "initialPoints": [
+     * {
+     * "x": 1,
+     * "y": 1
+     * },
+     * {
+     * "x": 1,
+     * "y": 2
+     * },
+     * ],
+     * "windDirection": "N",
+     * "humidity": 0.5,
+     * "terrain": [
+     * [1,2,3,4,5],
+     * [1,2,3,4,5],
+     * [1,2,3,4,5],
+     * [1,2,3,4,5],
+     * ]
+     * }
+     *
+     * @param json
+     */
+    public static Reticulado fromJson(JsonObject json) {
+        // Get parameters from json:
+
+        // Initial points
+        var initialPoints = new ArrayList<Tuple<Integer, Integer>>();
+        var points = json.get("initialPoints").getAsJsonArray();
+        for (var point : points) {
+            var x = point.getAsJsonObject().get("x").getAsInt();
+            var y = point.getAsJsonObject().get("y").getAsInt();
+            initialPoints.add(new Tuple<>(x, y));
+        }
+
+        // Wind direction
+        var windDirection = DirecoesVento.valueOf(json.get("windDirection").getAsString());
+
+        // Humidity
+        var humidity = json.get("humidity").getAsDouble();
+
+        // Terrain. Is a 2D array of integers of unknown size.
+        var terrain = json.get("terrain").getAsJsonArray();
+        var terrainArray = new int[terrain.size()][terrain.get(0).getAsJsonArray().size()];
+        for (int i = 0; i < terrain.size(); i++) {
+            var row = terrain.get(i).getAsJsonArray();
+            for (int j = 0; j < row.size(); j++) {
+                terrainArray[i][j] = row.get(j).getAsInt();
+            }
+        }
+
+        // Do not print terrain, it is too big.
+        System.out.println("Initial points: " + initialPoints);
+        System.out.println("Wind direction: " + windDirection);
+        System.out.println("Humidity: " + humidity);
+
+        return new Reticulado(initialPoints, terrainArray.length, terrainArray[0].length, humidity, windDirection, terrainArray, new GeradorLateral());
     }
 
     public String getDirecaoVento() {
@@ -79,24 +158,40 @@ public class Reticulado implements ReticuladoI {
                 }
             }
         }
-        for(Tuple<Integer,Integer> p : ponto){
+        for (Tuple<Integer, Integer> p : ponto) {
             this.reticulado[p.i][p.j].proxEstado(Estados.INICIO_FOGO);
         }
     }
 
-
-
+    private void setupReticuladoInicial(int[][] pontos, ArrayList<Tuple<Integer, Integer>> ponto, GeradorTerreno geradorTerreno) {
+        var terreno = geradorTerreno.gerarTerreno(altura+1, largura+1);
+        for (int i = 0; i < altura + 1; i++) {
+            for (int j = 0; j < largura + 1; j++) {
+                if (i == altura || j == largura) {
+                    var NO_SLOPE_INFLUENCE = 0.0;
+                    this.reticulado[i][j] = new Celula(Estados.AGUA, this, NO_SLOPE_INFLUENCE, new Tuple<>(i, j));
+                } else {
+                    this.reticulado[i][j] = new Celula(Estados.valueOf(pontos[i][j]), this, terreno[i][j], new Tuple<>(i, j));
+                    fofoqueirosAvancou.add(reticulado[i][j]);
+                }
+            }
+        }
+        for (Tuple<Integer, Integer> p : ponto) {
+            this.reticulado[p.i][p.j].proxEstado(Estados.INICIO_FOGO);
+        }
+    }
     @Override
     public double[][] getMatrizVento() {
         return matrizVento.getMatrizVento();
     }
 
     @Override
-    public int[][] getReticulado() throws NullPointerException{
+    public int[][] getReticulado() throws NullPointerException {
         int[][] ret = new int[altura][largura];
-        for(int i = 0; i < altura; i++){
-            for(int j = 0; j < largura; j++){
-                if(reticulado[i][j].getEstado() == null) throw new NullPointerException("Celula nula na posição [" + i + "][" + j + "]");
+        for (int i = 0; i < altura; i++) {
+            for (int j = 0; j < largura; j++) {
+                if (reticulado[i][j].getEstado() == null)
+                    throw new NullPointerException("Celula nula na posição [" + i + "][" + j + "]");
                 ret[i][j] = reticulado[i][j].getEstado().VALOR;
             }
         }
@@ -106,6 +201,12 @@ public class Reticulado implements ReticuladoI {
     public Celula getCelula(int i, int j) {
         return this.reticulado[i][j];
     }
+
+    @Override
+    public String getTipoInicial() {
+        return "aaaaaaaaaaaaa";
+    }
+
     public void setModelo(Modelo modelo) {
         this.modelo = modelo;
     }
@@ -143,13 +244,12 @@ public class Reticulado implements ReticuladoI {
         }
         try {
             reticuladoAvancou();
-        }
-        catch (IOException e){
+        } catch (IOException e) {
             System.out.println("Erro ao avisar os fofoqueiros");
         }
     }
 
-    public void run() throws IllegalStateException{
+    public void run() throws IllegalStateException {
         this.execucaoAtual = 0;
         if (modelo == null) throw new IllegalStateException("Modelo não foi setado");
         for (int i = 0; i < QNT_EXECUCOES; i++) {
@@ -175,9 +275,10 @@ public class Reticulado implements ReticuladoI {
             subscriber.reticuladoTerminou();
         }
     }
+
     public void reticuladoPegouFogo(int i, int j) {
         for (SubPegouFogo subscriber : fofoqueirosPegouFogo) {
-            subscriber.pegouFogo( i , j);
+            subscriber.pegouFogo(i, j);
         }
     }
     //TODO implementar construtor baseado no arquivo JSON
