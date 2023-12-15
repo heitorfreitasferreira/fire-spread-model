@@ -14,11 +14,13 @@
 ## Melhorias no modelo
 
 - [x] Matriz retangular não quadrada
-- [ ] Rio de fogo
-  - [ ] Versão com matriz
-  - [ ] Versão com vizinhança maior com  probabilidade menor
+- [x] Rio de fogo
+  - [x] Versão com matriz
+  - [x] Versão com vizinhança maior com  probabilidade menor
 - [ ] Propagação pelo ar
   - [ ] Versão com vizinhança maior com  probabilidade menor
+  - [ ] Não criar um novo reticulado
+    - Usar o mesmo reticulado, ir diminuindo a prob de acordo com a distância da central
 
 ## Artigos e leituras
 

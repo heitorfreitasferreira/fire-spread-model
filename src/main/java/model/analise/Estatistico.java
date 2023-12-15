@@ -3,7 +3,6 @@ package model.analise;
 import model.analise.observers.SubPegouFogo;
 import model.analise.observers.SubReticuladoAvancou;
 import model.reticulado.Reticulado;
-import model.reticulado.ReticuladoI;
 
 import java.io.FileWriter;
 import java.io.IOException;
@@ -11,7 +10,7 @@ import java.io.IOException;
 public class Estatistico extends Analisador implements SubPegouFogo, SubReticuladoAvancou {
     private int[][] qntFogo;
     private int qntFogoAcumulado;
-    public Estatistico(ReticuladoI reticulado, String pathToFolder) {
+    public Estatistico(Reticulado reticulado, String pathToFolder) {
         super(reticulado, pathToFolder);
         qntFogo = new int[Reticulado.QNT_EXECUCOES][Reticulado.QNT_ITERACOES+1];
         for (int i = 0; i < Reticulado.QNT_EXECUCOES; i++) {
@@ -51,7 +50,7 @@ public class Estatistico extends Analisador implements SubPegouFogo, SubReticula
             fw.close();
         }
     }
-    public void reticuladoTerminou(ReticuladoI reticuladoAtual) throws IOException {
+    public void reticuladoTerminou(Reticulado reticuladoAtual) throws IOException {
         FileWriter fw = null;
         try{
             fw = new FileWriter(getFile());

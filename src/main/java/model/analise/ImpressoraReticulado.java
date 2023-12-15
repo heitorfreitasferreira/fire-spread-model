@@ -1,10 +1,10 @@
 package model.analise;
 
-import model.reticulado.ReticuladoI;
-
 import java.io.File;
+import model.reticulado.Reticulado;
 
 public interface ImpressoraReticulado {
-    void printaEstados(File file, ReticuladoI reticulado);
+
+    void printaEstados(File file, Reticulado reticulado);
 
 }

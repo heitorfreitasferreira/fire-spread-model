@@ -1,78 +1,115 @@
+import java.time.Duration;
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
 import lombok.extern.java.Log;
 import model.estados.Estados;
 import model.modelos.Heitorzera2;
+import model.modelos.Modelo;
 import model.reticulado.Reticulado;
 import model.terreno.GeradorLateral;
-import model.utils.JsonFileHandler;
 import model.utils.Tuple;
 import model.vento.DirecoesVento;
-
-import java.time.Instant;
-import java.util.ArrayList;
 
 @Log
 public class Main {
 
-    final static int ALTURA = 64;
-    final static int LARGURA = 64;
+  static final int ALTURA = 64;
+  static final int LARGURA = 64;
 
+  public static void main(String[] args) {
+    Yuri.yurizada(args);
 
-    public static void main(String[] args) {
-        // If "-f" is set, read data from json file.
-        if (args.length > 0 && args[0].equals("-f")) {
-            if (args.length != 3) {
-                System.out.println("Usage: java -jar <program_jar> -f <input_file> <output_file>");
-                System.out.println("<program_jar>: Path to the program jar file.");
-                System.out.println("<input_file> : Path to the input json file.");
-                System.out.println("<output_file>: Path to the output json file.");
-                return;
-            }
+    Instant start = Instant.now();
+    var focosIniciais = initializeFocosIniciais();
+    //    var reticulados = createReticulados(focosIniciais);
+    Reticulado reticulados =
+        new Reticulado(
+            focosIniciais,
+            ALTURA,
+            LARGURA,
+            0.25,
+            DirecoesVento.N,
+            Estados.SAVANICA,
+            new GeradorLateral(),
+            true);
 
-            // Read from file.
-            var inputPath = args[1];
-            System.out.println("Reading from file: " + inputPath);
+    Modelo modelo = new Heitorzera2(reticulados);
+    reticulados.setModelo(modelo);
+    reticulados.run();
 
-            // Write to file.
-            // TODO: write results to output file.
-            var outputPath = args[2];
-            System.out.println("Writing to file: " + outputPath);
+    //    processReticulados(reticulados);
 
-            try {
-                var jsonHandler = new JsonFileHandler();
-                var json = jsonHandler.readJson(inputPath);
+    logExecutionTimeAndConfigurations(start);
+  }
 
-                Reticulado r =Reticulado.fromJson(json, outputPath);
-                r.setModelo(new Heitorzera2(r));
-                r.run();
+  private static List<Tuple<Integer, Integer>> initializeFocosIniciais() {
+    return Collections.singletonList(new Tuple<>(ALTURA / 2, ALTURA / 2));
+  }
 
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+  private static List<Reticulado> createReticulados(List<Tuple<Integer, Integer>> focosIniciais) {
+    return IntStream.rangeClosed(1, 4)
+        .boxed()
+        .flatMap(
+            i ->
+                Stream.iterate(0.25, j -> j + 0.25)
+                    .limit(4)
+                    .map(
+                        umidade ->
+                            new Reticulado(
+                                focosIniciais,
+                                ALTURA,
+                                LARGURA,
+                                umidade,
+                                DirecoesVento.values()[i - 1],
+                                Estados.SAVANICA,
+                                new GeradorLateral(),
+                                true)))
+        .collect(Collectors.toCollection(() -> new ArrayList<>(16))); // Pre-allocate size
+  }
 
-            return;
-        }
+  private static void processReticulados(List<Reticulado> reticulados) {
+    ExecutorService executor =
+        Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
 
-        Instant start = Instant.now();
-        var focosIniciais = new ArrayList<Tuple<Integer, Integer>>();
-        focosIniciais.add(new Tuple<>(ALTURA / 2, ALTURA / 2));
-        var reticulados = new ArrayList<Reticulado>();
-        for (double UMIDADE = 0.25; UMIDADE<=1.0; UMIDADE+=0.25) {
-            reticulados.add(new Reticulado(focosIniciais, ALTURA, LARGURA, UMIDADE, DirecoesVento.N, Estados.SAVANICA, new GeradorLateral()));
-            reticulados.add(new Reticulado(focosIniciais, ALTURA, LARGURA, UMIDADE, DirecoesVento.S, Estados.SAVANICA, new GeradorLateral()));
-            reticulados.add(new Reticulado(focosIniciais, ALTURA, LARGURA, UMIDADE, DirecoesVento.E, Estados.SAVANICA, new GeradorLateral()));
-            reticulados.add(new Reticulado(focosIniciais, ALTURA, LARGURA, UMIDADE, DirecoesVento.O, Estados.SAVANICA, new GeradorLateral()));
-        }
-
-        for (var reticulado : reticulados) {
-            var modelo = new Heitorzera2(reticulado);
+    for (Reticulado reticulado : reticulados) {
+      executor.submit(
+          () -> {
+            Modelo modelo = new Heitorzera2(reticulado);
             reticulado.setModelo(modelo);
-            new Thread(reticulado).start();
-        }
-        Instant end = Instant.now();
-        System.out.println("Tempo de execução:\n" +
-                "\tTamanho: " + ALTURA + "x" + ALTURA + "\n" +
-                "\t Execuções: " + Reticulado.QNT_EXECUCOES + "\n" +
-                "\t Iterações: " + Reticulado.QNT_ITERACOES + "\n" +
-                +(end.toEpochMilli() - start.toEpochMilli()) / 1000 + "seg");
+            reticulado.run();
+          });
     }
+    executor.shutdown();
+    try {
+      executor.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
+    } catch (InterruptedException e) {
+      log.severe("Thread interrupted: " + e.getMessage());
+    }
+  }
+
+  private static void logExecutionTimeAndConfigurations(Instant start) {
+    String executionTime =
+        "Tempo de execução: " + (Duration.between(start, Instant.now()).toSeconds()) + " seg";
+    String configurations =
+        "\tTamanho: "
+            + ALTURA
+            + "x"
+            + ALTURA
+            + "\n"
+            + "\tExecuções: "
+            + Reticulado.QNT_EXECUCOES
+            + "\n"
+            + "\tIterações: "
+            + Reticulado.QNT_ITERACOES;
+
+    log.info(executionTime + "\n" + configurations);
+  }
 }
