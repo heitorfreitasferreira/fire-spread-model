@@ -1,5 +1,7 @@
 package model.vento;
 
+import java.util.Arrays;
+
 public class MatrizVento {
   private final double coef;
   private final double mult_base;
@@ -14,7 +16,7 @@ public class MatrizVento {
     this.mult_base = mult_base;
     this.decai = decai;
 
-    this.matrizVento = new double[3][3];
+    this.matrizVento = new double[7][7];
 
     setDirecao(direcao);
   }
@@ -32,13 +34,6 @@ public class MatrizVento {
       instance = new MatrizVento(coef, mult_base, decai, direcao);
     return instance;
   }
-
-  public static MatrizVento getInstance() {
-    if (instance == null)
-      throw new IllegalStateException("Matriz de vento não inicializada com parametros");
-    return instance;
-  }
-
   public void setDirecao(Enum<DirecoesVento> novaDirecao) {
     matrizVento[1][1] = 0;
     matrizVento[0][0] = coef * (mult_base - (decai * 1));
@@ -49,6 +44,10 @@ public class MatrizVento {
     matrizVento[2][0] = coef * (mult_base - (decai * 3));
     matrizVento[2][1] = coef * (mult_base - (decai * 4));
     matrizVento[2][2] = coef * (mult_base - (decai * 3));
+    // ------------------------ Matriz faísca ------------------------
+
+
+
     this.direcao = novaDirecao;
 
     if (direcao.equals(DirecoesVento.S)) {
@@ -75,8 +74,9 @@ public class MatrizVento {
   }
 
   private void rotate() {
+    int size = 7;
     int row = 0, col = 0;
-    int m = 3, n = 3;
+    int m = size, n = size;
     double prev, curr;
 
     /*
@@ -139,6 +139,13 @@ public class MatrizVento {
     if (times <= 0) throw new IllegalArgumentException("Numero de rotações invalido");
     for (int i = 0; i < times; i++) {
       rotate();
+    }
+  }
+  public static void main(String[] args) {
+    MatrizVento matrizVento = new MatrizVento(1, 1, 0.2, DirecoesVento.N);
+    double[][] matriz = matrizVento.getMatrizVento();
+    for (int i = 0; i < matriz.length; i++) {
+      System.out.println(Arrays.toString(matriz[i]));
     }
   }
 }
