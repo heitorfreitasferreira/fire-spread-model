@@ -286,4 +286,19 @@ public class Heitorzera2 implements Modelo {
         transicao.put(Estados.RAIZ,
             Estados.SOLO_EXPOSTO);// TODO: Ver com o Luiz se esse comportamento faz sentido (problema: solo exposto irá transicionar para vegetação??)
     }
+
+    @Override
+    public String toString() {
+        return "{" +
+                "\"nome\": " +
+                "\""+this.getClass().getName()+"\"" +
+                ", \"probEspalhamentoFogo\": \"" + probEspalhamentoFogo +
+                "\", \"influenciaVegetacao\": \"" + influenciaVegetacao +
+                "\", \"transicao\": \"" + transicao +
+                "\", \"tempoNoEstado\": \"" + tempoNoEstado +
+                "\", \"influenciaUmidade\": " + influenciaUmidade +
+                ", \"probPassarSubPraSuperficie\": " + probPassarSubPraSuperficie +
+                ", \"probPassarSuperficiePraSub\": " + probPassarSuperficiePraSub +
+                '}';
+    }
 }

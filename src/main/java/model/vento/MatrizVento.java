@@ -148,4 +148,14 @@ public class MatrizVento {
       System.out.println(Arrays.toString(matriz[i]));
     }
   }
+
+  @Override
+  public String toString() {
+    return "{" +
+            "\"coef\": " + coef +
+            ", \"mult_base\": " + mult_base +
+            ", \"decai\": " + decai +
+            ", \"matrizVento\": " + Arrays.deepToString(matrizVento) +
+            '}';
+  }
 }

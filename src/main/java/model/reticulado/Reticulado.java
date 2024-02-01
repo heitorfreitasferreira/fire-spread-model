@@ -36,7 +36,7 @@ public class Reticulado implements Runnable {
     public static final int QNT_ITERACOES = 100;
     public static final int QNT_EXECUCOES = 10;
     @Getter
-    private final String direcaoVento;
+    private final DirecoesVento direcaoVento;
     public List<SubPegouFogo> fofoqueirosPegouFogo;
     private Celula[][] reticulado;
     private int altura;
@@ -53,6 +53,32 @@ public class Reticulado implements Runnable {
     private List<SubReticuladoAvancou> fofoqueirosAvancou;
     private List<SubReticuladoTerminou> fofoqueirosTerminou;
     private Estados tipoInicial;
+
+
+    @Override
+    public String toString() {
+        return "{"
+            + "\"direcaoVento\": \""
+            + direcaoVento.toString()
+            + "\""
+            + ", \"QNT_ITERACOES\":"
+            + QNT_ITERACOES
+            + ", \"QNT_EXECUCOES\":"
+            + QNT_EXECUCOES
+            + ", \"altura\":"
+            + altura
+            + ", \"largura\":"
+            + largura
+            + ", \"umidade\":"
+            + umidade
+            + ", \"matrizVento\":"
+            + matrizVento
+            + ", \"modelo\": "
+            + (modelo == null ? "null" : modelo)
+            + ", \"tipoInicial\": \""
+            + tipoInicial
+            + "\" }";
+    }
 
     /**
      * Constructor for the Reticulado class. Initializes the grid of cells and sets the initial
@@ -79,7 +105,7 @@ public class Reticulado implements Runnable {
         this.umidade = umidade;
         this.reticulado = new Celula[altura + 1][largura + 1];
         this.matrizVento = new MatrizVento(1, 0.16, 0.03, direcaoVento);
-        this.direcaoVento = direcaoVento.toString();
+        this.direcaoVento = direcaoVento;
 
         fofoqueirosTerminou = new ArrayList<>();
         fofoqueirosAvancou = new ArrayList<>();
@@ -119,7 +145,7 @@ public class Reticulado implements Runnable {
         this.umidade = umidade;
         this.reticulado = new Celula[altura + 1][largura + 1];
         this.matrizVento = MatrizVento.getInstance(1, 0.16, 0.03, direcaoVento);
-        this.direcaoVento = direcaoVento.toString();
+        this.direcaoVento = direcaoVento;
 
         fofoqueirosTerminou = new ArrayList<>();
         fofoqueirosAvancou = new ArrayList<>();

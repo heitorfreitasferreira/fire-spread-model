@@ -36,7 +36,8 @@ public abstract class Analisador {
 
     protected String getFolderName(){
         var formatter = new SimpleDateFormat("[dd-MM-yyyy_HH-mm]");
-        return reticulado.getTipoInicial() +
+        return "simulacoes/" +
+                reticulado.getTipoInicial() +
                 "/" +
                 reticulado.getUmidade() +
                 "/" +
