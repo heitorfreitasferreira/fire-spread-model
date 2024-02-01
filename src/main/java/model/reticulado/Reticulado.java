@@ -52,6 +52,7 @@ public class Reticulado implements Runnable {
     private Optional<Reticulado> reticuladoSubsolo;
     private List<SubReticuladoAvancou> fofoqueirosAvancou;
     private List<SubReticuladoTerminou> fofoqueirosTerminou;
+    private Estados tipoInicial;
 
     /**
      * Constructor for the Reticulado class. Initializes the grid of cells and sets the initial
@@ -93,6 +94,7 @@ public class Reticulado implements Runnable {
         } else {
             reticuladoSubsolo = Optional.empty();
         }
+        this.tipoInicial = estadoInicial;
         setupReticuladoInicial(estadoInicial, ponto, geradorTerreno);
         this.iteracao = 0;
     }
@@ -177,9 +179,6 @@ public class Reticulado implements Runnable {
             outputPath);
     }
 
-    public String getTipoInicial() {
-        return "aaaaaaaaaaaaa";
-    }
 
     public double[][] getMatrizVento() {
         return matrizVento.getMatrizVento();

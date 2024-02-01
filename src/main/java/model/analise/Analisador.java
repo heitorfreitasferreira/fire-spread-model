@@ -1,11 +1,13 @@
 package model.analise;
 
+import lombok.extern.java.Log;
 import model.reticulado.Reticulado;
 
 import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+@Log
 public abstract class Analisador {
     protected String fileName;
     protected final String pathToFolder;
@@ -25,7 +27,8 @@ public abstract class Analisador {
             try {
                 file.createNewFile();
             } catch (Exception e) {
-                e.printStackTrace();
+                log.severe("Não foi possível criar o arquivo " + file.getName() + " no diretório " + file.getParent());
+                log.severe(e.getMessage());
             }
         }
         return file;
@@ -33,16 +36,15 @@ public abstract class Analisador {
 
     protected String getFolderName(){
         var formatter = new SimpleDateFormat("[dd-MM-yyyy_HH-mm]");
-        return pathToFolder + "/" +
-                reticulado.getTipoInicial() +
+        return reticulado.getTipoInicial() +
                 "/" +
                 reticulado.getUmidade() +
                 "/" +
                 reticulado.getDirecaoVento() +
                 "/" +
-                formatter.format(new Date()) +
-                "/simulation_" +
-                reticulado.getExecucaoAtual();
+                formatter.format(new Date());
+//                + "/simulation_" +
+//                reticulado.getExecucaoAtual();
     }
 
     protected File getFolder(){
@@ -52,6 +54,6 @@ public abstract class Analisador {
     }
 
     protected String getFileName() {
-        return reticulado.getIteracao() + ".json";
+        return "simulacao_"+reticulado.getExecucaoAtual() + ".json";
     }
 }
