@@ -25,29 +25,31 @@ public class Main {
   static final int LARGURA = 64;
 
   public static void main(String[] args) {
-    Yuri.yurizada(args);
+    if (args.length > 0) {
+      Yuri.yurizada(args);
+    } else {
+      Instant start = Instant.now();
+      var focosIniciais = initializeFocosIniciais();
+      //    var reticulados = createReticulados(focosIniciais);
+      Reticulado reticulados =
+          new Reticulado(
+              focosIniciais,
+              ALTURA,
+              LARGURA,
+              0.25,
+              DirecoesVento.N,
+              Estados.SAVANICA,
+              new GeradorLateral(),
+              true);
 
-    Instant start = Instant.now();
-    var focosIniciais = initializeFocosIniciais();
-    //    var reticulados = createReticulados(focosIniciais);
-    Reticulado reticulados =
-        new Reticulado(
-            focosIniciais,
-            ALTURA,
-            LARGURA,
-            0.25,
-            DirecoesVento.N,
-            Estados.SAVANICA,
-            new GeradorLateral(),
-            true);
+      Modelo modelo = new Heitorzera2(reticulados);
+      reticulados.setModelo(modelo);
+      reticulados.run();
 
-    Modelo modelo = new Heitorzera2(reticulados);
-    reticulados.setModelo(modelo);
-    reticulados.run();
-
-    //    processReticulados(reticulados);
-
-    logExecutionTimeAndConfigurations(start);
+      //    processReticulados(reticulados);
+      
+      logExecutionTimeAndConfigurations(start);
+    }
   }
 
   private static List<Tuple<Integer, Integer>> initializeFocosIniciais() {

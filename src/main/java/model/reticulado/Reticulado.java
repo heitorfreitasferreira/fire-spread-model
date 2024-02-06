@@ -153,6 +153,7 @@ public class Reticulado implements Runnable {
         fofoqueirosAvancou.add(new Bruto(this, output));
         setupReticuladoInicial(pontos, ponto, geradorTerreno);
         this.iteracao = 0;
+        reticuladoSubsolo = Optional.empty();
     }
 
     /**
