@@ -1,3 +1,4 @@
+import genetic.EvolutiveStrategy;
 import lombok.extern.java.Log;
 import model.estados.Estados;
 import model.modelos.Heitorzera2;
@@ -5,6 +6,7 @@ import model.modelos.ModelParameters;
 import model.modelos.Modelo;
 import model.reticulado.Reticulado;
 import model.terreno.GeradorLateral;
+import model.utils.RandomDoubleSingleton;
 import model.utils.Tuple;
 import model.vento.DirecoesVento;
 
@@ -20,8 +22,7 @@ public class Main {
 
   public static void main(String[] args) {
 
-    Random randomGenerator = new Random();
-    randomGenerator.setSeed(0);
+    RandomDoubleSingleton randomGenerator = RandomDoubleSingleton.getInstance(0);
 
     Reticulado reticulado = new Reticulado(
             List.of(new Tuple<>(ALTURA / 2, LARGURA / 2)),
@@ -43,19 +44,13 @@ public class Main {
             0.8
     );
 
-    reticulado.setModelo(new Heitorzera2(modelParameters, randomGenerator));
+    reticulado.setModelo(new Heitorzera2(modelParameters));
 
-    var resultado = reticulado.run();
+    var goal = reticulado.run();
 
-    for (int k = 0; k < Reticulado.QNT_ITERACOES; k++) {
-      for (int i = 0; i < ALTURA; i++) {
-        for (int j = 0; j < LARGURA; j++) {
-          System.out.print(resultado[k][i][j] + " ");
-        }
-        System.out.println();
-      }
-      System.out.println();
-    }
+    EvolutiveStrategy evolutiveStrategy = new EvolutiveStrategy(reticulado, goal);
+    evolutiveStrategy.evolve(10000);
+
   }
 
 

@@ -7,4 +7,15 @@ public class Tuple<T1,T2> {
         this.i = i;
         this.j = j;
     }
+
+    public T1 getFirst() {
+        return i;
+    }
+    public T2 getSecond() {
+        return j;
+    }
+
+    public void setSecond(T2 second) {
+        this.j = second;
+    }
 }

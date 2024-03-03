@@ -6,6 +6,7 @@ import java.util.Random;
 import model.estados.Celula;
 import model.estados.Estados;
 import model.reticulado.Reticulado;
+import model.utils.RandomDoubleSingleton;
 
 /**
  * This class represents a model for a fire spread simulation. It uses a cellular automaton
@@ -28,13 +29,13 @@ public class Heitorzera2 implements Modelo {
     protected double probPassarSubPraSuperficie;
     protected double probPassarSuperficiePraSub;
 
-    protected Random randomGenerator;
+    protected RandomDoubleSingleton randomGenerator;
     /**
      * Constructor for the Heitorzera2 model. Initializes the grid of cells and sets the initial
      * values for the variables.
      */
-    public Heitorzera2(ModelParameters params, Random randomGenerator) {
-        this.randomGenerator = randomGenerator;
+    public Heitorzera2(ModelParameters params) {
+        this.randomGenerator = RandomDoubleSingleton.getInstance(0);
         setInfluenciaVegetacao(params);
         setProbEspalhamentoFogo(params);
         setTransicoes();
