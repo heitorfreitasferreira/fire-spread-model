@@ -55,6 +55,6 @@ public abstract class Analisador {
     }
 
     protected String getFileName() {
-        return "simulacao_"+reticulado.getExecucaoAtual() + ".json";
+        return "simulacao_"+".json";
     }
 }

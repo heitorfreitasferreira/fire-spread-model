@@ -6,9 +6,6 @@ import model.reticulado.Reticulado;
 // Abstract Factory
 public interface Modelo {
 
-  void avanca(Celula[][] neighborhood);
+  void avanca(Celula[][] neighborhood, double[][] matrizVento);
 
-  int getRadius();
-
-  void mergeSubsolo(Reticulado reticuladoSubsolo);
 }

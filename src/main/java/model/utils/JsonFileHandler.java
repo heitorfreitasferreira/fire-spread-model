@@ -16,7 +16,7 @@ public class JsonFileHandler {
 
 
             var jsonContent = new StringBuilder();
-            String line = null;
+            String line;
             while ((line = reader.readLine()) != null) {
                 // Read all lines from stdin
                 jsonContent.append(line);

@@ -18,9 +18,7 @@ public class ImpressoraBufferizada implements ImpressoraReticulado {
   }
 
   public void printaEstados(File file, Reticulado reticulado) {
-    if (reticulado.getReticuladoSubsolo().isEmpty()) {
-      return;// Se não tem subsolo, o proprio é um subsolo, logo não deve ser printado
-    }
+
     if (reticulado.getIteracao() < BUFFER_SIZE - 1) {
       buffer[reticulado.getIteracao()] = reticulado.getReticulado();
     } else {

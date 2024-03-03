@@ -22,7 +22,7 @@ public class Celula implements SubReticuladoAvancou {
       Estados estado, Reticulado reticulado, double altura, Tuple<Integer, Integer> posicao) {
     this.posicao = posicao;
     this.estado = estado;
-    this.estadoAux = estado;
+    this.estadoAux = null;
     this.estadoInicial = estado;
     this.reticulado = reticulado;
     this.tempoNoEstado = 0;
@@ -34,13 +34,10 @@ public class Celula implements SubReticuladoAvancou {
     if (estado == Estados.AGUA) {
       throw new IllegalArgumentException("Não é possível alterar o estado de uma célula de água");
     }
-    //        if (estado == this.estado)
-    //            throw new IllegalArgumentException("Não é possível alterar o estado de uma célula
-    // para o mesmo estado atual");
-
     tempoNoEstado = 0;
     temQueTrocar = false;
     this.estado = estado;
+    this.estadoAux = null;
   }
 
   public void proxEstado(@NonNull Estados proximoEstado) {
@@ -52,9 +49,6 @@ public class Celula implements SubReticuladoAvancou {
     tempoNoEstado++;
     if (temQueTrocar) {
       setEstado(estadoAux);
-      if (estadoAux == Estados.INICIO_FOGO) {
-        reticulado.reticuladoPegouFogo(posicao.i, posicao.j);
-      }
     }
   }
 }
