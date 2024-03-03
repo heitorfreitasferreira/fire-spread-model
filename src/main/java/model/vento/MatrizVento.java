@@ -16,7 +16,7 @@ public class MatrizVento {
     this.mult_base = mult_base;
     this.decai = decai;
 
-    this.matrizVento = new double[7][7];
+    this.matrizVento = new double[3][3];
 
     setDirecao(direcao);
   }
@@ -74,7 +74,7 @@ public class MatrizVento {
   }
 
   private void rotate() {
-    int size = 7;
+    int size = 3;
     int row = 0, col = 0;
     int m = size, n = size;
     double prev, curr;
