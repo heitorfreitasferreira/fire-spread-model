@@ -11,4 +11,16 @@ public record ModelParameters(
         double influenciaVegetacaoFlorestal
 ) {
 
+    @Override
+    public String toString() {
+        return "(" +
+                influenciaUmidade + "|" +
+                probEspalhamentoFogoInicial + "|" +
+                probEspalhamentoFogoArvoreQueimando + "|" +
+                probEspalhamentoFogoQueimaLenta + "|" +
+                influenciaVegetacaoCampestre + "|" +
+                influenciaVegetacaoSavanica + "|" +
+                influenciaVegetacaoFlorestal
+                + ")";
+    }
 }
