@@ -1,11 +1,15 @@
 package genetic;
 
+import com.sun.tools.javac.Main;
 import lombok.extern.java.Log;
+import model.estados.Estados;
 import model.modelos.Heitorzera2;
 import model.modelos.ModelParameters;
 import model.reticulado.Reticulado;
+import model.terreno.GeradorLateral;
 import model.utils.RandomDoubleSingleton;
 import model.utils.Tuple;
+import model.vento.DirecoesVento;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -14,7 +18,6 @@ import java.util.List;
 @Log
 public class EvolutiveStrategy {
     int[][][] objectiveSimulation;
-    Reticulado reticulado;
     List<Tuple<ModelParameters, Double>> population;
     Statistics statistics;
     int POPULATION_SIZE;
@@ -22,12 +25,13 @@ public class EvolutiveStrategy {
     private static final double INVALID_FITNESS = -1.0;
     private static final double MUTATION_RATE = 0.05;
     private static final int TOURNAMENT_K = 2;
+    static final int ALTURA = 32;
+    static final int LARGURA = 32;
 
-    public EvolutiveStrategy(Reticulado reticulado, int[][][] objectiveSimulation){
-        this.POPULATION_SIZE = 10;
+    public EvolutiveStrategy(int[][][] objectiveSimulation){
+        this.POPULATION_SIZE = 1000;
 
         this.objectiveSimulation = objectiveSimulation;
-        this.reticulado = reticulado;
         this.randomGenerator = RandomDoubleSingleton.getInstance(0);
 
         population = new ArrayList<>(POPULATION_SIZE);
@@ -38,18 +42,23 @@ public class EvolutiveStrategy {
     }
 
     public void evolve(int geracoes){
+        long start = System.currentTimeMillis();
         calculateFitness();
         for(int i = 0; i < geracoes; i++){
+            log.info("Evolving generation ... " + (float)i*100/geracoes+"%");
             evolve();
             statistics.updateStatistics(population);
         }
-        statistics.logToFile();
+        long end = System.currentTimeMillis();
+        System.out.println("Evolution finished in " + (end - start) / 1000 + " seconds.");
+        statistics.logToFile(geracoes, POPULATION_SIZE, TOURNAMENT_K, MUTATION_RATE);
     }
 
     private void evolve(){
         reproduceAsexually();
         calculateFitness();
         selectByTournament(TOURNAMENT_K);
+
     }
 
     private void selectByTournament(int k) {
@@ -84,20 +93,20 @@ public class EvolutiveStrategy {
     }
 
     private void calculateFitness() {
-        for (Tuple<ModelParameters, Double> individual : population) {
-            if (individual.getSecond() != INVALID_FITNESS) continue;
+        population.parallelStream().forEach(individual -> {
+            if (individual.getSecond() != INVALID_FITNESS) return;
 
             ModelParameters modelParameters = individual.getFirst();
             if (!isGenotypeValid(modelParameters)) {
-                individual.setSecond(0.0);// Penalize invalid individuals
-                continue;
+                individual.setSecond(0.0); // Penalize invalid individuals
+                return;
             }
-
+            Reticulado reticulado = getReticulado();
             reticulado.setModelo(new Heitorzera2(modelParameters));
             int[][][] simulation = reticulado.run();
             Double fitness = compareOutputs(simulation);
             individual.setSecond(fitness);
-        }
+        });
     }
 
     private void startPopulation(int size){
@@ -117,6 +126,7 @@ public class EvolutiveStrategy {
 
     private Double compareOutputs(int[][][] simulation){
         float fitness = 0;
+        var reticulado = getReticulado();
         float numberOfCells = (float)reticulado.getAltura() * reticulado.getLargura() * Reticulado.QNT_ITERACOES;
         for(int i = 0; i < reticulado.getAltura(); i++){
             for(int j = 0; j < reticulado.getLargura(); j++){
@@ -143,5 +153,16 @@ public class EvolutiveStrategy {
             }
         }
         return true;
+    }
+    private Reticulado getReticulado(){
+        return new Reticulado(
+                List.of(new Tuple<>(ALTURA / 2, LARGURA / 2)),
+                ALTURA,
+                LARGURA,
+                0.5, // Tanto faz pois o que importa é o ModelParameters
+                DirecoesVento.N,
+                Estados.SAVANICA,
+                new GeradorLateral()
+        );
     }
 }

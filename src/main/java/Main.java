@@ -48,8 +48,8 @@ public class Main {
 
     var goal = reticulado.run();
 
-    EvolutiveStrategy evolutiveStrategy = new EvolutiveStrategy(reticulado, goal);
-    evolutiveStrategy.evolve(10000);
+    EvolutiveStrategy evolutiveStrategy = new EvolutiveStrategy(goal);
+    evolutiveStrategy.evolve(100);
 
   }
 

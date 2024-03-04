@@ -5,8 +5,6 @@ import model.modelos.ModelParameters;
 import model.utils.Tuple;
 
 import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -32,7 +30,7 @@ public class Statistics {
         bestParameters = new ArrayList<>();
     }
 
-    public void logToFile(){
+    public void logToFile(int generations, int populationSize, int tournamentK, double mutationRate){
         Path directory = Paths.get("model_evolution");
         try {
             if (!Files.exists(directory)) {
@@ -43,7 +41,7 @@ public class Statistics {
         }
 
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss");
-        String filename = "statistics_" + LocalDateTime.now().format(formatter) + ".csv";
+        String filename = "statistics_"+generations+"gens_"+populationSize+"pop_"+tournamentK+"k_"+mutationRate +"mutRate" +"date_"+ LocalDateTime.now().format(formatter) + ".csv";
         Path file = directory.resolve(filename);
         try (BufferedWriter writer = Files.newBufferedWriter(file)) {
             writer.write("Best Fitness,Average Fitness,Worst Fitness,Standard Deviation,Best Parameters\n");
@@ -60,7 +58,7 @@ public class Statistics {
     }
 
     public void updateStatistics(List<Tuple<ModelParameters, Double>> population) {
-double best = Double.MAX_VALUE;
+        double best = Double.MAX_VALUE;
         double worst = Double.MIN_VALUE;
         double sum = 0;
         for (Tuple<ModelParameters, Double> tuple : population) {
