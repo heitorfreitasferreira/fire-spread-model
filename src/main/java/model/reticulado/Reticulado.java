@@ -31,7 +31,7 @@ import model.vento.MatrizVento;
 @Log
 public class Reticulado {
 
-    public static final int QNT_ITERACOES = 50;
+    public static final int QNT_ITERACOES = 100;
     @Getter
     private final DirecoesVento direcaoVento;
     private Celula[][] reticulado;
@@ -49,30 +49,23 @@ public class Reticulado {
      * Constructor for the Reticulado class. Initializes the grid of cells and sets the initial
      * values for the variables.
      */
-    public Reticulado(
-        List<Tuple<Integer, Integer>> ponto,
-        int altura,
-        int largura,
-        double umidade,
-        DirecoesVento direcaoVento,
-        Estados estadoInicial,
-        GeradorTerreno geradorTerreno) {
+    public Reticulado(ReticuladoParameters params) {
 
-        if (altura < 16) {
+        if (params.altura() < 16) {
             throw new IllegalArgumentException("Tamanho do reticulado deve ser maior que 16");
         }
-        this.altura = altura;
-        this.largura = largura;
-        if (umidade < 0 || umidade > 1) {
+        this.altura = params.altura();
+        this.largura = params.largura();
+        if (params.umidade() < 0 || params.umidade() > 1) {
             throw new IllegalArgumentException("Umidade deve ser entre 0 e 1");
         }
-        this.umidade = umidade;
+        this.umidade = params.umidade();
         this.reticulado = new Celula[altura + 1][largura + 1];
-        this.matrizVento = new MatrizVento(1, 0.16, 0.03, direcaoVento);
-        this.direcaoVento = direcaoVento;
+        this.matrizVento = new MatrizVento(1, 0.16, 0.03, params.direcaoVento());
+        this.direcaoVento = params.direcaoVento();
 
-        this.tipoInicial = estadoInicial;
-        setupReticuladoInicial(estadoInicial, ponto, geradorTerreno);
+        this.tipoInicial = params.estadoInicial();
+        setupReticuladoInicial(params.estadoInicial(), params.ponto(), params.geradorTerreno());
         this.iteracao = 0;
     }
 

@@ -6,6 +6,7 @@ import model.estados.Estados;
 import model.modelos.Heitorzera2;
 import model.modelos.ModelParameters;
 import model.reticulado.Reticulado;
+import model.reticulado.ReticuladoParameters;
 import model.terreno.GeradorLateral;
 import model.utils.RandomDoubleSingleton;
 import model.utils.Tuple;
@@ -23,7 +24,9 @@ public class EvolutiveStrategy {
     int POPULATION_SIZE;
     private final RandomDoubleSingleton randomGenerator;
     private static final double INVALID_FITNESS = -1.0;
-    private static final double MUTATION_RATE = 0.05;
+    private static final double MUTATION_RATE = 0.01;
+
+    private static final double MUTATION_PROBABILITY = 0.01;
     private static final int TOURNAMENT_K = 2;
     static final int ALTURA = 32;
     static final int LARGURA = 32;
@@ -140,7 +143,7 @@ public class EvolutiveStrategy {
         return (double) (fitness / numberOfCells);
     }
 
-    private boolean isGenotypeValid(ModelParameters modelParameters){
+    private boolean isGenotypeBetween0_1(ModelParameters modelParameters){
         Field[] fields = modelParameters.getClass().getDeclaredFields();
         for (Field field : fields) {
             field.setAccessible(true);
@@ -154,8 +157,21 @@ public class EvolutiveStrategy {
         }
         return true;
     }
+
+    private boolean isGenotypeValid(ModelParameters modelParameters){
+        return isGenotypeBetween0_1(modelParameters) && areValuesInOrder(modelParameters);
+    }
+
+    private boolean areValuesInOrder(ModelParameters modelParameters){
+        return modelParameters.influenciaVegetacaoCampestre() < modelParameters.influenciaVegetacaoFlorestal() &&
+                modelParameters.influenciaVegetacaoFlorestal() < modelParameters.influenciaVegetacaoSavanica()
+                &&
+                modelParameters.probEspalhamentoFogoQueimaLenta() < modelParameters.probEspalhamentoFogoInicial() &&
+                modelParameters.probEspalhamentoFogoInicial() < modelParameters.probEspalhamentoFogoArvoreQueimando();
+    }
+
     private Reticulado getReticulado(){
-        return new Reticulado(
+        return new Reticulado(new ReticuladoParameters(
                 List.of(new Tuple<>(ALTURA / 2, LARGURA / 2)),
                 ALTURA,
                 LARGURA,
@@ -163,6 +179,6 @@ public class EvolutiveStrategy {
                 DirecoesVento.N,
                 Estados.SAVANICA,
                 new GeradorLateral()
-        );
+        ));
     }
 }
