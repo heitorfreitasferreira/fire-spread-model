@@ -119,6 +119,4 @@ lattices/
 lattice/
 
 .idea
-./.idea/*
 ./target/
-./.idea/sonarlint/
