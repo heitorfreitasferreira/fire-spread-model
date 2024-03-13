@@ -64,8 +64,7 @@ public class Reticulado {
         this.matrizVento = new MatrizVento(1, 0.16, 0.03, params.direcaoVento());
         this.direcaoVento = params.direcaoVento();
 
-        this.tipoInicial = params.estadoInicial();
-        setupReticuladoInicial(params.estadoInicial(), params.ponto(), params.geradorTerreno());
+        setupReticuladoInicial(params.estados(), params.ponto(), params.geradorTerreno());
         this.iteracao = 0;
     }
 
@@ -127,21 +126,8 @@ public class Reticulado {
         return ret;
     }
 
-
-    protected String getFolderName() {
-        var formatter = new SimpleDateFormat("[dd-MM-yyyy_HH-mm]");
-        return "reticulados/"
-            + this.getTipoInicial()
-            + "/"
-            + this.getUmidade()
-            + "/"
-            + this.getDirecaoVento()
-            + "/"
-            + formatter.format(new Date());
-    }
-
     private void setupReticuladoInicial(
-        Estados estadoInicial, List<Tuple<Integer, Integer>> ponto, GeradorTerreno geradorTerreno) {
+        int[][] estadoInicial, List<Tuple<Integer, Integer>> ponto, GeradorTerreno geradorTerreno) {
         var terreno = geradorTerreno.gerarTerreno(altura, largura);
         for (int i = 0; i < altura + 1; i++) {
             for (int j = 0; j < largura + 1; j++) {
@@ -150,7 +136,7 @@ public class Reticulado {
                     this.reticulado[i][j] =
                         new Celula(Estados.AGUA, this, NO_SLOPE_INFLUENCE, new Tuple<>(i, j));
                 } else {
-                    this.reticulado[i][j] = new Celula(estadoInicial, this, terreno[i][j],
+                    this.reticulado[i][j] = new Celula(Estados.valueOf(estadoInicial[i][j]), this, terreno[i][j],
                         new Tuple<>(i, j));
                 }
             }
@@ -179,8 +165,6 @@ public class Reticulado {
                 + matrizVento
                 + ", \"modelo\": "
                 + (modelo == null ? "null" : modelo)
-                + ", \"tipoInicial\": \""
-                + tipoInicial
                 + "\" }";
     }
 

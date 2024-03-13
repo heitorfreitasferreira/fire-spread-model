@@ -1,6 +1,5 @@
 package model.reticulado;
 
-import model.estados.Estados;
 import model.terreno.GeradorTerreno;
 import model.utils.Tuple;
 import model.vento.DirecoesVento;
@@ -13,6 +12,6 @@ public record ReticuladoParameters(
         int largura,
         double umidade,
         DirecoesVento direcaoVento,
-        Estados estadoInicial,
+        int[][] estados,
         GeradorTerreno geradorTerreno) {
 }

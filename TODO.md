@@ -43,3 +43,7 @@ O arquivo de saída deve sair em `./tests/test.json` (segundo argumento para par
 
 - [ ] Daniele
 - [ ] ENIAC
+
+## Execução modo Yuri
+
+```-f <path-input> <path-output>```

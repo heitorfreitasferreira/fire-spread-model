@@ -6,6 +6,7 @@ import model.estados.Estados;
 import model.modelos.Heitorzera2;
 import model.modelos.ModelParameters;
 import model.reticulado.Reticulado;
+import model.reticulado.ReticuladoFactory;
 import model.reticulado.ReticuladoParameters;
 import model.terreno.GeradorLateral;
 import model.utils.RandomDoubleSingleton;
@@ -31,8 +32,8 @@ public class EvolutiveStrategy {
     static final int ALTURA = 32;
     static final int LARGURA = 32;
 
-    public EvolutiveStrategy(int[][][] objectiveSimulation){
-        this.POPULATION_SIZE = 1000;
+    public EvolutiveStrategy(int[][][] objectiveSimulation, int populationSize){
+        this.POPULATION_SIZE = populationSize;
 
         this.objectiveSimulation = objectiveSimulation;
         this.randomGenerator = RandomDoubleSingleton.getInstance(0);
@@ -177,7 +178,7 @@ public class EvolutiveStrategy {
                 LARGURA,
                 0.5, // Tanto faz pois o que importa é o ModelParameters
                 DirecoesVento.N,
-                Estados.SAVANICA,
+                ReticuladoFactory.getMatrizEstadosDeEstadoInicial(Estados.SAVANICA, ALTURA, LARGURA),
                 new GeradorLateral()
         ));
     }
