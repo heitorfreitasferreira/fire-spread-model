@@ -165,7 +165,7 @@ public class Reticulado {
                 + matrizVento
                 + ", \"modelo\": "
                 + (modelo == null ? "null" : modelo)
-                + "\" }";
+                + "}";
     }
 
 }
