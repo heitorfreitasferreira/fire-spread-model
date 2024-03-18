@@ -1,5 +1,9 @@
 package genetic;
 
+import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.List;
+
 import lombok.extern.java.Log;
 import model.estados.Estados;
 import model.modelos.Heitorzera2;
@@ -11,10 +15,6 @@ import model.terreno.GeradorLateral;
 import model.utils.RandomDoubleSingleton;
 import model.utils.Tuple;
 import model.vento.DirecoesVento;
-
-import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.List;
 
 @Log
 public class EvolutiveStrategy {
@@ -37,7 +37,8 @@ public class EvolutiveStrategy {
 
     private final GeneticAlgorithmParams params;
 
-    public EvolutiveStrategy(int[][][] objectiveSimulation, GeneticAlgorithmParams params, ReticuladoParameters reticuladoParameters) {
+    public EvolutiveStrategy(int[][][] objectiveSimulation, GeneticAlgorithmParams params,
+            ReticuladoParameters reticuladoParameters) {
         this.POPULATION_SIZE = params.populationSize();
         this.MUTATION_RATE = params.mutationRate();
         this.TOURNAMENT_K = params.tournamentSize();
@@ -109,7 +110,8 @@ public class EvolutiveStrategy {
             p1Fields[i].setAccessible(true);
             p2Fields[i].setAccessible(true);
             try {
-                double allele = this.crossOverBlxAlpha((double) p1Fields[i].get(parent1), (double) p2Fields[i].get(parent2));
+                double allele = this.crossOverBlxAlpha((double) p1Fields[i].get(parent1),
+                        (double) p2Fields[i].get(parent2));
                 childValues[i] = allele;
             } catch (IllegalAccessException e) {
                 log.severe("Error while accessing field in ModelParameters");
@@ -119,15 +121,17 @@ public class EvolutiveStrategy {
         mutateChromosome(childValues);
         return new ModelParameters(childValues);
     }
+
     private void mutateChromosome(double[] childValues) {
         boolean shouldMutate = randomGenerator.nextDouble() < MUTATION_PROB;
-        if(!shouldMutate) return;
+        if (!shouldMutate)
+            return;
         int alleleToMutate = randomGenerator.nextInt(childValues.length);
         childValues[alleleToMutate] = mutateAllele(childValues[alleleToMutate]);
     }
 
     private double mutateAllele(double allele) {
-        return  allele + randomGenerator.nextDouble(-MUTATION_RATE, MUTATION_RATE);
+        return allele + randomGenerator.nextDouble(-MUTATION_RATE, MUTATION_RATE);
     }
 
     private double crossOverBlxAlpha(double a, double b) {
@@ -143,20 +147,26 @@ public class EvolutiveStrategy {
             ModelParameters modelParameters = population.get(i).getFirst();
             ModelParameters newModelParameters = new ModelParameters(
                     modelParameters.influenciaUmidade() + randomGenerator.nextDouble(-MUTATION_RATE, MUTATION_RATE),
-                    modelParameters.probEspalhamentoFogoInicial() + randomGenerator.nextDouble(-MUTATION_RATE, MUTATION_RATE),
-                    modelParameters.probEspalhamentoFogoArvoreQueimando() + randomGenerator.nextDouble(-MUTATION_RATE, MUTATION_RATE),
-                    modelParameters.probEspalhamentoFogoQueimaLenta() + randomGenerator.nextDouble(-MUTATION_RATE, MUTATION_RATE),
-                    modelParameters.influenciaVegetacaoCampestre() + randomGenerator.nextDouble(-MUTATION_RATE, MUTATION_RATE),
-                    modelParameters.influenciaVegetacaoSavanica() + randomGenerator.nextDouble(-MUTATION_RATE, MUTATION_RATE),
-                    modelParameters.influenciaVegetacaoFlorestal() + randomGenerator.nextDouble(-MUTATION_RATE, MUTATION_RATE)
-            );
+                    modelParameters.probEspalhamentoFogoInicial()
+                            + randomGenerator.nextDouble(-MUTATION_RATE, MUTATION_RATE),
+                    modelParameters.probEspalhamentoFogoArvoreQueimando()
+                            + randomGenerator.nextDouble(-MUTATION_RATE, MUTATION_RATE),
+                    modelParameters.probEspalhamentoFogoQueimaLenta()
+                            + randomGenerator.nextDouble(-MUTATION_RATE, MUTATION_RATE),
+                    modelParameters.influenciaVegetacaoCampestre()
+                            + randomGenerator.nextDouble(-MUTATION_RATE, MUTATION_RATE),
+                    modelParameters.influenciaVegetacaoSavanica()
+                            + randomGenerator.nextDouble(-MUTATION_RATE, MUTATION_RATE),
+                    modelParameters.influenciaVegetacaoFlorestal()
+                            + randomGenerator.nextDouble(-MUTATION_RATE, MUTATION_RATE));
             population.add(new Tuple<>(newModelParameters, INVALID_FITNESS));
         }
     }
 
     private void calculateFitness() {
         population.parallelStream().forEach(individual -> {
-            if (individual.getSecond() != INVALID_FITNESS) return;
+            if (individual.getSecond() != INVALID_FITNESS)
+                return;
 
             ModelParameters modelParameters = individual.getFirst();
             if (!isGenotypeValid(modelParameters)) {
@@ -171,8 +181,8 @@ public class EvolutiveStrategy {
         });
     }
 
-    private void startPopulation(int size){
-        for(int i = 0; i < size; i++){
+    private void startPopulation(int size) {
+        for (int i = 0; i < size; i++) {
             ModelParameters modelParameters = new ModelParameters(
                     randomGenerator.nextDouble(),
                     randomGenerator.nextDouble(),
@@ -180,20 +190,19 @@ public class EvolutiveStrategy {
                     randomGenerator.nextDouble(),
                     randomGenerator.nextDouble(),
                     randomGenerator.nextDouble(),
-                    randomGenerator.nextDouble()
-            );
+                    randomGenerator.nextDouble());
             population.add(new Tuple<>(modelParameters, INVALID_FITNESS));
         }
     }
 
-    private Double compareOutputs(int[][][] simulation){
+    private Double compareOutputs(int[][][] simulation) {
         float fitness = 0;
         var reticulado = getReticulado();
-        float numberOfCells = (float)reticulado.getAltura() * reticulado.getLargura() * QNT_ITERACOES;
-        for(int i = 0; i < reticulado.getAltura(); i++){
-            for(int j = 0; j < reticulado.getLargura(); j++){
-                    for(int k = 0; k < QNT_ITERACOES; k++){
-                    if(simulation[k][i][j] == objectiveSimulation[k][i][j]){
+        float numberOfCells = (float) reticulado.getAltura() * reticulado.getLargura() * QNT_ITERACOES;
+        for (int i = 0; i < reticulado.getAltura(); i++) {
+            for (int j = 0; j < reticulado.getLargura(); j++) {
+                for (int k = 0; k < QNT_ITERACOES; k++) {
+                    if (simulation[k][i][j] == objectiveSimulation[k][i][j]) {
                         fitness++;
                     }
                 }
@@ -202,12 +211,12 @@ public class EvolutiveStrategy {
         return (double) (fitness / numberOfCells);
     }
 
-    private boolean isGenotypeBetween0_1(ModelParameters modelParameters){
+    private boolean isGenotypeBetween0_1(ModelParameters modelParameters) {
         Field[] fields = modelParameters.getClass().getDeclaredFields();
         for (Field field : fields) {
             field.setAccessible(true);
             try {
-                if ((double)field.get(modelParameters) < 0.0 || (double)field.get(modelParameters) > 1.0) {
+                if ((double) field.get(modelParameters) < 0.0 || (double) field.get(modelParameters) > 1.0) {
                     return false;
                 }
             } catch (IllegalAccessException e) {
@@ -217,11 +226,11 @@ public class EvolutiveStrategy {
         return true;
     }
 
-    private boolean isGenotypeValid(ModelParameters modelParameters){
+    private boolean isGenotypeValid(ModelParameters modelParameters) {
         return isGenotypeBetween0_1(modelParameters) && areValuesInOrder(modelParameters);
     }
 
-    private boolean areValuesInOrder(ModelParameters modelParameters){
+    private boolean areValuesInOrder(ModelParameters modelParameters) {
         return modelParameters.influenciaVegetacaoCampestre() < modelParameters.influenciaVegetacaoFlorestal() &&
                 modelParameters.influenciaVegetacaoFlorestal() < modelParameters.influenciaVegetacaoSavanica()
                 &&
@@ -229,7 +238,7 @@ public class EvolutiveStrategy {
                 modelParameters.probEspalhamentoFogoInicial() < modelParameters.probEspalhamentoFogoArvoreQueimando();
     }
 
-    private Reticulado getReticulado(){
+    private Reticulado getReticulado() {
         return new Reticulado(new ReticuladoParameters(
                 List.of(new Tuple<>(ALTURA / 2, LARGURA / 2)),
                 ALTURA,
@@ -238,7 +247,6 @@ public class EvolutiveStrategy {
                 DirecoesVento.N,
                 ReticuladoFactory.getMatrizEstadosDeEstadoInicial(Estados.SAVANICA, ALTURA, LARGURA),
                 new GeradorLateral(),
-                QNT_ITERACOES
-        ));
+                QNT_ITERACOES));
     }
 }

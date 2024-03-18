@@ -1,4 +1,9 @@
+import java.io.File;
+import java.io.PrintWriter;
+import java.util.List;
+
 import com.beust.jcommander.JCommander;
+
 import genetic.EvolutiveStrategy;
 import genetic.GeneticAlgorithmParams;
 import lombok.extern.java.Log;
@@ -12,14 +17,8 @@ import model.reticulado.ReticuladoParameters;
 import model.terreno.GeradorLateral;
 import model.utils.JsonFileHandler;
 import model.utils.MainArgs;
-import model.utils.RandomDoubleSingleton;
 import model.utils.Tuple;
 import model.vento.DirecoesVento;
-
-import java.io.File;
-import java.io.PrintWriter;
-import java.util.Arrays;
-import java.util.List;
 
 @Log
 public class Main {
@@ -27,8 +26,7 @@ public class Main {
   static final int ALTURA = 64;
   static final int LARGURA = 64;
 
-
-  public static void main(String ... argv) {
+  public static void main(String... argv) {
     MainArgs args = new MainArgs();
     JCommander.newBuilder().addObject(args).build().parse(argv);
 
@@ -47,14 +45,13 @@ public class Main {
     Reticulado reticulado = new Reticulado(reticuladoParams);
 
     ModelParameters modelParameters = new ModelParameters(
-            1.0,
-            0.6,
-            1.0,
-            0.2,
-            0.6,
-            1.0,
-            0.8
-    );
+        1.0,
+        0.6,
+        1.0,
+        0.2,
+        0.6,
+        1.0,
+        0.8);
 
     Modelo modelo = new Heitorzera2(modelParameters);
 
@@ -72,54 +69,51 @@ public class Main {
       log.severe(e.getMessage());
     }
     long end = System.currentTimeMillis();
-    log.info("Simulation finished in " + (end - start)  + " milliseconds.");
+    log.info("Simulation finished in " + (end - start) + " milliseconds.");
   }
 
   private static void algoritmoGenetico(MainArgs args) {
 
-      ReticuladoParameters reticuladoParams = new ReticuladoParameters(
-              List.of(new Tuple<>(ALTURA / 2, LARGURA / 2)),
-              ALTURA,
-              LARGURA,
-              0.5, // Tanto faz pois o que importa é o ModelParameters
-              DirecoesVento.N,
-              ReticuladoFactory.getMatrizEstadosDeEstadoInicial(Estados.SAVANICA, ALTURA, LARGURA),
-              new GeradorLateral(),
-              args.maxIterations
-      );
-      Reticulado reticulado = new Reticulado(reticuladoParams);
+    ReticuladoParameters reticuladoParams = new ReticuladoParameters(
+        List.of(new Tuple<>(ALTURA / 2, LARGURA / 2)),
+        ALTURA,
+        LARGURA,
+        0.5, // Tanto faz pois o que importa é o ModelParameters
+        DirecoesVento.N,
+        ReticuladoFactory.getMatrizEstadosDeEstadoInicial(Estados.SAVANICA, ALTURA, LARGURA),
+        new GeradorLateral(),
+        args.maxIterations);
+    Reticulado reticulado = new Reticulado(reticuladoParams);
 
-      ModelParameters modelParameters = new ModelParameters(
-              1.0,
-              0.6,
-              1.0,
-              0.2,
-              0.6,
-              1.0,
-              0.8
-      );
+    ModelParameters modelParameters = new ModelParameters(
+        1.0,
+        0.6,
+        1.0,
+        0.2,
+        0.6,
+        1.0,
+        0.8);
 
-      reticulado.setModelo(new Heitorzera2(modelParameters));
+    reticulado.setModelo(new Heitorzera2(modelParameters));
 
-      long start = System.currentTimeMillis();
-      var goal = reticulado.run();
-//    for (double i = 0.0; i < 1.0; i += 0.1) {
-      //      for (double j = 0.0; j<1.0; j+= 0.1) {
-        GeneticAlgorithmParams geneticAlgorithmParams = new GeneticAlgorithmParams(
-                args.numberOfGenerations,
-                args.populationSize,
-                args.mutationRate,
-                args.mutationProb,
-                args.crossoverRate,
-                args.elitismRate,
-                args.tournamentSize,
-                args.crossoverBlxAlpha
-        );
-        EvolutiveStrategy evolutiveStrategy = new EvolutiveStrategy(goal, geneticAlgorithmParams, reticuladoParams);
-        evolutiveStrategy.evolve();
-        long end = System.currentTimeMillis();
-        log.info("Simulation finished in " + (end - start) + " milliseconds.");
-//      }
-//    }
+    long start = System.currentTimeMillis();
+    var goal = reticulado.run();
+    // for (double i = 0.0; i < 1.0; i += 0.1) {
+    // for (double j = 0.0; j<1.0; j+= 0.1) {
+    GeneticAlgorithmParams geneticAlgorithmParams = new GeneticAlgorithmParams(
+        args.numberOfGenerations,
+        args.populationSize,
+        args.mutationRate,
+        args.mutationProb,
+        args.crossoverRate,
+        args.elitismRate,
+        args.tournamentSize,
+        args.crossoverBlxAlpha);
+    EvolutiveStrategy evolutiveStrategy = new EvolutiveStrategy(goal, geneticAlgorithmParams, reticuladoParams);
+    evolutiveStrategy.evolve();
+    long end = System.currentTimeMillis();
+    log.info("Simulation finished in " + (end - start) + " milliseconds.");
+    // }
+    // }
   }
 }

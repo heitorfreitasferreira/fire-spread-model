@@ -1,9 +1,5 @@
 package genetic;
 
-import lombok.extern.java.Log;
-import model.modelos.ModelParameters;
-import model.utils.Tuple;
-
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -15,6 +11,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+import lombok.extern.java.Log;
+import model.modelos.ModelParameters;
+import model.utils.Tuple;
+
 @Log
 public class Statistics {
     List<Double> bestFitness;
@@ -23,7 +23,7 @@ public class Statistics {
     List<Double> standardDeviation;
     List<ModelParameters> bestParameters;
 
-    public Statistics(){
+    public Statistics() {
         bestFitness = new ArrayList<>();
         averageFitness = new ArrayList<>();
         worstFitness = new ArrayList<>();
@@ -31,27 +31,27 @@ public class Statistics {
         bestParameters = new ArrayList<>();
     }
 
-    public void logToFile(GeneticAlgorithmParams params){
+    public void logToFile(GeneticAlgorithmParams params) {
         Path directory = Paths.get("model_evolution");
         try {
             if (!Files.exists(directory)) {
                 Files.createDirectory(directory);
             }
-        } catch (IOException e){
+        } catch (IOException e) {
             log.severe("Error creating directory");
         }
 
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss");
-        String filename = "statistics_"+
-                params.numberOfGenerations()+
-                "gens_"+params.populationSize()+
-                "pop_"+params.tournamentSize()+
-                "k_"+params.mutationRate()+
-                "mutRate_"+
-                "blxalpha_"+
-                params.crossoverBlxAlpha()+
-                "date_"+
-                LocalDateTime.now().format(formatter)+
+        String filename = "statistics_" +
+                params.numberOfGenerations() +
+                "gens_" + params.populationSize() +
+                "pop_" + params.tournamentSize() +
+                "k_" + params.mutationRate() +
+                "mutRate_" +
+                "blxalpha_" +
+                params.crossoverBlxAlpha() +
+                "date_" +
+                LocalDateTime.now().format(formatter) +
                 ".csv";
         Path file = directory.resolve(filename);
         try (BufferedWriter writer = Files.newBufferedWriter(file)) {
@@ -83,12 +83,12 @@ public class Statistics {
         }
         bestFitness.add(best);
         worstFitness.add(worst);
-        averageFitness.add(sum/population.size());
+        averageFitness.add(sum / population.size());
         double variance = 0;
         for (Tuple<ModelParameters, Double> tuple : population) {
-            variance += Math.pow(tuple.getSecond() - averageFitness.get(averageFitness.size()-1), 2);
+            variance += Math.pow(tuple.getSecond() - averageFitness.get(averageFitness.size() - 1), 2);
         }
-        standardDeviation.add(Math.sqrt(variance/population.size()));
+        standardDeviation.add(Math.sqrt(variance / population.size()));
         bestParameters.add(population.get(0).getFirst());
     }
 }

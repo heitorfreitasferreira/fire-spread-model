@@ -1,11 +1,11 @@
 package model.analise;
 
-import lombok.extern.java.Log;
-import model.reticulado.Reticulado;
-
 import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+
+import lombok.extern.java.Log;
+import model.reticulado.Reticulado;
 
 @Log
 public abstract class Analisador {
@@ -14,7 +14,8 @@ public abstract class Analisador {
     protected final Reticulado reticulado;
 
     Analisador(Reticulado reticulado, String pathToFolder) {
-        if (reticulado == null) throw new NullPointerException("Reticulado não pode ser nulo");
+        if (reticulado == null)
+            throw new NullPointerException("Reticulado não pode ser nulo");
         this.pathToFolder = pathToFolder;
         this.reticulado = reticulado;
     }
@@ -34,7 +35,7 @@ public abstract class Analisador {
         return file;
     }
 
-    protected String getFolderName(){
+    protected String getFolderName() {
         var formatter = new SimpleDateFormat("[dd-MM-yyyy_HH-mm]");
         return "simulacoes/" +
                 reticulado.getTipoInicial() +
@@ -44,17 +45,18 @@ public abstract class Analisador {
                 reticulado.getDirecaoVento() +
                 "/" +
                 formatter.format(new Date());
-//                + "/simulation_" +
-//                reticulado.getExecucaoAtual();
+        // + "/simulation_" +
+        // reticulado.getExecucaoAtual();
     }
 
-    protected File getFolder(){
+    protected File getFolder() {
         var folder = new File(getFolderName());
-        if (!folder.exists()) folder.mkdirs();
+        if (!folder.exists())
+            folder.mkdirs();
         return folder;
     }
 
     protected String getFileName() {
-        return "simulacao_"+".json";
+        return "simulacao_" + ".json";
     }
 }

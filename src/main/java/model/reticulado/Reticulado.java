@@ -1,29 +1,23 @@
 package model.reticulado;
 
-import com.google.gson.JsonObject;
-import java.io.IOException;
-import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.List;
 
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.java.Log;
-import model.analise.observers.SubPegouFogo;
-import model.analise.observers.SubReticuladoAvancou;
-import model.analise.observers.SubReticuladoTerminou;
 import model.estados.Celula;
 import model.estados.Estados;
-import model.modelos.Heitorzera2;
 import model.modelos.Modelo;
-import model.terreno.GeradorLateral;
 import model.terreno.GeradorTerreno;
 import model.utils.Tuple;
 import model.vento.DirecoesVento;
 import model.vento.MatrizVento;
 
 /**
- * This class represents a grid of cells used in a fire spread simulation. It implements the
- * Runnable interface, allowing it to be executed in a separate thread. It uses the observer pattern
+ * This class represents a grid of cells used in a fire spread simulation. It
+ * implements the
+ * Runnable interface, allowing it to be executed in a separate thread. It uses
+ * the observer pattern
  * to notify other objects when the state of the grid changes.
  */
 @Getter
@@ -45,7 +39,8 @@ public class Reticulado {
     private Estados tipoInicial;
 
     /**
-     * Constructor for the Reticulado class. Initializes the grid of cells and sets the initial
+     * Constructor for the Reticulado class. Initializes the grid of cells and sets
+     * the initial
      * values for the variables.
      */
     public Reticulado(ReticuladoParameters params) {
@@ -81,10 +76,9 @@ public class Reticulado {
     }
 
     public void avanzarIteracion() {
-        int neighborhoodSize = 3; //getRadiusMatrixSize();
+        int neighborhoodSize = 3; // getRadiusMatrixSize();
         int halfSize = neighborhoodSize / 2;
-        Celula aguaCelula =
-            new Celula(Estados.AGUA, this, 0.0,
+        Celula aguaCelula = new Celula(Estados.AGUA, this, 0.0,
                 new Tuple<>(0, 0)); // Example tuple, adjust as needed
 
         for (int i = 0; i < altura; ++i) {
@@ -116,7 +110,8 @@ public class Reticulado {
 
     public int[][][] run() throws IllegalStateException {
         int[][][] ret = new int[QNT_ITERACOES][altura][largura];
-        if (modelo == null) throw new IllegalStateException("Modelo não foi setado");
+        if (modelo == null)
+            throw new IllegalStateException("Modelo não foi setado");
         for (int i = 0; i < QNT_ITERACOES; i++) {
             avanzarIteracion();
             ret[i] = getReticulado();
@@ -127,23 +122,22 @@ public class Reticulado {
     }
 
     private void setupReticuladoInicial(
-        int[][] estadoInicial, List<Tuple<Integer, Integer>> ponto, GeradorTerreno geradorTerreno) {
+            int[][] estadoInicial, List<Tuple<Integer, Integer>> ponto, GeradorTerreno geradorTerreno) {
         var terreno = geradorTerreno.gerarTerreno(altura, largura);
         for (int i = 0; i < altura + 1; i++) {
             for (int j = 0; j < largura + 1; j++) {
                 if (i == altura || j == largura) {
                     var NO_SLOPE_INFLUENCE = 0.0;
-                    this.reticulado[i][j] =
-                        new Celula(Estados.AGUA, this, NO_SLOPE_INFLUENCE, new Tuple<>(i, j));
+                    this.reticulado[i][j] = new Celula(Estados.AGUA, this, NO_SLOPE_INFLUENCE, new Tuple<>(i, j));
                 } else {
                     this.reticulado[i][j] = new Celula(Estados.valueOf(estadoInicial[i][j]), this, terreno[i][j],
-                        new Tuple<>(i, j));
+                            new Tuple<>(i, j));
                 }
             }
         }
         for (Tuple<Integer, Integer> p : ponto) {
             this.reticulado[p.i][p.j] = new Celula(Estados.INICIO_FOGO, this, terreno[p.i][p.j],
-                new Tuple<>(p.i, p.j));
+                    new Tuple<>(p.i, p.j));
         }
     }
 

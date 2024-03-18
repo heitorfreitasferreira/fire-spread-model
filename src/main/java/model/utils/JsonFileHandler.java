@@ -7,12 +7,13 @@ import java.io.PrintWriter;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+
 import lombok.extern.java.Log;
 
 @Log
 public class JsonFileHandler {
 
-    public JsonObject readJson(String path)  {
+    public JsonObject readJson(String path) {
         try (BufferedReader reader = new BufferedReader(new FileReader(path))) {
             // Create a BufferedReader to read from stdin
 

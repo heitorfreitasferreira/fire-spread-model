@@ -1,6 +1,7 @@
 package model.estados;
 
 import java.util.List;
+
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
@@ -14,6 +15,7 @@ public enum Estados {
     FLORESTAL(6, "florestal"),
     AGUA(7, "agua"),
     RAIZ(8, "raiz");
+
     public final int VALOR;
     public final String NOME;
 

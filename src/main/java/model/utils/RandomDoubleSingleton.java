@@ -28,6 +28,7 @@ public class RandomDoubleSingleton {
     public double nextDouble() {
         return this.random.nextDouble();
     }
+
     public double nextDouble(double initial, double end) {
         return this.random.nextDouble() * (end - initial) + initial;
     }

@@ -1,8 +1,5 @@
 package model.modelos;
 
-
-import java.util.List;
-
 public record ModelParameters(
         double influenciaUmidade,
         double probEspalhamentoFogoInicial,
@@ -10,8 +7,7 @@ public record ModelParameters(
         double probEspalhamentoFogoQueimaLenta,
         double influenciaVegetacaoCampestre,
         double influenciaVegetacaoSavanica,
-        double influenciaVegetacaoFlorestal
-) {
+        double influenciaVegetacaoFlorestal) {
 
     @Override
     public String toString() {
@@ -34,7 +30,6 @@ public record ModelParameters(
                 values[3],
                 values[4],
                 values[5],
-                values[6]
-        );
+                values[6]);
     }
 }
