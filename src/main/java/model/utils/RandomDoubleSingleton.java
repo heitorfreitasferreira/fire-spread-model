@@ -18,6 +18,13 @@ public class RandomDoubleSingleton {
         return instance;
     }
 
+    public static RandomDoubleSingleton getInstance() {
+        if (instance == null) {
+            instance = new RandomDoubleSingleton(System.currentTimeMillis());
+        }
+        return instance;
+    }
+
     public double nextDouble() {
         return this.random.nextDouble();
     }
@@ -32,4 +39,5 @@ public class RandomDoubleSingleton {
     public double nextGaussian() {
         return this.random.nextGaussian();
     }
+
 }

@@ -35,7 +35,7 @@ public class Heitorzera2 implements Modelo {
      * values for the variables.
      */
     public Heitorzera2(ModelParameters params) {
-        this.randomGenerator = RandomDoubleSingleton.getInstance(0);
+        this.randomGenerator = RandomDoubleSingleton.getInstance();
         setInfluenciaVegetacao(params);
         setProbEspalhamentoFogo(params);
         setTransicoes();

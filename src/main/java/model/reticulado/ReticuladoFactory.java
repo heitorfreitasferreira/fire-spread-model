@@ -30,7 +30,7 @@ public class ReticuladoFactory {
         return ret;
     }
 
-    public static ReticuladoParameters fromJson(JsonObject json) {
+    public static ReticuladoParameters fromJson(JsonObject json, int quantidadeIteracoes) {
 
             // Get parameters from json:
 
@@ -68,7 +68,7 @@ public class ReticuladoFactory {
                 }
             }
 
-            return new ReticuladoParameters(initialPoints, terrainArray.length, terrainArray[0].length, humidity, windDirection, terrainArray, new GeradorDeMatriz(slopeArray));
+            return new ReticuladoParameters(initialPoints, terrainArray.length, terrainArray[0].length, humidity, windDirection, terrainArray, new GeradorDeMatriz(slopeArray), quantidadeIteracoes);
         }
 
 }

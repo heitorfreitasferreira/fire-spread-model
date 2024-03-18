@@ -14,8 +14,30 @@ public class MainArgs {
     public String outputFilePath = "./output.json";
 
     @Parameter(names = "--number-of-generations")
-    public int numberOfGenerations = 100;
+    public int numberOfGenerations = 20;
 
     @Parameter(names = "--population-size")
     public int populationSize = 100;
+
+    @Parameter(names = "--mutation-rate")
+    public double mutationRate = 0.1;
+
+    @Parameter(names = "--mutation-prob")
+    public double mutationProb = 0.1;
+
+    @Parameter(names = "--crossover-rate")
+    public double crossoverRate = 0.9;
+
+    @Parameter(names = "--elitism-rate")
+    public double elitismRate = 0.1;
+
+    @Parameter(names = "--tournament-size")
+    public int tournamentSize = 2;
+
+    @Parameter(names = "--max-iterations")
+    public int maxIterations = 100;
+
+    @Parameter(names = "--crossover-blx-alpha")
+    public double crossoverBlxAlpha = 0.001;
+
 }

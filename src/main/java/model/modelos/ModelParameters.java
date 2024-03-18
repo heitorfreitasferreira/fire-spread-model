@@ -1,6 +1,8 @@
 package model.modelos;
 
 
+import java.util.List;
+
 public record ModelParameters(
         double influenciaUmidade,
         double probEspalhamentoFogoInicial,
@@ -22,5 +24,17 @@ public record ModelParameters(
                 influenciaVegetacaoSavanica + "|" +
                 influenciaVegetacaoFlorestal
                 + ")";
+    }
+
+    public ModelParameters(double[] values) {
+        this(
+                values[0],
+                values[1],
+                values[2],
+                values[3],
+                values[4],
+                values[5],
+                values[6]
+        );
     }
 }

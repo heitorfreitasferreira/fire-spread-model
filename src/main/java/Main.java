@@ -1,5 +1,6 @@
 import com.beust.jcommander.JCommander;
 import genetic.EvolutiveStrategy;
+import genetic.GeneticAlgorithmParams;
 import lombok.extern.java.Log;
 import model.estados.Estados;
 import model.modelos.Heitorzera2;
@@ -41,7 +42,7 @@ public class Main {
 
   private static void singleSimulation(MainArgs args) {
 
-    ReticuladoParameters reticuladoParams = ReticuladoFactory.fromJson(args.inputFile);
+    ReticuladoParameters reticuladoParams = ReticuladoFactory.fromJson(args.inputFile, args.maxIterations);
 
     Reticulado reticulado = new Reticulado(reticuladoParams);
 
@@ -76,34 +77,49 @@ public class Main {
 
   private static void algoritmoGenetico(MainArgs args) {
 
-    RandomDoubleSingleton randomGenerator = RandomDoubleSingleton.getInstance(0);
-    Reticulado reticulado = new Reticulado(new ReticuladoParameters(
-            List.of(new Tuple<>(ALTURA / 2, LARGURA / 2)),
-            ALTURA,
-            LARGURA,
-            0.5, // Tanto faz pois o que importa é o ModelParameters
-            DirecoesVento.N,
-            ReticuladoFactory.getMatrizEstadosDeEstadoInicial(Estados.SAVANICA, ALTURA, LARGURA),
-            new GeradorLateral()
-    ));
+      ReticuladoParameters reticuladoParams = new ReticuladoParameters(
+              List.of(new Tuple<>(ALTURA / 2, LARGURA / 2)),
+              ALTURA,
+              LARGURA,
+              0.5, // Tanto faz pois o que importa é o ModelParameters
+              DirecoesVento.N,
+              ReticuladoFactory.getMatrizEstadosDeEstadoInicial(Estados.SAVANICA, ALTURA, LARGURA),
+              new GeradorLateral(),
+              args.maxIterations
+      );
+      Reticulado reticulado = new Reticulado(reticuladoParams);
 
-    ModelParameters modelParameters = new ModelParameters(
-            1.0,
-            0.6,
-            1.0,
-            0.2,
-            0.6,
-            1.0,
-            0.8
-    );
+      ModelParameters modelParameters = new ModelParameters(
+              1.0,
+              0.6,
+              1.0,
+              0.2,
+              0.6,
+              1.0,
+              0.8
+      );
 
-    reticulado.setModelo(new Heitorzera2(modelParameters));
+      reticulado.setModelo(new Heitorzera2(modelParameters));
 
-    long start = System.currentTimeMillis();
-    var goal = reticulado.run();
-    EvolutiveStrategy evolutiveStrategy = new EvolutiveStrategy(goal, args.populationSize);
-    evolutiveStrategy.evolve(args.numberOfGenerations);
-    long end = System.currentTimeMillis();
-    log.info("Simulation finished in " + (end - start)  + " milliseconds.");
+      long start = System.currentTimeMillis();
+      var goal = reticulado.run();
+//    for (double i = 0.0; i < 1.0; i += 0.1) {
+      //      for (double j = 0.0; j<1.0; j+= 0.1) {
+        GeneticAlgorithmParams geneticAlgorithmParams = new GeneticAlgorithmParams(
+                args.numberOfGenerations,
+                args.populationSize,
+                args.mutationRate,
+                args.mutationProb,
+                args.crossoverRate,
+                args.elitismRate,
+                args.tournamentSize,
+                args.crossoverBlxAlpha
+        );
+        EvolutiveStrategy evolutiveStrategy = new EvolutiveStrategy(goal, geneticAlgorithmParams, reticuladoParams);
+        evolutiveStrategy.evolve();
+        long end = System.currentTimeMillis();
+        log.info("Simulation finished in " + (end - start) + " milliseconds.");
+//      }
+//    }
   }
 }

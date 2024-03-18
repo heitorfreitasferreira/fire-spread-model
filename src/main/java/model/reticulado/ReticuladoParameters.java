@@ -13,5 +13,6 @@ public record ReticuladoParameters(
         double umidade,
         DirecoesVento direcaoVento,
         int[][] estados,
-        GeradorTerreno geradorTerreno) {
+        GeradorTerreno geradorTerreno,
+        int QNT_ITERACOES) {
 }

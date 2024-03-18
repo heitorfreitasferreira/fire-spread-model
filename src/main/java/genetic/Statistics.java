@@ -13,6 +13,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @Log
 public class Statistics {
@@ -30,7 +31,7 @@ public class Statistics {
         bestParameters = new ArrayList<>();
     }
 
-    public void logToFile(int generations, int populationSize, int tournamentK, double mutationRate){
+    public void logToFile(GeneticAlgorithmParams params){
         Path directory = Paths.get("model_evolution");
         try {
             if (!Files.exists(directory)) {
@@ -41,7 +42,17 @@ public class Statistics {
         }
 
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss");
-        String filename = "statistics_"+generations+"gens_"+populationSize+"pop_"+tournamentK+"k_"+mutationRate +"mutRate" +"date_"+ LocalDateTime.now().format(formatter) + ".csv";
+        String filename = "statistics_"+
+                params.numberOfGenerations()+
+                "gens_"+params.populationSize()+
+                "pop_"+params.tournamentSize()+
+                "k_"+params.mutationRate()+
+                "mutRate_"+
+                "blxalpha_"+
+                params.crossoverBlxAlpha()+
+                "date_"+
+                LocalDateTime.now().format(formatter)+
+                ".csv";
         Path file = directory.resolve(filename);
         try (BufferedWriter writer = Files.newBufferedWriter(file)) {
             writer.write("Best Fitness,Average Fitness,Worst Fitness,Standard Deviation,Best Parameters\n");
@@ -65,7 +76,7 @@ public class Statistics {
             if (tuple.getSecond() < best) {
                 best = tuple.getSecond();
             }
-            if (tuple.getSecond() > worst) {
+            if (tuple.getSecond() > worst && !Objects.equals(tuple.getSecond(), EvolutiveStrategy.ZERO_FITNESS)) {
                 worst = tuple.getSecond();
             }
             sum += tuple.getSecond();

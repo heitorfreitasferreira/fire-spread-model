@@ -8,7 +8,6 @@ import java.util.*;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.java.Log;
-import model.analise.Bruto;
 import model.analise.observers.SubPegouFogo;
 import model.analise.observers.SubReticuladoAvancou;
 import model.analise.observers.SubReticuladoTerminou;
@@ -31,7 +30,7 @@ import model.vento.MatrizVento;
 @Log
 public class Reticulado {
 
-    public static final int QNT_ITERACOES = 100;
+    public final int QNT_ITERACOES;
     @Getter
     private final DirecoesVento direcaoVento;
     private Celula[][] reticulado;
@@ -54,6 +53,7 @@ public class Reticulado {
         if (params.altura() < 16) {
             throw new IllegalArgumentException("Tamanho do reticulado deve ser maior que 16");
         }
+        this.QNT_ITERACOES = params.QNT_ITERACOES();
         this.altura = params.altura();
         this.largura = params.largura();
         if (params.umidade() < 0 || params.umidade() > 1) {
