@@ -1,22 +1,5 @@
 # TODOS
 
-## Correções Yuri
-
-- [ ] Adequar construtor para Reticulado criado a partir de JSON
-- [ ] Corrigir saída quando simulação é executada a partir de JSON
-  - Deve sair todas as estapas da simulação em um array de matriz
-  - O arquivo de saída deve ser o especificado no argumento de linha de comando
-  - Não gerar arquivos adicionais além do especificado
-
-### Testes
-Para testar, gere um arquivo JAR na raíz do projeto e execute o seguinte comando para utilizar o arquivo de input na pasta `tests`:
-
-```bash
-java -jar <arquivo-jar> -f ./tests/input.json ./tests/test.json
-```
-O arquivo de entrada deve ser `./tests/input.json` (primeiro argumento para parametro -f).
-O arquivo de saída deve sair em `./tests/test.json` (segundo argumento para parametro -f).
-
 ## Otimizações
 
 - [x] Temporizador pra contar o tempo de execução
@@ -26,8 +9,9 @@ O arquivo de saída deve sair em `./tests/test.json` (segundo argumento para par
 - [ ] Paralelizar as execuções em threads multiplas de 8
   - [ ] Ir alocan``do as threads de acordo com o final das simulações
 - [ ] Usar os dados do reticulado pra setar a seed dos numeros aleatorios
-- [ ] Simplificar construtor de reticulado
+- [x] Simplificar construtor de reticulado
 - [ ] [ndvi](https://www.myfarm.com.br/ndvi/)
+
 ## Melhorias no modelo
 
 - [x] Matriz retangular não quadrada
@@ -39,11 +23,11 @@ O arquivo de saída deve sair em `./tests/test.json` (segundo argumento para par
   - [ ] Não criar um novo reticulado
     - Usar o mesmo reticulado, ir diminuindo a prob de acordo com a distância da central
 
+## Algoritmo Genético
+
+- [ ] Identificar por que o algoritmo genético está convergindo tão rapido e na inicialização randomica já nasce um valor muito bom
+
 ## Artigos e leituras
 
 - [ ] Daniele
 - [ ] ENIAC
-
-## Execução modo Yuri
-
-```-f <path-input> <path-output>```

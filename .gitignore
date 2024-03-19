@@ -113,10 +113,9 @@ replay_pid*
 
 # Especificos do projeto
 
-reticulados/
-reticulado/
-lattices/
-lattice/
+simulator/reticulados/
+simulator/reticulado/
+simulator/lattices/
+simulator/lattice/
 
-.idea
-./target/
+simulator/target/
