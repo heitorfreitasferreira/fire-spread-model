@@ -4,6 +4,9 @@
 # Simulações
 simulacoes/*
 
+# Vscode
+.vscode/*
+
 # Sonar
 .idea/sonarlint/*
 AutomatoCelularIncendio.iml
@@ -119,3 +122,5 @@ simulator/lattices/
 simulator/lattice/
 
 simulator/target/
+
+fire_source_detection/dados_inmet_2023
