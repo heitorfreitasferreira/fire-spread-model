@@ -108,7 +108,8 @@ public class Main {
         args.crossoverRate,
         args.elitismRate,
         args.tournamentSize,
-        args.crossoverBlxAlpha);
+        args.crossoverBlxAlpha,
+        args.numberOfSimulationsPerFitness);
     EvolutiveStrategy evolutiveStrategy = new EvolutiveStrategy(goal, geneticAlgorithmParams, reticuladoParams);
     evolutiveStrategy.evolve();
     long end = System.currentTimeMillis();

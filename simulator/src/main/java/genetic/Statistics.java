@@ -32,7 +32,7 @@ public class Statistics {
     }
 
     public void logToFile(GeneticAlgorithmParams params) {
-        Path directory = Paths.get("model_evolution");
+        Path directory = Paths.get("../model_evolution");
         try {
             if (!Files.exists(directory)) {
                 Files.createDirectory(directory);
@@ -43,18 +43,20 @@ public class Statistics {
 
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss");
         String filename = "statistics_" +
-                params.numberOfGenerations() +
-                "gens_" + params.populationSize() +
-                "pop_" + params.tournamentSize() +
-                "k_" + params.mutationRate() +
-                "mutRate_" +
-                "blxalpha_" +
-                params.crossoverBlxAlpha() +
-                "date_" +
+        // params.numberOfGenerations() +
+        // "gens_" + params.populationSize() +
+        // "pop_" + params.tournamentSize() +
+        // "k_" + params.mutationRate() +
+        // "mutRate_" +
+        // "blxalpha_" +
+        // params.crossoverBlxAlpha() +
+        // "date_" +
                 LocalDateTime.now().format(formatter) +
                 ".csv";
+        String metadata = "#" + params.toString() + "\n";
         Path file = directory.resolve(filename);
         try (BufferedWriter writer = Files.newBufferedWriter(file)) {
+            writer.write(metadata);
             writer.write("Best Fitness,Average Fitness,Worst Fitness,Standard Deviation,Best Parameters\n");
             for (int i = 0; i < bestFitness.size(); i++) {
                 writer.write(bestFitness.get(i) + ",");
@@ -69,14 +71,14 @@ public class Statistics {
     }
 
     public void updateStatistics(List<Tuple<ModelParameters, Double>> population) {
-        double best = Double.MAX_VALUE;
-        double worst = Double.MIN_VALUE;
+        double best = Double.MIN_VALUE;
+        double worst = Double.MAX_VALUE;
         double sum = 0;
         for (Tuple<ModelParameters, Double> tuple : population) {
-            if (tuple.getSecond() < best) {
+            if (tuple.getSecond() > best) {
                 best = tuple.getSecond();
             }
-            if (tuple.getSecond() > worst && !Objects.equals(tuple.getSecond(), EvolutiveStrategy.ZERO_FITNESS)) {
+            if (tuple.getSecond() < worst && !Objects.equals(tuple.getSecond(), EvolutiveStrategy.ZERO_FITNESS)) {
                 worst = tuple.getSecond();
             }
             sum += tuple.getSecond();

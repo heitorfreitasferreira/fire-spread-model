@@ -173,12 +173,48 @@ public class EvolutiveStrategy {
                 individual.setSecond(ZERO_FITNESS); // Penalize invalid individuals
                 return;
             }
-            Reticulado reticulado = getReticulado();
-            reticulado.setModelo(new Heitorzera2(modelParameters));
-            int[][][] simulation = reticulado.run();
-            Double fitness = compareOutputs(simulation);
+            int[][][][] simulations = runManySimulations(params.numberOfSimulationsPerFitness());
+            int[][][] simulationMode = getModeOfSimulations(simulations);
+            Double fitness = compareOutputs(simulationMode);
             individual.setSecond(fitness);
         });
+    }
+
+    private int[][][][] runManySimulations(int numberOfSimulations) {
+        int[][][][] simulations = new int[numberOfSimulations][QNT_ITERACOES][ALTURA][LARGURA];
+        for (int i = 0; i < numberOfSimulations; i++) {
+            Reticulado reticulado = getReticulado();
+            ModelParameters modelParameters = population.get(i).getFirst();
+            reticulado.setModelo(new Heitorzera2(modelParameters));
+            simulations[i] = reticulado.run();
+        }
+        return simulations;
+    }
+
+    private int getMaxIndex(int[] array) {
+        int maxIndex = 0;
+        for (int i = 1; i < array.length; i++) {
+            if (array[i] > array[maxIndex]) {
+                maxIndex = i;
+            }
+        }
+        return maxIndex;
+    }
+
+    private int[][][] getModeOfSimulations(int[][][][] simulations) {
+        int[][][] mode = new int[QNT_ITERACOES][ALTURA][LARGURA];
+        for (int i = 0; i < QNT_ITERACOES; i++) {
+            for (int j = 0; j < ALTURA; j++) {
+                for (int k = 0; k < LARGURA; k++) {
+                    int[] count = new int[Estados.values().length];
+                    for (int l = 0; l < simulations.length; l++) {
+                        count[simulations[l][i][j][k]]++;
+                    }
+                    mode[i][j][k] = simulations[getMaxIndex(count)][i][j][k];
+                }
+            }
+        }
+        return mode;
     }
 
     private void startPopulation(int size) {

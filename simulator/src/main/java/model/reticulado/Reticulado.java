@@ -108,6 +108,11 @@ public class Reticulado {
         }
     }
 
+    /*
+     * Runs the simulation for the specified number of iterations. Returns a 3D
+     * array containing the state of the grid at each iteration.
+     * int[][][] ret = new int[QNT_ITERACOES][altura][largura]
+     */
     public int[][][] run() throws IllegalStateException {
         int[][][] ret = new int[QNT_ITERACOES][altura][largura];
         if (modelo == null)

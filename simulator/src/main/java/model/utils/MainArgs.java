@@ -17,7 +17,7 @@ public class MainArgs {
     public int numberOfGenerations = 20;
 
     @Parameter(names = "--population-size")
-    public int populationSize = 100;
+    public int populationSize = 30;
 
     @Parameter(names = "--mutation-rate")
     public double mutationRate = 0.1;
@@ -40,4 +40,6 @@ public class MainArgs {
     @Parameter(names = "--crossover-blx-alpha")
     public double crossoverBlxAlpha = 0.001;
 
+    @Parameter(names = "--number-of-simulations-per-fitness")
+    public int numberOfSimulationsPerFitness = 30;
 }
