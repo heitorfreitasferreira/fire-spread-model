@@ -1,11 +1,16 @@
 import java.io.File;
 import java.io.PrintWriter;
 import java.util.List;
+import java.util.Map;
+import java.util.HashMap;
 
 import com.beust.jcommander.JCommander;
 
 import genetic.EvolutiveStrategy;
 import genetic.GeneticAlgorithmParams;
+import genetic.reproductors.Reproductor;
+import genetic.reproductors.ReprodutorAssexuado;
+import genetic.reproductors.ReprodutorSexuado;
 import lombok.extern.java.Log;
 import model.estados.Estados;
 import model.modelos.Heitorzera2;
@@ -110,7 +115,15 @@ public class Main {
         args.tournamentSize,
         args.crossoverBlxAlpha,
         args.numberOfSimulationsPerFitness);
-    EvolutiveStrategy evolutiveStrategy = new EvolutiveStrategy(goal, geneticAlgorithmParams, reticuladoParams);
+    Map<String, Reproductor> reproductores = new HashMap<>() {
+      {
+        put("assexuado", new ReprodutorAssexuado(geneticAlgorithmParams));
+        put("sexuado", new ReprodutorSexuado(geneticAlgorithmParams));
+      }
+    };
+
+    EvolutiveStrategy evolutiveStrategy = new EvolutiveStrategy(goal, geneticAlgorithmParams, reticuladoParams,
+        reproductores.get(args.typeOfReproduction));
     evolutiveStrategy.evolve();
     long end = System.currentTimeMillis();
     log.info("Simulation finished in " + (end - start) + " milliseconds.");

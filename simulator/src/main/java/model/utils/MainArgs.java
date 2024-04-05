@@ -42,4 +42,7 @@ public class MainArgs {
 
     @Parameter(names = "--number-of-simulations-per-fitness")
     public int numberOfSimulationsPerFitness = 30;
+
+    @Parameter(names = "--type-of-reproduction")
+    public String typeOfReproduction = "sexuado";
 }
