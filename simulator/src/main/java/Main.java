@@ -2,7 +2,6 @@ import java.io.File;
 import java.io.PrintWriter;
 import java.util.List;
 import java.util.Map;
-import java.util.HashMap;
 
 import com.beust.jcommander.JCommander;
 
@@ -15,7 +14,6 @@ import lombok.extern.java.Log;
 import model.estados.Estados;
 import model.modelos.Heitorzera2;
 import model.modelos.ModelParameters;
-import model.modelos.Modelo;
 import model.reticulado.Reticulado;
 import model.reticulado.ReticuladoFactory;
 import model.reticulado.ReticuladoParameters;
@@ -44,23 +42,16 @@ public class Main {
   }
 
   private static void singleSimulation(MainArgs args) {
-
-    ReticuladoParameters reticuladoParams = ReticuladoFactory.fromJson(args.inputFile, args.maxIterations);
-
-    Reticulado reticulado = new Reticulado(reticuladoParams);
-
-    ModelParameters modelParameters = new ModelParameters(
-        1.0,
-        0.6,
-        1.0,
-        0.2,
-        0.6,
-        1.0,
-        0.8);
-
-    Modelo modelo = new Heitorzera2(modelParameters);
-
-    reticulado.setModelo(modelo);
+    Reticulado reticulado = new Reticulado(
+        ReticuladoFactory.fromJson(args.inputFile, args.maxIterations))
+        .setModelo(new Heitorzera2(new ModelParameters(
+            1.0,
+            0.6,
+            1.0,
+            0.2,
+            0.6,
+            1.0,
+            0.8)));
 
     long start = System.currentTimeMillis();
     int[][][] simulation = reticulado.run();
@@ -88,23 +79,17 @@ public class Main {
         ReticuladoFactory.getMatrizEstadosDeEstadoInicial(Estados.SAVANICA, ALTURA, LARGURA),
         new GeradorLateral(),
         args.maxIterations);
-    Reticulado reticulado = new Reticulado(reticuladoParams);
 
-    ModelParameters modelParameters = new ModelParameters(
-        1.0,
-        0.6,
-        1.0,
-        0.2,
-        0.6,
-        1.0,
-        0.8);
+    Reticulado reticulado = Reticulado.getInstance(reticuladoParams, new Heitorzera2(
+        new ModelParameters(
+            1.0,
+            0.6,
+            1.0,
+            0.2,
+            0.6,
+            1.0,
+            0.8)));
 
-    reticulado.setModelo(new Heitorzera2(modelParameters));
-
-    long start = System.currentTimeMillis();
-    var goal = reticulado.run();
-    // for (double i = 0.0; i < 1.0; i += 0.1) {
-    // for (double j = 0.0; j<1.0; j+= 0.1) {
     GeneticAlgorithmParams geneticAlgorithmParams = new GeneticAlgorithmParams(
         args.numberOfGenerations,
         args.populationSize,
@@ -115,19 +100,22 @@ public class Main {
         args.tournamentSize,
         args.crossoverBlxAlpha,
         args.numberOfSimulationsPerFitness);
-    Map<String, Reproductor> reproductores = new HashMap<>() {
-      {
-        put("assexuado", new ReprodutorAssexuado(geneticAlgorithmParams));
-        put("sexuado", new ReprodutorSexuado(geneticAlgorithmParams));
-      }
-    };
+    var goal = reticulado.run();
+    // PrintReticulado.printLastIterationOfSimulation(goal);
 
-    EvolutiveStrategy evolutiveStrategy = new EvolutiveStrategy(goal, geneticAlgorithmParams, reticuladoParams,
-        reproductores.get(args.typeOfReproduction));
-    evolutiveStrategy.evolve();
-    long end = System.currentTimeMillis();
-    log.info("Simulation finished in " + (end - start) + " milliseconds.");
-    // }
-    // }
+    new EvolutiveStrategy(
+        goal,
+        geneticAlgorithmParams,
+        reticuladoParams,
+        getReproductor(geneticAlgorithmParams, args.typeOfReproduction))
+        .evolve();
   }
+
+  private static Reproductor getReproductor(GeneticAlgorithmParams params, String typeOfReproduction) {
+    return Map.of(
+        "assexuado", new ReprodutorAssexuado(params),
+        "sexuado", new ReprodutorSexuado(params))
+        .get(typeOfReproduction);
+  }
+
 }

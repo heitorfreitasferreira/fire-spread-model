@@ -13,7 +13,9 @@ import model.reticulado.Reticulado;
 import model.reticulado.ReticuladoFactory;
 import model.reticulado.ReticuladoParameters;
 import model.terreno.GeradorLateral;
+import model.utils.ProgressBarSingleton;
 import model.utils.RandomDoubleSingleton;
+import model.utils.Triple;
 import model.utils.Tuple;
 import model.vento.DirecoesVento;
 
@@ -29,6 +31,9 @@ public class EvolutiveStrategy {
     private final int QNT_ITERACOES;
     private final int LARGURA;
     private final Reproductor reproductor;
+
+    private List<Triple<Integer, Integer, Integer>> cellWithFire;
+    private ProgressBarSingleton pb;
 
     private final GeneticAlgorithmParams params;
 
@@ -48,37 +53,45 @@ public class EvolutiveStrategy {
         this.reproductor = reproductor;
         population = new ArrayList<>(params.populationSize());
         this.startPopulation(params.populationSize());
+        this.pb = ProgressBarSingleton.getInstance(params.numberOfGenerations() * params.populationSize() * 4);
+
+        this.cellWithFire = new ArrayList<>();
     }
 
     public void evolve() {
-        long start = System.currentTimeMillis();
         calculateFitness();
         for (int i = 0; i < params.numberOfGenerations(); i++) {
-            log.info("Evolving generation ... " + (float) i * 100 / params.numberOfGenerations() + "%");
             stepOneGeneration();
             statistics.updateStatistics(population);
         }
-        long end = System.currentTimeMillis();
-        System.out.println("Evolution finished in " + (end - start) / 1000 + " seconds.");
         statistics.logToFile(params);
     }
 
     private void stepOneGeneration() {
         population.addAll(reproductor.reproduzir(population));
         calculateFitness();
+        selectByTournamentRemovingNBestFromPoll(5);
+    }
+
+    private void selectByTournamentRemovingNBestFromPoll(int n) {
+        population.sort((a, b) -> b.getSecond().compareTo(a.getSecond()));
+        // Removing n best individuals
+        for (int i = 0; i < n; i++) {
+            population.remove(0);
+        }
         selectByTournament();
     }
 
     private void selectByTournament() {
         List<Tuple<ModelParameters, Double>> newPopulation = new ArrayList<>(params.populationSize());
-        for (int i = 0; i < params.populationSize(); i++) {
+        while (newPopulation.size() < params.populationSize()) {
+            pb.step();
             List<Tuple<ModelParameters, Double>> tournament = new ArrayList<>();
             for (int j = 0; j < params.tournamentSize(); j++) {
                 tournament.add(population.get(randomGenerator.nextInt(params.populationSize())));
             }
             tournament.sort((a, b) -> b.getSecond().compareTo(a.getSecond()));
             var bestIndividual = tournament.get(0);
-
             newPopulation.add(bestIndividual);
         }
         population = newPopulation;
@@ -86,6 +99,7 @@ public class EvolutiveStrategy {
 
     private void calculateFitness() {
         population.parallelStream().forEach(individual -> {
+            pb.step();
             if (individual.getSecond() != INVALID_FITNESS)
                 return;
 
@@ -107,7 +121,8 @@ public class EvolutiveStrategy {
             Reticulado reticulado = getReticulado();
             ModelParameters modelParameters = population.get(i).getFirst();
             reticulado.setModelo(new Heitorzera2(modelParameters));
-            simulations[i] = reticulado.run();
+            simulations[i] = getReticulado().setModelo(new Heitorzera2(population.get(i).getFirst())).run();
+            ;
         }
         return simulations;
     }
@@ -141,31 +156,22 @@ public class EvolutiveStrategy {
     private void startPopulation(int size) {
         for (int i = 0; i < size; i++) {
             ModelParameters modelParameters = new ModelParameters(
-                    randomGenerator.nextGaussian(),
-                    randomGenerator.nextGaussian(),
-                    randomGenerator.nextGaussian(),
-                    randomGenerator.nextGaussian(),
-                    randomGenerator.nextGaussian(),
-                    randomGenerator.nextGaussian(),
-                    randomGenerator.nextGaussian());
+                    randomGenerator.nextDouble(),
+                    randomGenerator.nextDouble(),
+                    randomGenerator.nextDouble(),
+                    randomGenerator.nextDouble(),
+                    randomGenerator.nextDouble(),
+                    randomGenerator.nextDouble(),
+                    randomGenerator.nextDouble());
             population.add(new Tuple<>(modelParameters, INVALID_FITNESS));
         }
     }
 
     private Double compareOutputs(int[][][] simulation) {
-        float fitness = 0;
-        var reticulado = getReticulado();
-        float numberOfCells = (float) reticulado.getAltura() * reticulado.getLargura() * QNT_ITERACOES;
-        for (int i = 0; i < reticulado.getAltura(); i++) {
-            for (int j = 0; j < reticulado.getLargura(); j++) {
-                for (int k = 0; k < QNT_ITERACOES; k++) {
-                    if (simulation[k][i][j] == objectiveSimulation[k][i][j]) {
-                        fitness++;
-                    }
-                }
-            }
-        }
-        return (double) (fitness / numberOfCells);
+        double fitness = cellWithFire.stream()
+                .filter(cell -> Estados.isFogo(simulation[cell.getThird()][cell.getFirst()][cell.getSecond()]))
+                .count();
+        return fitness / cellWithFire.size();
     }
 
     private boolean isGenotypeBetween0_1(ModelParameters modelParameters) {
@@ -184,15 +190,20 @@ public class EvolutiveStrategy {
     }
 
     private boolean isGenotypeValid(ModelParameters modelParameters) {
-        return isGenotypeBetween0_1(modelParameters);// && areValuesInOrder(modelParameters);
+        return isGenotypeBetween0_1(modelParameters) && areValuesInOrder(modelParameters);
     }
 
     private boolean areValuesInOrder(ModelParameters modelParameters) {
-        return modelParameters.influenciaVegetacaoCampestre() < modelParameters.influenciaVegetacaoFlorestal() &&
-                modelParameters.influenciaVegetacaoFlorestal() < modelParameters.influenciaVegetacaoSavanica()
-                &&
-                modelParameters.probEspalhamentoFogoQueimaLenta() < modelParameters.probEspalhamentoFogoInicial() &&
-                modelParameters.probEspalhamentoFogoInicial() < modelParameters.probEspalhamentoFogoArvoreQueimando();
+        return true;
+        // return modelParameters.influenciaVegetacaoCampestre() <
+        // modelParameters.influenciaVegetacaoFlorestal() &&
+        // modelParameters.influenciaVegetacaoFlorestal() <
+        // modelParameters.influenciaVegetacaoSavanica()
+        // &&
+        // modelParameters.probEspalhamentoFogoQueimaLenta() <
+        // modelParameters.probEspalhamentoFogoInicial() &&
+        // modelParameters.probEspalhamentoFogoInicial() <
+        // modelParameters.probEspalhamentoFogoArvoreQueimando();
     }
 
     private Reticulado getReticulado() {

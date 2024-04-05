@@ -39,4 +39,8 @@ public enum Estados {
     public Boolean isFogo() {
         return this == INICIO_FOGO || this == ARVORE_QUEIMANDO || this == QUEIMA_LENTA;
     }
+
+    public static Boolean isFogo(int valor) {
+        return valueOf(valor).isFogo();
+    }
 }

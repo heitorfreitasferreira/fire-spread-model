@@ -17,16 +17,16 @@ public class MainArgs {
     public int numberOfGenerations = 20;
 
     @Parameter(names = "--population-size")
-    public int populationSize = 30;
+    public int populationSize = 100;
 
     @Parameter(names = "--mutation-rate")
-    public double mutationRate = 0.1;
+    public double mutationRate = 1.0;
 
     @Parameter(names = "--mutation-prob")
-    public double mutationProb = 0.1;
+    public double mutationProb = 0.9;
 
     @Parameter(names = "--crossover-rate")
-    public double crossoverRate = 0.9;
+    public double crossoverRate = 0.5;
 
     @Parameter(names = "--elitism-rate")
     public double elitismRate = 0.1;
