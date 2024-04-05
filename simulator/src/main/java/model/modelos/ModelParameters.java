@@ -12,13 +12,13 @@ public record ModelParameters(
     @Override
     public String toString() {
         return "(" +
-                influenciaUmidade + "|" +
-                probEspalhamentoFogoInicial + "|" +
-                probEspalhamentoFogoArvoreQueimando + "|" +
-                probEspalhamentoFogoQueimaLenta + "|" +
-                influenciaVegetacaoCampestre + "|" +
-                influenciaVegetacaoSavanica + "|" +
-                influenciaVegetacaoFlorestal
+                String.format("%.5f", influenciaUmidade) + "|" +
+                String.format("%.5f", probEspalhamentoFogoInicial) + "|" +
+                String.format("%.5f", probEspalhamentoFogoArvoreQueimando) + "|" +
+                String.format("%.5f", probEspalhamentoFogoQueimaLenta) + "|" +
+                String.format("%.5f", influenciaVegetacaoCampestre) + "|" +
+                String.format("%.5f", influenciaVegetacaoSavanica) + "|" +
+                String.format("%.5f", influenciaVegetacaoFlorestal)
                 + ")";
     }
 
