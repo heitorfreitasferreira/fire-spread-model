@@ -1,13 +1,15 @@
 package genetic.reproductors;
 
 import java.lang.reflect.Field;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import genetic.EvolutiveStrategy;
 import genetic.GeneticAlgorithmParams;
 import lombok.extern.java.Log;
 import model.modelos.ModelParameters;
+import model.utils.ProgressBarSingleton;
 import model.utils.RandomDoubleSingleton;
 import model.utils.Tuple;
 
@@ -22,16 +24,20 @@ public class ReprodutorSexuado implements Reproductor {
     }
 
     public List<Tuple<ModelParameters, Double>> reproduzir(List<Tuple<ModelParameters, Double>> pais) {
-        List<Tuple<ModelParameters, Double>> filhos = new ArrayList<>();
-        for (int i = 0; i < params.populationSize(); i++) {
-            ModelParameters parent1 = pais.get(randomGenerator.nextInt(params.populationSize())).getFirst();
-            ModelParameters parent2 = pais.get(randomGenerator.nextInt(params.populationSize())).getFirst();
-            filhos.add(new Tuple<>(reproduce(parent1, parent2), EvolutiveStrategy.INVALID_FITNESS));
-        }
+        List<Tuple<ModelParameters, Double>> filhos = IntStream
+                .range(0, params.populationSize())
+                .parallel()
+                .mapToObj(i -> {
+                    ModelParameters parent1 = pais.get(randomGenerator.nextInt(params.populationSize())).getFirst();
+                    ModelParameters parent2 = pais.get(randomGenerator.nextInt(params.populationSize())).getFirst();
+                    return new Tuple<>(reproduce(parent1, parent2), EvolutiveStrategy.INVALID_FITNESS);
+                })
+                .collect(Collectors.toList());
         return filhos;
     }
 
     private ModelParameters reproduce(ModelParameters parent1, ModelParameters parent2) {
+        ProgressBarSingleton.getInstance(0).step();
         Field[] p1Fields = parent1.getClass().getDeclaredFields();
         Field[] p2Fields = parent2.getClass().getDeclaredFields();
         double[] childValues = new double[p1Fields.length];
@@ -60,7 +66,8 @@ public class ReprodutorSexuado implements Reproductor {
     }
 
     private double mutateAllele(double allele) {
-        return allele + randomGenerator.nextDouble(-params.mutationRate(), params.mutationRate());
+        return randomGenerator.nextDouble();// allele + randomGenerator.nextDouble(-params.mutationRate(),
+                                            // params.mutationRate());
     }
 
     private double crossOverBlxAlpha(double a, double b) {
