@@ -32,7 +32,6 @@ public class Reticulado {
     @Setter
     private MatrizVento matrizVento;
     private int iteracao;
-    @Setter
     private Modelo modelo;
     private Estados tipoInicial;
 
@@ -59,6 +58,10 @@ public class Reticulado {
 
         setupReticuladoInicial(params.estados(), params.ponto(), params.geradorTerreno());
         this.iteracao = 0;
+    }
+
+    public static Reticulado getInstance(ReticuladoParameters params, Modelo modelo) {
+        return new Reticulado(params).setModelo(modelo);
     }
 
     public int[][] getReticulado() throws NullPointerException {
@@ -142,6 +145,11 @@ public class Reticulado {
             this.reticulado[p.i][p.j] = new Celula(Estados.INICIO_FOGO, this, terreno[p.i][p.j],
                     new Tuple<>(p.i, p.j));
         }
+    }
+
+    public Reticulado setModelo(Modelo modelo) {
+        this.modelo = modelo;
+        return this;
     }
 
     @Override
