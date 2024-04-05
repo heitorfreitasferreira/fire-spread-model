@@ -4,7 +4,6 @@ import java.util.List;
 
 import lombok.Getter;
 import lombok.Setter;
-import lombok.extern.java.Log;
 import model.estados.Celula;
 import model.estados.Estados;
 import model.modelos.Modelo;
@@ -21,7 +20,6 @@ import model.vento.MatrizVento;
  * to notify other objects when the state of the grid changes.
  */
 @Getter
-@Log
 public class Reticulado {
 
     public final int QNT_ITERACOES;
