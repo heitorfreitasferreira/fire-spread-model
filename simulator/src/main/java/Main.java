@@ -19,7 +19,8 @@ import model.reticulado.ReticuladoFactory;
 import model.reticulado.ReticuladoParameters;
 import model.terreno.GeradorLateral;
 import model.utils.JsonFileHandler;
-import model.utils.MainArgs;
+import model.utils.ProgressBarSingleton;
+import model.utils.SimulationArgs;
 import model.utils.Tuple;
 import model.vento.DirecoesVento;
 
@@ -30,10 +31,10 @@ public class Main {
   static final int LARGURA = 64;
 
   public static void main(String... argv) {
-    MainArgs args = new MainArgs();
+    SimulationArgs args = new SimulationArgs();
     JCommander.newBuilder().addObject(args).build().parse(argv);
 
-    switch (args.mode) {
+    switch (args.mode()) {
       case "single-simulation" -> singleSimulation(args);
       case "genetic-algorithm" -> algoritmoGenetico(args);
       default -> throw new IllegalArgumentException("Invalid mode");
@@ -41,9 +42,9 @@ public class Main {
 
   }
 
-  private static void singleSimulation(MainArgs args) {
+  private static void singleSimulation(SimulationArgs args) {
     Reticulado reticulado = new Reticulado(
-        ReticuladoFactory.fromJson(args.inputFile, args.maxIterations))
+        ReticuladoFactory.fromJson(args.inputFile(), args.maxIterations()))
         .setModelo(new Heitorzera2(new ModelParameters(
             1.0,
             0.6,
@@ -58,7 +59,7 @@ public class Main {
 
     String outputToFile = JsonFileHandler.convertToCustomJson(reticulado.toString(), simulation);
 
-    File outputFile = new File(args.outputFilePath);
+    File outputFile = new File(args.outputFilePath());
     try (PrintWriter writer = new PrintWriter(outputFile)) {
       writer.write(outputToFile);
     } catch (Exception e) {
@@ -68,7 +69,7 @@ public class Main {
     log.info("Simulation finished in " + (end - start) + " milliseconds.");
   }
 
-  private static void algoritmoGenetico(MainArgs args) {
+  private static void algoritmoGenetico(SimulationArgs args) {
 
     ReticuladoParameters reticuladoParams = new ReticuladoParameters(
         List.of(new Tuple<>(ALTURA / 2, LARGURA / 2)),
@@ -78,9 +79,9 @@ public class Main {
         DirecoesVento.N,
         ReticuladoFactory.getMatrizEstadosDeEstadoInicial(Estados.SAVANICA, ALTURA, LARGURA),
         new GeradorLateral(),
-        args.maxIterations);
+        args.maxIterations());
 
-    Reticulado reticulado = Reticulado.getInstance(reticuladoParams, new Heitorzera2(
+    var goal = Reticulado.getInstance(reticuladoParams, new Heitorzera2(
         new ModelParameters(
             1.0,
             0.6,
@@ -88,27 +89,19 @@ public class Main {
             0.2,
             0.6,
             1.0,
-            0.8)));
+            0.8)))
+        .run();
+    for (int i = 0; i < 6; i++) {
+      args.setReverseElitismN(i * 10);
+      new EvolutiveStrategy(
+          goal,
+          args,
+          reticuladoParams,
+          getReproductor(args, args.typeOfReproduction()))
+          .evolve();
 
-    GeneticAlgorithmParams geneticAlgorithmParams = new GeneticAlgorithmParams(
-        args.numberOfGenerations,
-        args.populationSize,
-        args.mutationRate,
-        args.mutationProb,
-        args.crossoverRate,
-        args.elitismRate,
-        args.tournamentSize,
-        args.crossoverBlxAlpha,
-        args.numberOfSimulationsPerFitness);
-    var goal = reticulado.run();
-    // PrintReticulado.printLastIterationOfSimulation(goal);
-
-    new EvolutiveStrategy(
-        goal,
-        geneticAlgorithmParams,
-        reticuladoParams,
-        getReproductor(geneticAlgorithmParams, args.typeOfReproduction))
-        .evolve();
+      ProgressBarSingleton.getInstance(0).reset();
+    }
   }
 
   private static Reproductor getReproductor(GeneticAlgorithmParams params, String typeOfReproduction) {

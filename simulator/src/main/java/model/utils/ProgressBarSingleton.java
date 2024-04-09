@@ -18,6 +18,30 @@ public class ProgressBarSingleton {
     }
 
     public void step() {
+        if (instance == null) {
+            return;
+        }
         progressBar.step();
     }
+
+    public void close() {
+        progressBar.close();
+    }
+
+    public void reset() {
+        progressBar.reset();
+    }
+
+    public void stepBy(int step) {
+        progressBar.stepBy(step);
+    }
+
+    public void setMax(int max) {
+        progressBar.maxHint(max);
+    }
+
+    public void setExtraMessage(String message) {
+        progressBar.setExtraMessage(message);
+    }
+
 }

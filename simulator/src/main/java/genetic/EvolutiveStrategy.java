@@ -56,6 +56,15 @@ public class EvolutiveStrategy {
         this.pb = ProgressBarSingleton.getInstance(params.numberOfGenerations() * params.populationSize() * 4);
 
         this.cellWithFire = new ArrayList<>();
+        for (int i = 0; i < QNT_ITERACOES; i++) {
+            for (int j = 0; j < ALTURA; j++) {
+                for (int k = 0; k < LARGURA; k++) {
+                    if (Estados.isFogo(objectiveSimulation[i][j][k])) {
+                        cellWithFire.add(new Triple<>(i, j, k));
+                    }
+                }
+            }
+        }
     }
 
     public void evolve() {
@@ -70,7 +79,7 @@ public class EvolutiveStrategy {
     private void stepOneGeneration() {
         population.addAll(reproductor.reproduzir(population));
         calculateFitness();
-        selectByTournamentRemovingNBestFromPoll(5);
+        selectByTournamentRemovingNBestFromPoll(params.reverseElitismN());
     }
 
     private void selectByTournamentRemovingNBestFromPoll(int n) {
@@ -168,10 +177,13 @@ public class EvolutiveStrategy {
     }
 
     private Double compareOutputs(int[][][] simulation) {
-        double fitness = cellWithFire.stream()
-                .filter(cell -> Estados.isFogo(simulation[cell.getThird()][cell.getFirst()][cell.getSecond()]))
-                .count();
-        return fitness / cellWithFire.size();
+        double fitness = 0;
+        for (Triple<Integer, Integer, Integer> cell : cellWithFire) {
+            var state = simulation[cell.getFirst()][cell.getSecond()][cell.getThird()];
+            if (Estados.isFogo(state))
+                fitness++;
+        }
+        return (double) (fitness / cellWithFire.size());
     }
 
     private boolean isGenotypeBetween0_1(ModelParameters modelParameters) {
