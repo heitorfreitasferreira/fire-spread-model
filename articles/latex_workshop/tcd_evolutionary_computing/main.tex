@@ -33,18 +33,34 @@
 
 
 \section{Introdução}
-Visto que os incêndios florestais tendem a crescer em quantidade com o agravamento dos problemas climaticos, é importante a criação de um modelo capaz de prever com um alto grau de precisão como será a evolução das chamas, logo, a utilização de modelos de otimização
+Com o aumento da frequência e intensidade dos incêndios florestais devido ao agravamento dos problemas climáticos, a necessidade de prever com precisão a evolução das chamas torna-se cada vez mais premente. Para abordar essa demanda, este artigo propõe um estudo de técnicas evolutivas de refinamento de parâmetros para um modelo de autômato celular de simulação de incêndio. A utilização de modelos de otimização oferece uma abordagem promissora para aprimorar a capacidade preditiva desses sistemas, permitindo uma resposta mais eficaz e proativa diante das emergências ambientais. Este estudo visa contribuir para o desenvolvimento de ferramentas mais precisas e eficientes na gestão e prevenção de incêndios florestais, proporcionando insights valiosos para a mitigação dos impactos causados por esses eventos devastadores.
+
+Neste artigo foi explorado uma forma de evolução pensando que o problema contenha vários máximos locais, de forma a evitar a tendência do modelo a ficar preso nestes ótimos locais, e foi obtido resultados satisfatórios por serem melhores que a busca aleatória, considerando que problemas estocásticos como o abordado são notoriamente difíceis de serem resolvidos.
 
 \section{Referencial teórico} \label{sec:firstpage}
 O estudo de técnicas evolutivas para o refinamento de parâmetros em modelos de autômatos celulares (CA) de simulação de incêndios tem se destacado como uma área de pesquisa em constante desenvolvimento. Os autômatos celulares oferecem uma abordagem poderosa para modelar a propagação de incêndios, devido à sua capacidade de capturar a dinâmica espacial e temporal do fenômeno.
+
 Nesse contexto, os modelos de CA têm sido amplamente explorados, com destaque para aqueles que buscam simular a propagação de incêndios em diferentes cenários, como florestas heterogêneas e áreas urbanas. A utilização de algoritmos evolutivos, como os algoritmos genéticos, tem se mostrado promissora para ajustar os parâmetros desses modelos como demonstrado em \cite{shan2008genetic}, considerando variáveis como tipo de vegetação, densidade, topografia e direção do vento.
 Estudos recentes têm focado não apenas no desenvolvimento de modelos mais precisos, mas também na avaliação do desempenho e validade desses modelos em cenários reais de incêndios e outros eventos complexos como em \cite{dias2018calibrating}. A simulação de eventos passados e a análise retrospectiva têm sido utilizadas para validar a eficácia dos modelos propostos e identificar áreas para melhorias.
+
 Em suma, o estudo de técnicas evolutivas de refinamento de parâmetros em modelos de autômatos celulares de simulação de incêndios representa uma área de pesquisa multidisciplinar e em constante evolução, com o potencial de fornecer insights valiosos para a gestão e prevenção de incêndios.
 
 \section{Abordagem Proposta}
+
 O código que implementa a abordagem que será descrita se encontra em \url {https://github.com/heitorfreitasferreira/fire-spread-model/tree/genetic_algoritm}.
+
 \subsection{Modelo a Ser Otimizado e Representação do Problema}
-No modelo de otimização proposto por \cite{ferreira2023stochastic}, são definidos três estados para caracterizar diferentes tipos de vegetação e três estados para representar as fases de propagação do fogo. Diversos parâmetros são empregados para indicar a probabilidade de cada tipo de vegetação mudar para um estado de combustão, além de parâmetros que determinam a probabilidade de o fogo propagar-se para células vegetativas adjacentes, simulando assim a capacidade do fogo de expandir-se na presença de combustível. Adicionalmente, o modelo incorpora um parâmetro que reflete o impacto da umidade no comportamento do fogo. Esses sete parâmetros constituem o cromossomo sujeito ao processo evolutivo.
+No modelo de simulação de incêndios florestais proposto por \cite{ferreira2023stochastic} modelando as caracteristicas e dinâmicas do bioma do Cerrado, uma abordagem foi adotada para representar a dinâmica do fogo em ecossistemas florestais. Este modelo utiliza uma estrutura de autômato celular, onde as células representam unidades de terreno e podem assumir diferentes estados, como vegetação saudável, vegetação em combustão ou células já queimadas.
+
+Neste modelo, são definidos três estados para caracterizar diferentes tipos de vegetação e três estados para representar as fases de propagação do fogo. Diversos parâmetros são empregados para indicar a probabilidade de cada tipo de vegetação mudar para um estado de combustão, além de parâmetros que determinam a probabilidade de o fogo propagar-se para células vegetativas adjacentes, simulando assim a capacidade do fogo de expandir-se na presença de combustível. Adicionalmente, o modelo incorpora um parâmetro que reflete o impacto da umidade no comportamento do fogo. Esses sete parâmetros constituem o cromossomo sujeito ao processo evolutivo.
+
+\subsection{Representação do cromossomo}
+Dado que para representar as probabilidades das influências que os estados de fogo tem, que são três, e as probabilidade que as vegetações tem de pegar fogo, que são três, e a influência da umidade, foi escolhido um cromossomo de tamanho 7, onde cada alelo representa um dos parâmetros do modelo, e cada alelo está no intervalo \(0<x<1\).
+Logo podemos sumarizar que o espaço de busca é representado como um hiperespaço de 7 dimensões no intervalo unitário. Cada dimensão corresponde a um parâmetro do modelo. Matematicamente, este espaço é representado como:
+
+\[ S = [0, 1]^7 \]
+
+Onde cada elemento \( s \in S \) é um vetor 7-dimensional \( s = (s_1, s_2, ..., s_7) \), e cada componente \( s_i \) está no intervalo unitário \( 0 \leq s_i \leq 1 \).
 
 \subsection{Representação da Aptidão (Fitness)}
 Para simular um incêndio realista, uma simulação foi realizada fixando a semente do gerador de números aleatórios em zero, funcionando como uma gravação autêntica de um evento de incêndio. Os parâmetros como direção do vento, condição inicial da matriz e a localização inicial do incêndio permanecem constantes ao longo da otimização, evitando assim qualquer interferência no processo, já que, em um cenário real, esses valores seriam determinados no momento da captura dos dados do incêndio.
@@ -60,10 +76,22 @@ Nesta abordagem, cada individuo se reproduzia, e todos os alelos tinham uma prob
 Na abordagem sexuada foi utilizado um crossover BLX-$\alpha$  como descrito em \cite{de2002tutorial} com $\alpha=0.01$, e a probabilidade de um  de mutação foi fixada em $mutationProb=0.1$ para todos os testes, significando que $10\%$ dos indivíduos gerados sofreriam mutação. A mutação foi feita de uma forma que dos indivíduos mutados, foi selecionado um alello aleatório e o mesmo foi substituído por um novo valor aleatório entre 0 e 1.
 
 \subsection{Da seleção da população}
+
 Para ambas abordagens de reprodução, foram utilizadas a mesma forma de seleção, utilizando o algoritmo de seleção por torneio com \(k=2\) modificada. A modificação consiste em remover uma porcentagem \(p\) dos indivíduos com maior fitness da população antes de realizar o torneio. O valor de \(p\) foi variado entre 0 e 0.5, e o valor ótimo encontrado foi entre 0.3 e 0.4 e estão melhores descrito na seção de resultados.
 \section{Resultado e Discussão}
 
+Primeiramente, para manter como parâmetro a ser batido, foi feita uma busca aleatória vista abaixo.
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.5\linewidth]{figures/random_search.png}
+    \caption{Resultado da busca aleatória}
+    \label{fig:random-search}
+\end{figure}
+
 \subsection{Resultados na abordagem assexuada}
+Todos os experimentos foram executados com a semente do gerador de números aleatórios fixada em 0, para garantir a reprodutibilidade dos resultados.
+
 O primeiro teste foi feito com 10000 gerações, que não teve bons resultados por rapidamente convergir para um ótimo local.
 
 % TODO rodar o algoritmo novamente trocando a reprodução para 'assexuada' na CLI e trocar as imagens, lembrando que o resultado da simulação fica salvo em 'fire-spread-model/model_evolution' em formato csv com o nome de acordo com a data, para facilitar não confundir a simulações, os valores da CLI estão salvos como um "comentário" na primeira linha, para gerar a imagem basta rodar o script 'ploter.py' que está na pasta 'fire-spread-model/model_evolution' passando o argumento --csv-path como o nome do arquivo que você quer analisar, e o script irá gerar um gráfico com o nome do arquivo csv na pasta 'plots', caso queira ver imediatamente o plot gerado basta passar o parametro '--show-plot True' na CLI. Só não vou fazer pq vai demorar executar e não adianta o trem fica no meu desktop sem eu poder upar no git, então vou deixar pra vcs fazerem isso, se precisarem de ajuda me chamem no discord ou no whatsapp que eu ajudo vcs a rodar o script
@@ -103,14 +131,67 @@ Na última tentativa com a população agora com o tamanho de 1000, o tempo de p
 
 \subsection{Resultados na abordagem sexuada}
 
+Visto que o problema tendia a ficar preso em vários ótimos locais, normalmente os máximos gerados na primeira geração, que é completamente aleatória, a abordagem sexuada foi testada para tentar escapar desses ótimos locais, usando várias taxas de elistismo reverso. A taxa de elitismo reverso é a porcentagem de indivíduos que são removidos da população antes de realizar o torneio, e foi testada com valores de 0\%, 10\%, 20\%, 30\%, 40\% e 50\%.
+
+\begin{figure}[h]
+    \centering
+    \begin{minipage}{0.45\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{figures/sexuado/rev_ev_0.png}
+        \caption{Evolução da população com a taxa de elitismo reversa de 0\%}
+        \label{fig:reverse_elitism_sex_0}
+    \end{minipage}\hfill
+    \begin{minipage}{0.45\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{figures/sexuado/rev_el_10.png}
+        \caption{Evolução da população com a taxa de elitismo reversa de 10\%}
+        \label{fig:reverse_elitism_sex_10}
+    \end{minipage}
+\end{figure}
+
+Foi notado que com 10\% não há uma melhoria significativa do que com 0\%, que seria a abordagem padrão de seleção de torneio. Tendo uma melhoria de aproximadamente 0.3 no fitness do melhor indivíduo da população.
+
+\begin{figure}[h]
+    \centering
+    \begin{minipage}{0.45\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{figures/sexuado/rev_ev_20.png}
+        \caption{Evolução da população com a taxa de elitismo reversa de 20\%}
+        \label{fig:fifth-reverse_elitism_sex_20}
+    \end{minipage}\hfill
+    \begin{minipage}{0.45\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{figures/sexuado/rev_el_30.png}
+        \caption{Evolução da população com a taxa de elitismo reversa de 30\%}
+        \label{fig:reverse_elitism_sex_30}
+    \end{minipage}
+\end{figure}
+
+Ao aumentar a taxa de elitismo reverso para 20\% e 30\% foi notado uma melhoria significativa no fitness do melhor indivíduo da população, ambas abordagens alcançando os melhores valores de fitness dentre todas as abordagens testadas, com aproximadamente 0.6 de fitness. Um destaque é que a abordagem com 30\% de elitismo reverso ainda continha um desvio padrão na população alto, o que pode ser um indicativo de que a população ainda não convergiu para um ótimo global e precisaria de mais gerações para convergir.
+
+\begin{figure}[h]
+    \centering
+    \begin{minipage}{0.45\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{figures/sexuado/rev_el_40.png}
+        \caption{Evolução da população com a taxa de elitismo reversa de 40\%}
+        \label{fig:reverse_elitism_sex_40}
+    \end{minipage}\hfill
+    \begin{minipage}{0.45\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{figures/sexuado/rev_el_50.png}
+        \caption{Evolução da população com a taxa de elitismo reversa de 50\%}
+        \label{fig:reverse_elitism_sex_50}
+    \end{minipage}
+\end{figure}
+
+Já ao aumentar a taxa para 40\%, houve uma piora de aproximadamente 0.1 no fitness do melhor indivíduo da população, no meio da evolução o melhor indivídio foi eliminado e no final da execução não o melhor fitnesse ainda era 0.1 pior que o melhor momento da execução, a população também indicava que estava convergindo em outro máximo local devido ao baixo desvio padrão. E ao aumentar para 50\% houve uma piora significativa na performance do algoritmo, com um comportamento que se assemelha ao da busca aleatória.
+
 \section{Conclusões e Trabalhos Futuros}
-Afim de diminuir as consequências negativas de incêndios e em conclusão do que foi escrito nesse papel, dado que entre os fatores que foram analisados há três tipo de vegatação, três estados de propragação do fogo, a umidade do ar.
-Depois de todos os testes o resultado final obtido foi com a população com tamanho 1000 e 100 iterações, porém com aproximadamente apenas 16 iterações resultou num ótimo de aproximadamente 0.99, o que significa que o algoritmo proposto teve 99\% de compatibilidade com a simulação real, resultado notável para auxiliar no combates a incêndios.
 
-% TODO para Seiji/Maca:
-% Falar na conclusão sobre a taxa de elitismo reversa, não vou colocar agora pq acho melhor esperar vcs melhorarem a parte de resultados e discussão
+O modelo de seleção proposto, utilizando um algoritmo genético com cromossomos no espaço \(\mathbb{R}^7\), mostrou-se eficaz na otimização dos parâmetros do modelo de simulação de incêndios florestais baseado em autômatos celulares. A abordagem sexuada, com a utilização de um crossover BLX-$\alpha$ e uma taxa de elitismo reverso de 30\%, apresentou os melhores resultados, com um fitness de aproximadamente 0.6. A abordagem assexuada, por sua vez, apresentou resultados menos satisfatórios, com comportamenos não caracteristicos para um algoritmo genético, como a rápida convergência para um ótimo local gerado na primeira geração.
 
-Em trabalhos futuros será testado a influência da variação do $\alpha$ no crossover BLX-$\alpha$ e a influência da taxa de mutação na abordagem assexuada, além de testar a influência do tamanho da população e do número de gerações.
+Em trabalhos futuros será testado a utilização de diversas abordagens de seleção, como a seleção por roleta e a seleção por ranking, para avaliar a influência desses métodos na otimização dos parâmetros do modelo. Além disso, será investigada a utilização de diferentes abordagens seletivas a cada geração, para avaliar a influência da diversidade genética na convergência do algoritmo.
 
 \section{References}
 

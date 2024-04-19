@@ -20,7 +20,7 @@
 %% 
 \NeedsTeXFormat{LaTeX2e}[1994/12/01]
 \ProvidesPackage{caption2}
-              [2002/08/03 v2.1 Customising captions (AS)]
+[2002/08/03 v2.1 Customising captions (AS)]
 \newcommand*\captionfont{}
 \newcommand*\captionlabelfont{}
 \newcommand*\captionlabeldelim{}
@@ -54,25 +54,25 @@
 \newcommand*\defcaptionstyle[1]{%
   \@namedef{caption@@#1}}
 \newcommand*\newcaptionstyle[1]{%
-  \expandafter\ifx\csname caption@@#1\endcsname\relax
-    \expandafter\defcaptionstyle
-  \else
-    \PackageError{caption2}{Caption style `#1' already defined}{\caption@eh}%
-    \expandafter\@gobbletwo
-  \fi
-  {#1}}
+\expandafter\ifx\csname caption@@#1\endcsname\relax
+  \expandafter\defcaptionstyle
+\else
+  \PackageError{caption2}{Caption style `#1' already defined}{\caption@eh}%
+  \expandafter\@gobbletwo
+\fi
+{#1}}
 \newcommand*\renewcaptionstyle[1]{%
-  \expandafter\ifx\csname caption@@#1\endcsname\relax
-    \PackageError{caption2}{Caption style `#1' undefined}{\caption@eh}%
-    \expandafter\@gobbletwo
-  \else
-    \expandafter\defcaptionstyle
-  \fi
-  {#1}}
+\expandafter\ifx\csname caption@@#1\endcsname\relax
+  \PackageError{caption2}{Caption style `#1' undefined}{\caption@eh}%
+  \expandafter\@gobbletwo
+\else
+  \expandafter\defcaptionstyle
+\fi
+{#1}}
 \newcommand*\dummycaptionstyle[2]{%
   \defcaptionstyle{#1}{%
     \expandafter\ifx\csname caption@@\caption@style\expandafter\endcsname%
-                    \csname caption@@#1\endcsname
+      \csname caption@@#1\endcsname
       \PackageError{caption2}{You can't use the caption style `#1' directy}{%
         The caption style `#1' is only a dummy and does not really exists.%
         \MessageBreak You have to redefine it (with \protect\renewcaptionstyle)
@@ -169,8 +169,8 @@
       \space\caption@eh}
   \else
     \@ifundefined{caption@@#1}%
-      {\PackageError{caption2}{Caption style `#1' undefined}{\caption@eh}}%
-      {\@nameuse{caption@@#1}}
+    {\PackageError{caption2}{Caption style `#1' undefined}{\caption@eh}}%
+    {\@nameuse{caption@@#1}}
   \fi}
 \newcommand*\caption@makecaption[1]{%
   \ifcaptionlabel
@@ -180,7 +180,7 @@
   \fi
   \usecaptionmargin\captionfont
   \onelinecaption{\caption@label\captiontext}%
-    {\@nameuse{caption@@@#1}}}
+  {\@nameuse{caption@@@#1}}}
 \newcommand*\caption@@@normal{%
   \caption@label\captiontext\par}
 \newcommand*\caption@@@center{%
@@ -233,8 +233,8 @@
 \renewcommand*\caption@package[3]{%
   \if1\@nameuse{caption@pkt@#1}%
     \@ifundefined{#2}%
-      {\let\next\AtBeginDocument}%
-      {\let\next\@firstofone}%
+    {\let\next\AtBeginDocument}%
+    {\let\next\@firstofone}%
   \else
     \ifcaption@twozero
       \@ifundefined{#2}{#3\let\next\@gobble}{%
@@ -250,8 +250,8 @@
   \ifcaption@debug
     \ifx\next\@gobble\PackageInfo{caption2}{#1 => gobble}%
     \else\ifx\next\@firstofone\PackageInfo{caption2}{#1 => firstofone}%
-    \else\ifx\next\AtBeginDocument\PackageInfo{caption2}{#1 => AtBeginDocument}%
-    \else\PackageInfo{caption2}{#1 => ???}\fi\fi\fi
+      \else\ifx\next\AtBeginDocument\PackageInfo{caption2}{#1 => AtBeginDocument}%
+        \else\PackageInfo{caption2}{#1 => ???}\fi\fi\fi
   \fi
   \next}
 \caption@package{float}{floatc@plain}{}{%
@@ -300,17 +300,17 @@
     \dummycaptionstyle{longtable}{}
     \renewcommand\LT@makecaption[3]{%
       \LT@mcol\LT@cols c{\hbox to\z@{\hss\parbox[t]\hsize{%
-      \ifignoreLTcapwidth
-      \else
-        \setcaptionwidth\LTcapwidth
-      \fi
-      \captionlinewidth\hsize
-      \captionlabelfalse#1\captionlabeltrue
-      \def\captionlabel{#2}%
-      \def\captiontext{#3}%
-      \usecaptionstyle{longtable}%
-      \endgraf\vskip\baselineskip}%
-      \hss}}}
+              \ifignoreLTcapwidth
+              \else
+                \setcaptionwidth\LTcapwidth
+              \fi
+              \captionlinewidth\hsize
+              \captionlabelfalse#1\captionlabeltrue
+              \def\captionlabel{#2}%
+              \def\captiontext{#3}%
+              \usecaptionstyle{longtable}%
+              \endgraf\vskip\baselineskip}%
+            \hss}}}
   \fi}
 \newcommand*\setsubcapstyle{%
   \@ifundefined{subcapraggedrightfalse}{%
@@ -319,21 +319,21 @@
     \ifsubcapcenter
       \subcapstyle{hang+center}%
     \else\ifsubcapcenterlast
-      \subcapstyle{hang+centerlast}%
-    \else\ifsubcapraggedright
-      \subcapstyle{hang+flushleft}%
-    \else
-      \subcapstyle{hang}%
-    \fi\fi\fi
+        \subcapstyle{hang+centerlast}%
+      \else\ifsubcapraggedright
+          \subcapstyle{hang+flushleft}%
+        \else
+          \subcapstyle{hang}%
+        \fi\fi\fi
   \else\ifsubcapcenter
-    \subcapstyle{center}%
-  \else\ifsubcapcenterlast
-    \subcapstyle{centerlast}%
-  \else\ifsubcapraggedright
-    \subcapstyle{flushleft}%
-  \else
-    \subcapstyle{normal}%
-  \fi\fi\fi\fi}
+      \subcapstyle{center}%
+    \else\ifsubcapcenterlast
+        \subcapstyle{centerlast}%
+      \else\ifsubcapraggedright
+          \subcapstyle{flushleft}%
+        \else
+          \subcapstyle{normal}%
+        \fi\fi\fi\fi}
 \newcommand\caption@makesubcaption[2]{%
   \renewcommand*\captionfont{\subcapsize\subcapfont}%
   \renewcommand*\captionlabelfont{\normalfont\subcapsize\subcaplabelfont}%
@@ -356,36 +356,36 @@
   \let\setsubcapstyle\undefined
   \let\caption@makesubcaption\undefined}{%
   \ifx\@makesubfigurecaption\relax
-    \PackageWarning{caption2}{%
-      Option `subfigure' was set but there is no subfigure package loaded}
-    \let\setsubcapstyle\undefined
-    \let\caption@makesubcaption\undefined
+  \PackageWarning{caption2}{%
+    Option `subfigure' was set but there is no subfigure package loaded}
+  \let\setsubcapstyle\undefined
+  \let\caption@makesubcaption\undefined
   \else
-    \ifx\subcapfont\undefined
-      \PackageInfo{caption2}{subfigure package v2.0 detected}
-      \let\subcapfont\@empty
-      \newcommand*\subfigcapwidth{\z@}
-      \newcommand*\setsubcapmargin{%
-        \subfigcapwidthfalse
-        \renewcommand*\subfigcapmargin}
-      \newcommand*\setsubcapwidth{%
-        \subfigcapwidthtrue
-        \renewcommand*\subfigcapwidth}
-      \newcommand*\subcaplabelsep{\space}
-      \let\caption@subfig@hss\hfil
-    \else
-      \PackageInfo{caption2}{subfigure package v2.1 (or newer) detected}
-      \newdimen\subfigcapwidth
-      \newcommand*\setsubcapmargin{%
-        \subfigcapwidthfalse
-        \setlength\subfigcapmargin}
-      \newcommand*\setsubcapwidth{%
-        \subfigcapwidthtrue
-        \setlength\subfigcapwidth}
-      \newcommand*\subcaplabelsep{\hskip\subfiglabelskip}
-      \let\caption@subfig@hss\hss
-    \fi
-    \newif\ifsubfigcapwidth
+  \ifx\subcapfont\undefined
+    \PackageInfo{caption2}{subfigure package v2.0 detected}
+    \let\subcapfont\@empty
+    \newcommand*\subfigcapwidth{\z@}
+    \newcommand*\setsubcapmargin{%
+      \subfigcapwidthfalse
+      \renewcommand*\subfigcapmargin}
+    \newcommand*\setsubcapwidth{%
+      \subfigcapwidthtrue
+      \renewcommand*\subfigcapwidth}
+    \newcommand*\subcaplabelsep{\space}
+    \let\caption@subfig@hss\hfil
+  \else
+    \PackageInfo{caption2}{subfigure package v2.1 (or newer) detected}
+    \newdimen\subfigcapwidth
+    \newcommand*\setsubcapmargin{%
+      \subfigcapwidthfalse
+      \setlength\subfigcapmargin}
+    \newcommand*\setsubcapwidth{%
+      \subfigcapwidthtrue
+      \setlength\subfigcapwidth}
+    \newcommand*\subcaplabelsep{\hskip\subfiglabelskip}
+    \let\caption@subfig@hss\hss
+  \fi
+  \newif\ifsubfigcapwidth
     \newdimen\subcapindent
     \newcommand*\subcaplabeldelim{}
     \newcommand*\subcapstyle[1]{%
