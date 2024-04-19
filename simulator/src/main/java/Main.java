@@ -5,11 +5,6 @@ import java.util.List;
 import com.beust.jcommander.JCommander;
 
 import genetic.EvolutiveStrategy;
-import genetic.GeneticAlgorithmParams;
-import genetic.reproductors.Reproductor;
-import genetic.reproductors.ReprodutorAleatorio;
-import genetic.reproductors.ReprodutorAssexuado;
-import genetic.reproductors.ReprodutorSexuado;
 import lombok.extern.java.Log;
 import model.estados.Estados;
 import model.modelos.Heitorzera2;
@@ -99,23 +94,14 @@ public class Main {
             1.0,
             0.8)))
         .run();
-    for (int i = 0; i < 6; i++) {
-      args.setReverseElitismN(i * 10);
+    for (double reverseElitismPercentage = .0; reverseElitismPercentage < .6; reverseElitismPercentage += .1) {
+      args.setReverseElitismPercentage(reverseElitismPercentage);
+
       new EvolutiveStrategy(
           goal,
           args,
-          reticuladoParams,
-          getReproductor(args, args.typeOfReproduction()))
+          reticuladoParams)
           .evolve();
     }
-  }
-
-  private static Reproductor getReproductor(GeneticAlgorithmParams params, Reproductor.Type typeOfReproduction) {
-    return switch (typeOfReproduction) {
-      case ALEATORIO -> new ReprodutorAleatorio();
-      case ASSEXUADO -> new ReprodutorAssexuado(params);
-      case SEXUADO -> new ReprodutorSexuado(params);
-      default -> throw new IllegalArgumentException("Invalid type of reproduction");
-    };
   }
 }

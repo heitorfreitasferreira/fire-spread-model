@@ -5,6 +5,7 @@ import com.google.gson.JsonObject;
 
 import genetic.GeneticAlgorithmParams;
 import genetic.reproductors.Reproductor;
+import genetic.selectors.Selector;
 import lombok.Setter;
 import lombok.ToString;
 
@@ -39,7 +40,7 @@ public class SimulationArgs implements GeneticAlgorithmParams {
 
     @Parameter(names = "--reverse-elitism-n")
     @Setter
-    private int reverseElitismN = 3;
+    private double reverseElitismPercentage = 0.3;
 
     @Parameter(names = "--tournament-size")
     private int tournamentSize = 2;
@@ -55,6 +56,9 @@ public class SimulationArgs implements GeneticAlgorithmParams {
 
     @Parameter(names = "--type-of-reproduction")
     private Reproductor.Type typeOfReproduction = Reproductor.Type.ASSEXUADO;
+
+    @Parameter(names = "--type-of-selection")
+    private Selector.Type typeOfSelection = Selector.Type.REVERSE_ELITISM_WITH_TOURNAMENT;
 
     public SimulationArgs.Type mode() {
         return mode;
@@ -92,8 +96,8 @@ public class SimulationArgs implements GeneticAlgorithmParams {
         return elitismRate;
     }
 
-    public int reverseElitismN() {
-        return reverseElitismN;
+    public double reverseElitismPercentage() {
+        return reverseElitismPercentage;
     }
 
     public int tournamentSize() {
@@ -119,5 +123,15 @@ public class SimulationArgs implements GeneticAlgorithmParams {
     public enum Type {
         SINGLE_SIMULATION,
         GENETIC_ALGORITHM;
+    }
+
+    @Override
+    public Selector.Type selectorType() {
+        return typeOfSelection;
+    }
+
+    @Override
+    public Reproductor.Type reproductorType() {
+        return typeOfReproduction;
     }
 }

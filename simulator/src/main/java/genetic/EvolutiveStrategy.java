@@ -7,7 +7,7 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import genetic.reproductors.Reproductor;
-import genetic.reproductors.ReprodutorAleatorio;
+import genetic.selectors.Selector;
 import lombok.extern.java.Log;
 import model.estados.Estados;
 import model.modelos.Heitorzera2;
@@ -34,6 +34,7 @@ public class EvolutiveStrategy {
     private final int QNT_ITERACOES;
     private final int LARGURA;
     private final Reproductor reproductor;
+    private final Selector selector;
 
     private List<Triple<Integer, Integer, Integer>> cellWithFire;
 
@@ -42,8 +43,7 @@ public class EvolutiveStrategy {
     public EvolutiveStrategy(
             int[][][] objectiveSimulation,
             GeneticAlgorithmParams params,
-            ReticuladoParameters reticuladoParameters,
-            Reproductor reproductor) {
+            ReticuladoParameters reticuladoParameters) {
 
         this.statistics = new Statistics();
         this.ALTURA = objectiveSimulation[0].length;
@@ -52,11 +52,11 @@ public class EvolutiveStrategy {
         this.randomGenerator = RandomDoubleSingleton.getInstance();
         this.QNT_ITERACOES = reticuladoParameters.QNT_ITERACOES();
         this.params = params;
-        this.reproductor = new ReprodutorAleatorio();
-        population = getRandomPopulation();
+        this.reproductor = Reproductor.getReproductor(params.reproductorType(), params);
+        this.selector = Selector.getSelector(params.selectorType(), params);
         ProgressBarSingleton.getInstance(params.numberOfGenerations() * params.populationSize() * 4);
 
-        this.cellWithFire = new ArrayList<>();
+        this.cellWithFire = new ArrayList<>();// TODO: Passar todas as operações de fitness para um strategy
         for (int i = 0; i < QNT_ITERACOES; i++) {
             for (int j = 0; j < ALTURA; j++) {
                 for (int k = 0; k < LARGURA; k++) {
@@ -71,6 +71,7 @@ public class EvolutiveStrategy {
     public void evolve() {
         ProgressBarSingleton.getInstance(0).refresh();
 
+        population = getRandomPopulation();
         calculateFitness();
         for (int i = 0; i < params.numberOfGenerations(); i++) {
             stepOneGeneration();
@@ -82,31 +83,7 @@ public class EvolutiveStrategy {
     private void stepOneGeneration() {
         population.addAll(reproductor.reproduzir(population));
         calculateFitness();
-        selectByTournamentRemovingNBestFromPoll(params.reverseElitismN());
-    }
-
-    private void selectByTournamentRemovingNBestFromPoll(int n) {
-        population.sort((a, b) -> b.getSecond().compareTo(a.getSecond()));
-        // Removing n best individuals
-        for (int i = 0; i < n; i++) {
-            population.remove(0);
-        }
-        selectByTournament();
-    }
-
-    private void selectByTournament() {
-        List<Tuple<ModelParameters, Double>> newPopulation = new ArrayList<>(params.populationSize());
-        while (newPopulation.size() < params.populationSize()) {
-            ProgressBarSingleton.getInstance(0).step();
-            List<Tuple<ModelParameters, Double>> tournament = new ArrayList<>();
-            for (int j = 0; j < params.tournamentSize(); j++) {
-                tournament.add(population.get(randomGenerator.nextInt(params.populationSize())));
-            }
-            tournament.sort((a, b) -> b.getSecond().compareTo(a.getSecond()));
-            var bestIndividual = tournament.get(0);
-            newPopulation.add(bestIndividual);
-        }
-        population = newPopulation;
+        population = selector.select(population);
     }
 
     private void calculateFitness() {

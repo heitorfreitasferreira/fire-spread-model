@@ -1,5 +1,8 @@
 package genetic;
 
+import genetic.reproductors.Reproductor;
+import genetic.selectors.Selector;
+
 public interface GeneticAlgorithmParams {
     int numberOfGenerations();
 
@@ -19,6 +22,10 @@ public interface GeneticAlgorithmParams {
 
     int numberOfSimulationsPerFitness();
 
-    int reverseElitismN();
+    double reverseElitismPercentage();
+
+    Selector.Type selectorType();
+
+    Reproductor.Type reproductorType();
 
 }
