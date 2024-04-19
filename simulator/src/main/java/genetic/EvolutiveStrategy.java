@@ -3,8 +3,11 @@ package genetic;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import genetic.reproductors.Reproductor;
+import genetic.reproductors.ReprodutorAleatorio;
 import lombok.extern.java.Log;
 import model.estados.Estados;
 import model.modelos.Heitorzera2;
@@ -33,7 +36,6 @@ public class EvolutiveStrategy {
     private final Reproductor reproductor;
 
     private List<Triple<Integer, Integer, Integer>> cellWithFire;
-    private ProgressBarSingleton pb;
 
     private final GeneticAlgorithmParams params;
 
@@ -50,10 +52,9 @@ public class EvolutiveStrategy {
         this.randomGenerator = RandomDoubleSingleton.getInstance();
         this.QNT_ITERACOES = reticuladoParameters.QNT_ITERACOES();
         this.params = params;
-        this.reproductor = reproductor;
-        population = new ArrayList<>(params.populationSize());
-        this.startPopulation(params.populationSize());
-        this.pb = ProgressBarSingleton.getInstance(params.numberOfGenerations() * params.populationSize() * 4);
+        this.reproductor = new ReprodutorAleatorio();
+        population = getRandomPopulation();
+        ProgressBarSingleton.getInstance(params.numberOfGenerations() * params.populationSize() * 4);
 
         this.cellWithFire = new ArrayList<>();
         for (int i = 0; i < QNT_ITERACOES; i++) {
@@ -74,12 +75,17 @@ public class EvolutiveStrategy {
             statistics.updateStatistics(population);
         }
         statistics.logToFile(params);
+        ProgressBarSingleton.getInstance(0).close();
     }
 
     private void stepOneGeneration() {
         population.addAll(reproductor.reproduzir(population));
         calculateFitness();
-        selectByTournamentRemovingNBestFromPoll(params.reverseElitismN());
+        dontSelect();
+    }
+
+    private void dontSelect() {
+        // Do nothing
     }
 
     private void selectByTournamentRemovingNBestFromPoll(int n) {
@@ -94,7 +100,7 @@ public class EvolutiveStrategy {
     private void selectByTournament() {
         List<Tuple<ModelParameters, Double>> newPopulation = new ArrayList<>(params.populationSize());
         while (newPopulation.size() < params.populationSize()) {
-            pb.step();
+            ProgressBarSingleton.getInstance(0).step();
             List<Tuple<ModelParameters, Double>> tournament = new ArrayList<>();
             for (int j = 0; j < params.tournamentSize(); j++) {
                 tournament.add(population.get(randomGenerator.nextInt(params.populationSize())));
@@ -108,7 +114,7 @@ public class EvolutiveStrategy {
 
     private void calculateFitness() {
         population.parallelStream().forEach(individual -> {
-            pb.step();
+            ProgressBarSingleton.getInstance(0).step();
             if (individual.getSecond() != INVALID_FITNESS)
                 return;
 
@@ -162,18 +168,20 @@ public class EvolutiveStrategy {
         return mode;
     }
 
-    private void startPopulation(int size) {
-        for (int i = 0; i < size; i++) {
-            ModelParameters modelParameters = new ModelParameters(
-                    randomGenerator.nextDouble(),
-                    randomGenerator.nextDouble(),
-                    randomGenerator.nextDouble(),
-                    randomGenerator.nextDouble(),
-                    randomGenerator.nextDouble(),
-                    randomGenerator.nextDouble(),
-                    randomGenerator.nextDouble());
-            population.add(new Tuple<>(modelParameters, INVALID_FITNESS));
-        }
+    private List<Tuple<ModelParameters, Double>> getRandomPopulation() {
+        return IntStream.range(0, params.populationSize())
+                .mapToObj(i -> {
+                    ModelParameters modelParameters = new ModelParameters(
+                            randomGenerator.nextDouble(),
+                            randomGenerator.nextDouble(),
+                            randomGenerator.nextDouble(),
+                            randomGenerator.nextDouble(),
+                            randomGenerator.nextDouble(),
+                            randomGenerator.nextDouble(),
+                            randomGenerator.nextDouble());
+                    return new Tuple<>(modelParameters, INVALID_FITNESS);
+                })
+                .collect(Collectors.toList());
     }
 
     private Double compareOutputs(int[][][] simulation) {

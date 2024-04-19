@@ -4,13 +4,14 @@ import com.beust.jcommander.Parameter;
 import com.google.gson.JsonObject;
 
 import genetic.GeneticAlgorithmParams;
+import genetic.reproductors.Reproductor;
 import lombok.Setter;
 import lombok.ToString;
 
 @ToString
 public class SimulationArgs implements GeneticAlgorithmParams {
     @Parameter(names = "--mode")
-    private String mode = "single-simulation";
+    private SimulationArgs.Type mode = SimulationArgs.Type.SINGLE_SIMULATION;// "single-simulation";
 
     @Parameter(names = "--input", converter = JsonConverter.class)
     private JsonObject inputFile;
@@ -53,9 +54,9 @@ public class SimulationArgs implements GeneticAlgorithmParams {
     private int numberOfSimulationsPerFitness = 10;
 
     @Parameter(names = "--type-of-reproduction")
-    private String typeOfReproduction = "sexuado";
+    private Reproductor.Type typeOfReproduction = Reproductor.Type.ALEATORIO;
 
-    public String mode() {
+    public SimulationArgs.Type mode() {
         return mode;
     }
 
@@ -111,8 +112,12 @@ public class SimulationArgs implements GeneticAlgorithmParams {
         return numberOfSimulationsPerFitness;
     }
 
-    public String typeOfReproduction() {
+    public Reproductor.Type typeOfReproduction() {
         return typeOfReproduction;
     }
 
+    public enum Type {
+        SINGLE_SIMULATION,
+        GENETIC_ALGORITHM;
+    }
 }

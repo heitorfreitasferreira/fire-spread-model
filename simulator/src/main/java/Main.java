@@ -1,13 +1,13 @@
 import java.io.File;
 import java.io.PrintWriter;
 import java.util.List;
-import java.util.Map;
 
 import com.beust.jcommander.JCommander;
 
 import genetic.EvolutiveStrategy;
 import genetic.GeneticAlgorithmParams;
 import genetic.reproductors.Reproductor;
+import genetic.reproductors.ReprodutorAleatorio;
 import genetic.reproductors.ReprodutorAssexuado;
 import genetic.reproductors.ReprodutorSexuado;
 import lombok.extern.java.Log;
@@ -19,7 +19,6 @@ import model.reticulado.ReticuladoFactory;
 import model.reticulado.ReticuladoParameters;
 import model.terreno.GeradorLateral;
 import model.utils.JsonFileHandler;
-import model.utils.ProgressBarSingleton;
 import model.utils.SimulationArgs;
 import model.utils.Tuple;
 import model.vento.DirecoesVento;
@@ -34,12 +33,21 @@ public class Main {
     SimulationArgs args = new SimulationArgs();
     JCommander.newBuilder().addObject(args).build().parse(argv);
 
-    switch (args.mode()) {
-      case "single-simulation" -> singleSimulation(args);
-      case "genetic-algorithm" -> algoritmoGenetico(args);
-      default -> throw new IllegalArgumentException("Invalid mode");
-    }
+    chooseMode(args);
+  }
 
+  private static void chooseMode(SimulationArgs args) {
+    switch (args.mode()) {
+      case SimulationArgs.Type.SINGLE_SIMULATION:
+        singleSimulation(args);
+        break;
+      case SimulationArgs.Type.GENETIC_ALGORITHM:
+        algoritmoGenetico(args);
+        break;
+      default:
+        throw new IllegalArgumentException(
+            "Invalid mode of execution, please choose between" + SimulationArgs.Type.values() + ".");
+    }
   }
 
   private static void singleSimulation(SimulationArgs args) {
@@ -91,24 +99,21 @@ public class Main {
             1.0,
             0.8)))
         .run();
-    for (int i = 0; i < 6; i++) {
-      args.setReverseElitismN(i * 10);
-      new EvolutiveStrategy(
-          goal,
-          args,
-          reticuladoParams,
-          getReproductor(args, args.typeOfReproduction()))
-          .evolve();
 
-      ProgressBarSingleton.getInstance(0).reset();
-    }
+    new EvolutiveStrategy(
+        goal,
+        args,
+        reticuladoParams,
+        getReproductor(args, args.typeOfReproduction()))
+        .evolve();
   }
 
-  private static Reproductor getReproductor(GeneticAlgorithmParams params, String typeOfReproduction) {
-    return Map.of(
-        "assexuado", new ReprodutorAssexuado(params),
-        "sexuado", new ReprodutorSexuado(params))
-        .get(typeOfReproduction);
+  private static Reproductor getReproductor(GeneticAlgorithmParams params, Reproductor.Type typeOfReproduction) {
+    return switch (typeOfReproduction) {
+      case ALEATORIO -> new ReprodutorAleatorio();
+      case ASSEXUADO -> new ReprodutorAssexuado(params);
+      case SEXUADO -> new ReprodutorSexuado(params);
+      default -> throw new IllegalArgumentException("Invalid type of reproduction");
+    };
   }
-
 }

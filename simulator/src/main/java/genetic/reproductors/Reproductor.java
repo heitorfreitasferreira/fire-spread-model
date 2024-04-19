@@ -11,4 +11,10 @@ public interface Reproductor {
      * @return filhos gerados a partir dos pais
      */
     public List<Tuple<ModelParameters, Double>> reproduzir(List<Tuple<ModelParameters, Double>> pais);
+
+    public enum Type {
+        ASSEXUADO,
+        SEXUADO,
+        ALEATORIO
+    }
 }
