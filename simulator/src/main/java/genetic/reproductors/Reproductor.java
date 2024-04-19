@@ -5,6 +5,8 @@ import utils.Tuple;
 
 import java.util.List;
 
+import genetic.GeneticAlgorithmParams;
+
 public interface Reproductor {
     /*
      * @param pais
@@ -17,5 +19,14 @@ public interface Reproductor {
         ASSEXUADO,
         SEXUADO,
         ALEATORIO
+    }
+
+    public static Reproductor getReproductor(Type type, GeneticAlgorithmParams params) {
+        return switch (type) {
+            case ASSEXUADO -> new ReprodutorAssexuado(params);
+            case SEXUADO -> new ReprodutorSexuado(params);
+            case ALEATORIO -> new ReprodutorAleatorio();
+            default -> new ReprodutorSexuado(params);
+        };
     }
 }
