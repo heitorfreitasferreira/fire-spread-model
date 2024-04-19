@@ -54,7 +54,7 @@ public class SimulationArgs implements GeneticAlgorithmParams {
     private int numberOfSimulationsPerFitness = 10;
 
     @Parameter(names = "--type-of-reproduction")
-    private Reproductor.Type typeOfReproduction = Reproductor.Type.ALEATORIO;
+    private Reproductor.Type typeOfReproduction = Reproductor.Type.ASSEXUADO;
 
     public SimulationArgs.Type mode() {
         return mode;

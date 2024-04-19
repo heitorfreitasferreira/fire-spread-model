@@ -99,13 +99,15 @@ public class Main {
             1.0,
             0.8)))
         .run();
-
-    new EvolutiveStrategy(
-        goal,
-        args,
-        reticuladoParams,
-        getReproductor(args, args.typeOfReproduction()))
-        .evolve();
+    for (int i = 0; i < 6; i++) {
+      args.setReverseElitismN(i * 10);
+      new EvolutiveStrategy(
+          goal,
+          args,
+          reticuladoParams,
+          getReproductor(args, args.typeOfReproduction()))
+          .evolve();
+    }
   }
 
   private static Reproductor getReproductor(GeneticAlgorithmParams params, Reproductor.Type typeOfReproduction) {

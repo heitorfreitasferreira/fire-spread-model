@@ -82,6 +82,10 @@ Para ambas abordagens de reprodução, foram utilizadas a mesma forma de seleç�
 
 Primeiramente, para manter como parâmetro a ser batido, foi feita uma busca aleatória vista abaixo.
 
+Todos os experimentos foram executados com a semente do gerador de números aleatórios fixada em 0, para garantir a reprodutibilidade dos resultados.
+
+Os parâmetros utilizados nas simulações foram os seguintes: o número de gerações foi definido como 50 e o tamanho da população como 100. A taxa de mutação e a probabilidade de mutação foram ambas estabelecidas em 0.1. A taxa de crossover foi definida como 0.5 e a taxa de elitismo como 0.1. O tamanho do torneio foi estabelecido em 2 e o número de iterações do reticulado em 100. O alpha do crossover BLX foi definido como 0.01 e o número de simulações por fitness foi estabelecido em 10.
+
 \begin{figure}[h]
     \centering
     \includegraphics[width=0.5\linewidth]{figures/random_search.png}
@@ -90,44 +94,56 @@ Primeiramente, para manter como parâmetro a ser batido, foi feita uma busca ale
 \end{figure}
 
 \subsection{Resultados na abordagem assexuada}
-Todos os experimentos foram executados com a semente do gerador de números aleatórios fixada em 0, para garantir a reprodutibilidade dos resultados.
-
-O primeiro teste foi feito com 10000 gerações, que não teve bons resultados por rapidamente convergir para um ótimo local.
-
-% TODO rodar o algoritmo novamente trocando a reprodução para 'assexuada' na CLI e trocar as imagens, lembrando que o resultado da simulação fica salvo em 'fire-spread-model/model_evolution' em formato csv com o nome de acordo com a data, para facilitar não confundir a simulações, os valores da CLI estão salvos como um "comentário" na primeira linha, para gerar a imagem basta rodar o script 'ploter.py' que está na pasta 'fire-spread-model/model_evolution' passando o argumento --csv-path como o nome do arquivo que você quer analisar, e o script irá gerar um gráfico com o nome do arquivo csv na pasta 'plots', caso queira ver imediatamente o plot gerado basta passar o parametro '--show-plot True' na CLI. Só não vou fazer pq vai demorar executar e não adianta o trem fica no meu desktop sem eu poder upar no git, então vou deixar pra vcs fazerem isso, se precisarem de ajuda me chamem no discord ou no whatsapp que eu ajudo vcs a rodar o script
-\begin{figure}[h]
-    \centering
-    \includegraphics[width=0.5\linewidth]{1tentativa.png}
-    \caption{Evolução da população com 10000 gerações}
-    \label{fig:first-attempt}
-\end{figure}
-
-No teste seguinte a mudança  foi aplicada ao número de gerações com 200(2(\%da primeira tentativa) e obteve-se resultados melhores, porém com pouca informação para ser analisada.
 
 \begin{figure}[h]
     \centering
-    \includegraphics[width=0.5\linewidth]{2tentativa.png}
-    \caption{Evolução da população com 200 gerações}
-    \label{fig: second-attempt}
+    \begin{minipage}{0.5\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{figures/assexuado/rev_el_0.png}
+        \caption{Evolução da população com reprodução assexuada e a taxa de elitismo reversa de 0\%}
+        \label{fig:reverse_elitism_assex_0}
+    \end{minipage}\hfill
+    \begin{minipage}{0.5\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{figures/assexuado/rev_el_10.png}
+        \caption{Evolução da população com reprodução assexuada e a taxa de elitismo reversa de 10\%}
+        \label{fig:reverse_elitism_assex_10}
+    \end{minipage}
 \end{figure}
-
-Na terceira tentativa, ambos número de gerações e número de da população foram mudadas para 100, e com isso resultados mais satisfatórios foram apresentados.
-
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.5\linewidth]{3tentativa.png}
-    \caption{Evolução da população com 100 gerações e 100 indivíduos}
-    \label{fig:third-attempt}
-\end{figure}
-
-Na última tentativa com a população agora com o tamanho de 1000, o tempo de processamento aumentou significativamente porém os resultados quase não mudaram. Com um desvio padrão de aproximadamente de 0.01 e fitness entre 0.76 e 0.84
 
 \begin{figure}[h]
     \centering
-    \includegraphics[width=0.5\linewidth]{4tentativa.png}
-    \caption{Evolução da população com 100 gerações e 1000 indivíduos}
-    \label{fig:fourth-attempt}
+    \begin{minipage}{0.5\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{figures/assexuado/rev_el_20.png}
+        \caption{Evolução da população com reprodução assexuada e a taxa de elitismo reversa de 20\%}
+        \label{fig:reverse_elitism_assex_20}
+    \end{minipage}\hfill
+    \begin{minipage}{0.5\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{figures/assexuado/rev_el_30.png}
+        \caption{Evolução da população com reprodução assexuada e a taxa de elitismo reversa de 30\%}
+        \label{fig:reverse_elitism_assex_30}
+    \end{minipage}
 \end{figure}
+
+\begin{figure}[h]
+    \centering
+    \begin{minipage}{0.5\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{figures/assexuado/rev_el_40.png}
+        \caption{Evolução da população com reprodução assexuada e a taxa de elitismo reversa de 40\%}
+        \label{fig:reverse_elitism_assex_40}
+    \end{minipage}\hfill
+    \begin{minipage}{0.5\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{figures/assexuado/rev_el_50.png}
+        \caption{Evolução da população com reprodução assexuada e a taxa de elitismo reversa de 50\%}
+        \label{fig:reverse_elitism_assex_50}
+    \end{minipage}
+\end{figure}
+
+As tentativas de reprodução assexuadas todas se assemelham à busca aleatória, com um fitness que não melhora significativamente ao longo das gerações. A abordagem com 10\% e 20\% de elitismo reverso foram as que apresentaram os melhores resultados, com um fitness de aproximadamente 0.7, que rapidamente regrediu devido à poda dos indivíduos removidos durante a seleção, enquanto as abordagens com 0\%, 30\%, 40\% e 50\% de elitismo reverso apresentaram resultados piores, nenhuma das simulações sustentaram um fitness crescente ao longo das gerações.
 
 \subsection{Resultados na abordagem sexuada}
 
@@ -135,16 +151,16 @@ Visto que o problema tendia a ficar preso em vários ótimos locais, normalmente
 
 \begin{figure}[h]
     \centering
-    \begin{minipage}{0.45\textwidth}
+    \begin{minipage}{0.5\textwidth}
         \centering
         \includegraphics[width=\linewidth]{figures/sexuado/rev_ev_0.png}
-        \caption{Evolução da população com a taxa de elitismo reversa de 0\%}
+        \caption{Evolução da população com reprodução sexuada e a taxa de elitismo reversa de 0\%}
         \label{fig:reverse_elitism_sex_0}
     \end{minipage}\hfill
-    \begin{minipage}{0.45\textwidth}
+    \begin{minipage}{0.5\textwidth}
         \centering
         \includegraphics[width=\linewidth]{figures/sexuado/rev_el_10.png}
-        \caption{Evolução da população com a taxa de elitismo reversa de 10\%}
+        \caption{Evolução da população com reprodução sexuada e a taxa de elitismo reversa de 10\%}
         \label{fig:reverse_elitism_sex_10}
     \end{minipage}
 \end{figure}
@@ -153,16 +169,16 @@ Foi notado que com 10\% não há uma melhoria significativa do que com 0\%, que 
 
 \begin{figure}[h]
     \centering
-    \begin{minipage}{0.45\textwidth}
+    \begin{minipage}{0.5\textwidth}
         \centering
         \includegraphics[width=\linewidth]{figures/sexuado/rev_ev_20.png}
-        \caption{Evolução da população com a taxa de elitismo reversa de 20\%}
+        \caption{Evolução da população com reprodução sexuada e a taxa de elitismo reversa de 20\%}
         \label{fig:fifth-reverse_elitism_sex_20}
     \end{minipage}\hfill
-    \begin{minipage}{0.45\textwidth}
+    \begin{minipage}{0.5\textwidth}
         \centering
         \includegraphics[width=\linewidth]{figures/sexuado/rev_el_30.png}
-        \caption{Evolução da população com a taxa de elitismo reversa de 30\%}
+        \caption{Evolução da população com reprodução sexuada e a taxa de elitismo reversa de 30\%}
         \label{fig:reverse_elitism_sex_30}
     \end{minipage}
 \end{figure}
@@ -171,16 +187,16 @@ Ao aumentar a taxa de elitismo reverso para 20\% e 30\% foi notado uma melhoria 
 
 \begin{figure}[h]
     \centering
-    \begin{minipage}{0.45\textwidth}
+    \begin{minipage}{0.5\textwidth}
         \centering
         \includegraphics[width=\linewidth]{figures/sexuado/rev_el_40.png}
-        \caption{Evolução da população com a taxa de elitismo reversa de 40\%}
+        \caption{Evolução da população com reprodução sexuada e a taxa de elitismo reversa de 40\%}
         \label{fig:reverse_elitism_sex_40}
     \end{minipage}\hfill
-    \begin{minipage}{0.45\textwidth}
+    \begin{minipage}{0.5\textwidth}
         \centering
         \includegraphics[width=\linewidth]{figures/sexuado/rev_el_50.png}
-        \caption{Evolução da população com a taxa de elitismo reversa de 50\%}
+        \caption{Evolução da população com reprodução sexuada e a taxa de elitismo reversa de 50\%}
         \label{fig:reverse_elitism_sex_50}
     \end{minipage}
 \end{figure}
