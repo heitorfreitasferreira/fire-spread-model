@@ -1,4 +1,4 @@
-package model.utils;
+package utils;
 
 public class Tuple<T1, T2> {
     public T1 i;

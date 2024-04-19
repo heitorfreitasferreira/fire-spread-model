@@ -18,10 +18,10 @@ import model.reticulado.Reticulado;
 import model.reticulado.ReticuladoFactory;
 import model.reticulado.ReticuladoParameters;
 import model.terreno.GeradorLateral;
-import model.utils.JsonFileHandler;
-import model.utils.SimulationArgs;
-import model.utils.Tuple;
 import model.vento.DirecoesVento;
+import utils.JsonFileHandler;
+import utils.SimulationArgs;
+import utils.Tuple;
 
 @Log
 public class Main {

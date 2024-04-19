@@ -4,7 +4,7 @@ import lombok.Getter;
 import lombok.NonNull;
 import model.analise.observers.SubReticuladoAvancou;
 import model.reticulado.Reticulado;
-import model.utils.Tuple;
+import utils.Tuple;
 
 @Getter
 public class Celula implements SubReticuladoAvancou {

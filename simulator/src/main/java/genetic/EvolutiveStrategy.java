@@ -16,11 +16,11 @@ import model.reticulado.Reticulado;
 import model.reticulado.ReticuladoFactory;
 import model.reticulado.ReticuladoParameters;
 import model.terreno.GeradorLateral;
-import model.utils.ProgressBarSingleton;
-import model.utils.RandomDoubleSingleton;
-import model.utils.Triple;
-import model.utils.Tuple;
 import model.vento.DirecoesVento;
+import utils.ProgressBarSingleton;
+import utils.RandomDoubleSingleton;
+import utils.Triple;
+import utils.Tuple;
 
 @Log
 public class EvolutiveStrategy {

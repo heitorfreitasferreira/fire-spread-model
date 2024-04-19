@@ -9,9 +9,9 @@ import genetic.EvolutiveStrategy;
 import genetic.GeneticAlgorithmParams;
 import lombok.extern.java.Log;
 import model.modelos.ModelParameters;
-import model.utils.ProgressBarSingleton;
-import model.utils.RandomDoubleSingleton;
-import model.utils.Tuple;
+import utils.ProgressBarSingleton;
+import utils.RandomDoubleSingleton;
+import utils.Tuple;
 
 @Log
 public class ReprodutorSexuado implements Reproductor {

@@ -1,7 +1,8 @@
 package genetic.reproductors;
 
 import model.modelos.ModelParameters;
-import model.utils.Tuple;
+import utils.Tuple;
+
 import java.util.List;
 
 public interface Reproductor {

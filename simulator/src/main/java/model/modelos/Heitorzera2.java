@@ -5,7 +5,7 @@ import java.util.EnumMap;
 import model.estados.Celula;
 import model.estados.Estados;
 import model.reticulado.Reticulado;
-import model.utils.RandomDoubleSingleton;
+import utils.RandomDoubleSingleton;
 
 /**
  * This class represents a model for a fire spread simulation. It uses a

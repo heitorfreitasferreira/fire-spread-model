@@ -1,4 +1,4 @@
-package model.utils;
+package utils;
 
 public class PrintReticulado {
     public static void printSimulation(int[][][] simulation) {

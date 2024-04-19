@@ -8,9 +8,9 @@ import model.estados.Celula;
 import model.estados.Estados;
 import model.modelos.Modelo;
 import model.terreno.GeradorTerreno;
-import model.utils.Tuple;
 import model.vento.DirecoesVento;
 import model.vento.MatrizVento;
+import utils.Tuple;
 
 /**
  * This class represents a grid of cells used in a fire spread simulation. It

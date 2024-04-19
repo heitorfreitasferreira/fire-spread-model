@@ -4,9 +4,9 @@ import java.util.List;
 
 import genetic.EvolutiveStrategy;
 import model.modelos.ModelParameters;
-import model.utils.ProgressBarSingleton;
-import model.utils.RandomDoubleSingleton;
-import model.utils.Tuple;
+import utils.ProgressBarSingleton;
+import utils.RandomDoubleSingleton;
+import utils.Tuple;
 
 public class ReprodutorAleatorio implements Reproductor {
     private RandomDoubleSingleton randomGenerator;

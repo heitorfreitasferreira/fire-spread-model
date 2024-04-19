@@ -1,4 +1,4 @@
-package model.utils;
+package utils;
 
 public class Triple<T, U, V> {
     private final T first;

@@ -13,7 +13,7 @@ import java.util.Objects;
 
 import lombok.extern.java.Log;
 import model.modelos.ModelParameters;
-import model.utils.Tuple;
+import utils.Tuple;
 
 @Log
 public class Statistics {

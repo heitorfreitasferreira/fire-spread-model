@@ -1,4 +1,4 @@
-package model.utils;
+package utils;
 
 import com.beust.jcommander.IStringConverter;
 import com.google.gson.JsonObject;

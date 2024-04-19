@@ -6,8 +6,8 @@ import com.google.gson.JsonObject;
 
 import model.estados.Estados;
 import model.terreno.GeradorDeMatriz;
-import model.utils.Tuple;
 import model.vento.DirecoesVento;
+import utils.Tuple;
 
 public class ReticuladoFactory {
     public static Reticulado createReticuladoComEstadoIncial(ReticuladoParameters params) {
