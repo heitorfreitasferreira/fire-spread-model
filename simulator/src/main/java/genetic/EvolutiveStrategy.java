@@ -69,23 +69,20 @@ public class EvolutiveStrategy {
     }
 
     public void evolve() {
+        ProgressBarSingleton.getInstance(0).refresh();
+
         calculateFitness();
         for (int i = 0; i < params.numberOfGenerations(); i++) {
             stepOneGeneration();
             statistics.updateStatistics(population);
         }
         statistics.logToFile(params);
-        ProgressBarSingleton.getInstance(0).close();
     }
 
     private void stepOneGeneration() {
         population.addAll(reproductor.reproduzir(population));
         calculateFitness();
-        dontSelect();
-    }
-
-    private void dontSelect() {
-        // Do nothing
+        selectByTournamentRemovingNBestFromPoll(params.reverseElitismN());
     }
 
     private void selectByTournamentRemovingNBestFromPoll(int n) {

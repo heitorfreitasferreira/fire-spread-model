@@ -44,4 +44,7 @@ public class ProgressBarSingleton {
         progressBar.setExtraMessage(message);
     }
 
+    public void refresh() {
+        progressBar.refresh();
+    }
 }
