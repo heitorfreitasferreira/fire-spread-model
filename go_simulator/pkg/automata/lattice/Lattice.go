@@ -12,6 +12,8 @@ type Vector2D struct {
 	J uint8
 }
 
+type SimulationResult [][][]cell.CellState
+
 type Lattice struct {
 	Height        uint8
 	Width         uint8
@@ -21,6 +23,7 @@ type Lattice struct {
 	Cells         [][]*cell.Cell
 	InitialState  cell.CellState
 }
+
 type LatticeParams struct {
 	Height        uint8
 	Width         uint8
@@ -66,15 +69,7 @@ func CreateLattice(p LatticeParams) Lattice {
 	}
 }
 
-func CreateNLattices(n int, param LatticeParams) []Lattice {
-	returnable := make([]Lattice, n)
-	for i := 0; i < n; i++ {
-		returnable[i] = CreateLattice(param)
-	}
-	return returnable
-}
-
-func (lattice *Lattice) Run(modelParams model.Parameters) [][][]cell.CellState {
+func (lattice *Lattice) Run(modelParams model.Parameters) SimulationResult {
 	returnable := make([][][]cell.CellState, lattice.Iterations)
 
 	windMatrix := model.MatrixParams{
@@ -134,10 +129,12 @@ func (lattice *Lattice) updateAllCells() {
 
 func (lattice *Lattice) getCellsStates() [][]cell.CellState {
 	states := make([][]cell.CellState, lattice.Height)
-	for i := range lattice.Cells {
+	cellMatrix := lattice.Cells
+
+	for i := range cellMatrix {
 		states[i] = make([]cell.CellState, lattice.Width)
-		for j := range lattice.Cells[i] {
-			states[i][j] = lattice.Cells[i][j].State
+		for j := range cellMatrix[i] {
+			states[i][j] = cellMatrix[i][j].State
 		}
 	}
 	return states
@@ -165,17 +162,19 @@ func (lattice *Lattice) determineNeighborhood(i, j int16) [][]*cell.Cell {
 	return neighborhood
 }
 
-func (lattice *Lattice) ViewLatticeStep() {
+func (result *SimulationResult) ViewLattice() {
 	var separator string
-	for i := 0; i < len(lattice.Cells); i++ {
+	for i := 0; i < len((*result)[0]); i++ {
 		separator += "- "
 	}
 
-	for _, row := range lattice.Cells {
-		for _, c := range row {
-			fmt.Printf("%d ", c.State)
+	for _, iteration := range *result {
+		for _, row := range iteration {
+			for _, c := range row {
+				fmt.Printf("%d ", c)
+			}
+			fmt.Println()
 		}
-		fmt.Println()
+		fmt.Printf("\n%s\n\n", separator)
 	}
-	fmt.Printf("\n%s\n\n", separator)
 }

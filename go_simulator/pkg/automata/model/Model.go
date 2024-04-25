@@ -2,9 +2,12 @@ package model
 
 import (
 	"math/rand"
+	"sync"
 
 	"github.com/heitorfreitasferreira/fireSpreadSimultor/pkg/automata/lattice/cell"
 )
+
+var mu sync.RWMutex
 
 type Parameters struct {
 	InfluenciaUmidade                   float64
@@ -65,6 +68,7 @@ var probCentralCatchingFire = map[cell.CellState]float64{
 }
 
 func Step(neighbors [][]*cell.Cell, params Parameters, windMatrix [][]float64) {
+	mu.Lock()
 	probCentralCatchingFire[cell.MEADOW] = params.InfluenciaVegetacaoCampestre
 	probCentralCatchingFire[cell.SAVANNAH] = params.InfluenciaVegetacaoSavanica
 	probCentralCatchingFire[cell.FOREST] = params.InfluenciaVegetacaoFlorestal
@@ -72,7 +76,7 @@ func Step(neighbors [][]*cell.Cell, params Parameters, windMatrix [][]float64) {
 	probFireSpreadTo[cell.EMBER] = params.ProbEspalhamentoFogoQueimaLenta
 	probFireSpreadTo[cell.FIRE] = params.ProbEspalhamentoFogoArvoreQueimando
 	probFireSpreadTo[cell.INITIAL_FIRE] = params.ProbEspalhamentoFogoInicial
-
+	mu.Unlock()
 	var central *cell.Cell = neighbors[len(neighbors)/2][len(neighbors)/2]
 
 	if central.State.IsFire() && central.IterationsInState >= maxTimeInState[central.State] {
@@ -102,9 +106,9 @@ func stepBurnable(neighbors [][]*cell.Cell, params Parameters, windMatrix [][]fl
 	for _, typeOfFire := range cell.FireStates() {
 		for i, row := range neighbors {
 			for j, c := range row {
-
+				mu.RLock()
 				probability := probFireSpreadTo[typeOfFire] * probCentralCatchingFire[central.State] * params.InfluenciaUmidade * windMatrix[i][j]
-
+				mu.RUnlock()
 				if c.State == typeOfFire && probMatrix[i][j] < probability {
 					central.SetNextState(typeOfFire)
 					return
