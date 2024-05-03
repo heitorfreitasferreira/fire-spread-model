@@ -19,6 +19,29 @@ type Parameters struct {
 	InfluenciaVegetacaoFlorestal        float64
 }
 
+func RandomParams() Parameters {
+	modelParameters := Parameters{}
+	modelParameters.InfluenciaUmidade = rand.Float64()
+	modelParameters.ProbEspalhamentoFogoInicial = rand.Float64()
+	modelParameters.ProbEspalhamentoFogoArvoreQueimando = rand.Float64()
+	modelParameters.ProbEspalhamentoFogoQueimaLenta = rand.Float64()
+	modelParameters.InfluenciaVegetacaoCampestre = rand.Float64()
+	modelParameters.InfluenciaVegetacaoSavanica = rand.Float64()
+	modelParameters.InfluenciaVegetacaoFlorestal = rand.Float64()
+	return modelParameters
+}
+
+func (modelParameters *Parameters) AreValuesInOrder() bool {
+	return modelParameters.InfluenciaVegetacaoCampestre <
+		modelParameters.InfluenciaVegetacaoFlorestal &&
+		modelParameters.InfluenciaVegetacaoFlorestal <
+			modelParameters.InfluenciaVegetacaoSavanica &&
+		modelParameters.ProbEspalhamentoFogoQueimaLenta <
+			modelParameters.ProbEspalhamentoFogoInicial &&
+		modelParameters.ProbEspalhamentoFogoInicial <
+			modelParameters.ProbEspalhamentoFogoArvoreQueimando
+}
+
 var nextState = map[cell.CellState]cell.CellState{
 	cell.ASH:          cell.ASH,
 	cell.INITIAL_FIRE: cell.FIRE,
@@ -110,7 +133,9 @@ func stepBurnable(neighbors [][]*cell.Cell, params Parameters, windMatrix [][]fl
 				probability := probFireSpreadTo[typeOfFire] * probCentralCatchingFire[central.State] * params.InfluenciaUmidade * windMatrix[i][j]
 				mu.RUnlock()
 				if c.State == typeOfFire && probMatrix[i][j] < probability {
-					central.SetNextState(typeOfFire)
+					mu.RLock()
+					central.SetNextState(nextState[central.State])
+					mu.RUnlock()
 					return
 				}
 

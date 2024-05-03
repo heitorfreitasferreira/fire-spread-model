@@ -7,6 +7,8 @@ import (
 	"github.com/heitorfreitasferreira/fireSpreadSimultor/pkg/automata/lattice"
 	"github.com/heitorfreitasferreira/fireSpreadSimultor/pkg/automata/lattice/cell"
 	"github.com/heitorfreitasferreira/fireSpreadSimultor/pkg/automata/model"
+	"github.com/heitorfreitasferreira/fireSpreadSimultor/pkg/genetic"
+	"github.com/heitorfreitasferreira/fireSpreadSimultor/utils"
 )
 
 func main() {
@@ -18,7 +20,7 @@ func main() {
 		Iterations:    50,
 		WindDirection: model.N,
 		InitialState:  cell.SAVANNAH,
-		FireSpots:     []lattice.Vector2D{{I: 32, J: 32}},
+		FireSpots:     []utils.Vector2D{{I: 32, J: 32}},
 	}
 
 	var modelParams model.Parameters = model.Parameters{
@@ -31,7 +33,25 @@ func main() {
 		InfluenciaVegetacaoFlorestal:        0.8,
 	}
 
+	var geneticParams genetic.GeneticAlgorithmParams = genetic.GeneticAlgorithmParams{
+		Generations:           100,
+		PopulationSize:        10,
+		TournamentSize:        2,
+		SimulationsPerFitness: 10,
+		MutationRate:          0.1,
+		MutationProb:          0.1,
+		CrossOverRate:         0.8,
+		ReverseElitismRate:    0.1,
+		CrossoverBlxAlpha:     0.5,
+		Selection:             genetic.TournamentSelection,
+		ParentSelection:       genetic.ElitismMatingPoolSelection,
+		Crossover:             genetic.MeanCrossover,
+		MutationType:          genetic.CreepMutation,
+	}
+
 	startTime := time.Now()
-	lattice.CreateAndRunLatticesParallel(latticeParams, modelParams, 500)
+	var goal lattice.SimulationResult = lattice.CreateAndRunLatticesParallel(latticeParams, modelParams, 1)[0]
+	genetic.Evolve(geneticParams, latticeParams, goal)
 	fmt.Println("Tempo total: ", time.Since(startTime))
+
 }

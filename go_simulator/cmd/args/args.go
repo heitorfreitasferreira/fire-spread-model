@@ -10,6 +10,7 @@ import (
 	"github.com/heitorfreitasferreira/fireSpreadSimultor/pkg/automata/lattice/cell"
 	"github.com/heitorfreitasferreira/fireSpreadSimultor/pkg/automata/model"
 	"github.com/heitorfreitasferreira/fireSpreadSimultor/pkg/genetic"
+	"github.com/heitorfreitasferreira/fireSpreadSimultor/utils"
 )
 
 type RunMode string
@@ -39,7 +40,7 @@ var (
 	InputFile, OutputFile                                                                         string
 	Generations, PopulationSize, SimulationsPerFitness, TournamentSize                            int
 	MutationRate, MutationProb, CrossOverRate, ElitismRate, ReverseElitismRate, CrossoverBlxAlpha float64
-	Reproduction, Selection, Crossover                                                            string
+	MatingPoolSelection, Selection, Crossover                                                     string
 
 	automataCmd = flag.NewFlagSet("automata", flag.ExitOnError)
 	genCmd      = flag.NewFlagSet("gen", flag.ExitOnError)
@@ -47,29 +48,29 @@ var (
 
 func setupCommonFlags() {
 	for _, fs := range []*flag.FlagSet{automataCmd, genCmd} {
-		fs.IntVar(&Height, "height", 32, "")
-		fs.IntVar(&Width, "width", 32, "")
-		fs.IntVar(&FireSpots, "fireSpots", 32, "")
+		fs.IntVar(&Height, "height", 64, "")
+		fs.IntVar(&Width, "width", 64, "")
+		// fs.IntVar(&FireSpots, "fireSpots", 32, "")
 		// FireSpots := []lattice.Vector2D{{I: height / 2, J: width / 2}}
 		fs.Float64Var(&Humidity, "humidity", 0.5, "")
 		fs.IntVar(&Iterations, "iterarions", 100, "")
-		fs.StringVar(&WindDirection, "windDirection", "north", "")
-		fs.IntVar(&InitialState, "initialState", 1, "")
+		fs.StringVar(&WindDirection, "windDirection", string(model.N), "")
+		fs.IntVar(&InitialState, "initialState", int(cell.SAVANNAH), "")
 		fs.IntVar(&Seed, "seed", 0, "")
 		fs.StringVar(&InputFile, "inputFile", "oi", "")
 		fs.StringVar(&OutputFile, "outputFile", "tch", "")
-		fs.IntVar(&Generations, "generations", 50, "")
+		fs.IntVar(&Generations, "generations", 10, "")
 		fs.IntVar(&PopulationSize, "populationSize", 100, "")
 		fs.IntVar(&TournamentSize, "tournamentSize", 2, "")
 		fs.Float64Var(&MutationRate, "mutationRate", 0.1, "")
 		fs.Float64Var(&MutationProb, "mutationProb", 0.1, "")
 		fs.Float64Var(&CrossOverRate, "crossOverRate", 0.1, "")
-		fs.Float64Var(&ElitismRate, "elistismRate", 0.1, "")
+		// fs.Float64Var(&ElitismRate, "elistismRate", 0.1, "")
 		fs.Float64Var(&ReverseElitismRate, "reverseElistismRate", 0.1, "")
 		fs.Float64Var(&CrossoverBlxAlpha, "crossoverBlxAlpha", 0.01, "")
-		fs.StringVar(&Reproduction, "reproduction", "r", "")
-		fs.StringVar(&Selection, "selection", "s", "")
-		fs.StringVar(&Crossover, "crossover", "c", "")
+		fs.StringVar(&MatingPoolSelection, "parentSelection", string(genetic.ElitismMatingPoolSelection), "")
+		fs.StringVar(&Selection, "selection", string(genetic.TournamentSelection), "")
+		fs.StringVar(&Crossover, "crossover", string(genetic.MeanCrossover), "")
 		fs.IntVar(&SimulationsPerFitness, "simulationsPerFitness", 10, "")
 	}
 }
@@ -100,10 +101,10 @@ func Pedrao() Args {
 	setupCommonFlags()
 
 	switch os.Args[1] {
-	case "automata":
+	case string(automata):
 		automataCmd.Parse(os.Args[2:])
 		fmt.Println("automata")
-	case "gen":
+	case string(evolve):
 		genCmd.Parse(os.Args[2:])
 		fmt.Println("gen")
 	default:
@@ -115,21 +116,20 @@ func Pedrao() Args {
 		Seed:       int64(Seed),
 		InputFile:  InputFile,
 		OutputFile: OutputFile,
-		GeneticParams: genetic.GeneticAlgorithmParams{
-			Generations:           int64(Generations),
-			PopulationSize:        int64(PopulationSize),
-			TournamentSize:        int64(TournamentSize),
-			SimulationsPerFitness: int64(SimulationsPerFitness),
-			MutationRate:          MutationRate,
-			MutationProb:          MutationProb,
-			CrossOverRate:         CrossOverRate,
-			ElitismRate:           ElitismRate,
-			ReverseElitismRate:    ReverseElitismRate,
-			CrossoverBlxAlpha:     CrossoverBlxAlpha,
-			Reproduction:          genetic.Reproductor(Reproduction),
-			Selection:             genetic.Selection(Selection),
-			Crossover:             genetic.Crossover(Crossover),
-		},
+		GeneticParams: genetic.NewGeneticAlggorithmParams(
+			uint16(Generations),
+			uint16(PopulationSize),
+			uint16(TournamentSize),
+			uint16(SimulationsPerFitness),
+			MutationRate,
+			MutationProb,
+			CrossOverRate,
+			ReverseElitismRate,
+			CrossoverBlxAlpha,
+			genetic.SelectionType(Selection),
+			genetic.MatingPoolSelectionType(MatingPoolSelection),
+			genetic.CrossoverType(Crossover),
+			genetic.MutationType("mutation")),
 		LatticeParams: lattice.LatticeParams{
 			Height:        uint8(Height),
 			Width:         uint8(Width),
@@ -137,7 +137,7 @@ func Pedrao() Args {
 			Iterations:    uint16(Iterations),
 			WindDirection: model.WindDirection(WindDirection),
 			InitialState:  cell.CellState(InitialState),
-			FireSpots:     []lattice.Vector2D{{I: uint8(Height) / 2, J: uint8(Width) / 2}},
+			FireSpots:     []utils.Vector2D{{I: uint16(Height) / 2, J: uint16(Width) / 2}},
 		},
 	}
 }

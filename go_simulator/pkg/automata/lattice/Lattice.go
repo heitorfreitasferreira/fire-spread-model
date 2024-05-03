@@ -1,18 +1,10 @@
 package lattice
 
 import (
-	"fmt"
-
 	"github.com/heitorfreitasferreira/fireSpreadSimultor/pkg/automata/lattice/cell"
 	"github.com/heitorfreitasferreira/fireSpreadSimultor/pkg/automata/model"
+	"github.com/heitorfreitasferreira/fireSpreadSimultor/utils"
 )
-
-type Vector2D struct {
-	I uint8
-	J uint8
-}
-
-type SimulationResult [][][]cell.CellState
 
 type Lattice struct {
 	Height        uint8
@@ -22,16 +14,6 @@ type Lattice struct {
 	WindDirection model.WindDirection
 	Cells         [][]*cell.Cell
 	InitialState  cell.CellState
-}
-
-type LatticeParams struct {
-	Height        uint8
-	Width         uint8
-	Humidity      float64
-	Iterations    uint16
-	WindDirection model.WindDirection
-	InitialState  cell.CellState
-	FireSpots     []Vector2D
 }
 
 var watterCell = cell.CreateCell(cell.WATER, 0, 0, 0)
@@ -83,27 +65,6 @@ func (lattice *Lattice) Run(modelParams model.Parameters) SimulationResult {
 		returnable[i] = lattice.runOneIteration(windMatrix, modelParams)
 	}
 	return returnable
-}
-
-func createCellMatrix(
-	height uint8,
-	width uint8,
-	initialStates [][]cell.CellState,
-	altitudeMatrix [][]float32,
-	fireSpots []Vector2D) [][]*cell.Cell {
-	cells := make([][]*cell.Cell, height)
-	for i := range cells {
-		cells[i] = make([]*cell.Cell, width)
-		for j := range cells[i] {
-			cells[i][j] = cell.CreateCell(initialStates[i][j], uint8(i), uint8(j), altitudeMatrix[i][j])
-		}
-	}
-
-	for _, fireSpot := range fireSpots {
-		cells[fireSpot.I][fireSpot.J].State = cell.INITIAL_FIRE
-	}
-
-	return cells
 }
 
 func (lattice *Lattice) runOneIteration(windMatrix [][]float64, modelParams model.Parameters) [][]cell.CellState {
@@ -162,19 +123,23 @@ func (lattice *Lattice) determineNeighborhood(i, j int16) [][]*cell.Cell {
 	return neighborhood
 }
 
-func (result *SimulationResult) ViewLattice() {
-	var separator string
-	for i := 0; i < len((*result)[0]); i++ {
-		separator += "- "
+func createCellMatrix(
+	height uint8,
+	width uint8,
+	initialStates [][]cell.CellState,
+	altitudeMatrix [][]float32,
+	fireSpots []utils.Vector2D) [][]*cell.Cell {
+	cells := make([][]*cell.Cell, height)
+	for i := range cells {
+		cells[i] = make([]*cell.Cell, width)
+		for j := range cells[i] {
+			cells[i][j] = cell.CreateCell(initialStates[i][j], uint8(i), uint8(j), altitudeMatrix[i][j])
+		}
 	}
 
-	for _, iteration := range *result {
-		for _, row := range iteration {
-			for _, c := range row {
-				fmt.Printf("%d ", c)
-			}
-			fmt.Println()
-		}
-		fmt.Printf("\n%s\n\n", separator)
+	for _, fireSpot := range fireSpots {
+		cells[fireSpot.I][fireSpot.J].State = cell.INITIAL_FIRE
 	}
+
+	return cells
 }
