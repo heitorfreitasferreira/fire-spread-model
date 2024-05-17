@@ -2,12 +2,9 @@ package model
 
 import (
 	"math/rand"
-	"sync"
 
 	"github.com/heitorfreitasferreira/fireSpreadSimultor/pkg/automata/lattice/cell"
 )
-
-var mu sync.RWMutex
 
 type Parameters struct {
 	InfluenciaUmidade                   float64
@@ -17,6 +14,80 @@ type Parameters struct {
 	InfluenciaVegetacaoCampestre        float64
 	InfluenciaVegetacaoSavanica         float64
 	InfluenciaVegetacaoFlorestal        float64
+}
+
+type ModelRunner struct {
+	params Parameters
+
+	windMatrix [][]float64
+
+	humidityInfluence float64
+
+	nextState               map[cell.CellState]cell.CellState
+	maxTimeInState          map[cell.CellState]uint16
+	probFireSpreadTo        map[cell.CellState]float64
+	probCentralCatchingFire map[cell.CellState]float64
+}
+
+func NewRunner(modelParams Parameters, windParams MatrixParams, humidity float32) ModelRunner {
+
+	var nextState = map[cell.CellState]cell.CellState{
+		cell.ASH:          cell.ASH,
+		cell.INITIAL_FIRE: cell.FIRE,
+		cell.FIRE:         cell.EMBER,
+		cell.EMBER:        cell.ASH,
+		cell.MEADOW:       cell.INITIAL_FIRE,
+		cell.SAVANNAH:     cell.INITIAL_FIRE,
+		cell.FOREST:       cell.INITIAL_FIRE,
+		cell.ROOTS:        cell.EMBER,
+		cell.WATER:        cell.WATER,
+	}
+
+	var maxTimeInState = map[cell.CellState]uint16{
+		cell.INITIAL_FIRE: 3,
+		cell.FIRE:         3,
+		cell.EMBER:        10,
+		cell.ASH:          ^uint16(0),
+		cell.MEADOW:       ^uint16(0),
+		cell.SAVANNAH:     ^uint16(0),
+		cell.FOREST:       ^uint16(0),
+		cell.ROOTS:        ^uint16(0),
+		cell.WATER:        ^uint16(0),
+	}
+
+	var probFireSpreadTo = map[cell.CellState]float64{
+		cell.ASH:          0,
+		cell.INITIAL_FIRE: 0,
+		cell.FIRE:         0,
+		cell.EMBER:        0,
+		cell.MEADOW:       0,
+		cell.SAVANNAH:     0,
+		cell.FOREST:       0,
+		cell.ROOTS:        0,
+		cell.WATER:        0,
+	}
+
+	var probCentralCatchingFire = map[cell.CellState]float64{
+		cell.ASH:          0,
+		cell.INITIAL_FIRE: 0,
+		cell.FIRE:         0,
+		cell.EMBER:        0,
+		cell.MEADOW:       0,
+		cell.SAVANNAH:     0,
+		cell.FOREST:       0,
+		cell.ROOTS:        0,
+		cell.WATER:        0,
+	}
+
+	return ModelRunner{
+		params:                  modelParams,
+		nextState:               nextState,
+		maxTimeInState:          maxTimeInState,
+		probFireSpreadTo:        probFireSpreadTo,
+		probCentralCatchingFire: probCentralCatchingFire,
+		humidityInfluence:       calculateHumidityInfluence(humidity),
+		windMatrix:              windParams.CreateMatrix(),
+	}
 }
 
 func RandomParams() Parameters {
@@ -42,72 +113,15 @@ func (modelParameters *Parameters) AreValuesInOrder() bool {
 			modelParameters.ProbEspalhamentoFogoArvoreQueimando
 }
 
-var nextState = map[cell.CellState]cell.CellState{
-	cell.ASH:          cell.ASH,
-	cell.INITIAL_FIRE: cell.FIRE,
-	cell.FIRE:         cell.EMBER,
-	cell.EMBER:        cell.ASH,
-	cell.MEADOW:       cell.INITIAL_FIRE,
-	cell.SAVANNAH:     cell.INITIAL_FIRE,
-	cell.FOREST:       cell.INITIAL_FIRE,
-	cell.ROOTS:        cell.EMBER,
-	cell.WATER:        cell.WATER,
-}
-
-var maxTimeInState = map[cell.CellState]uint16{
-	cell.INITIAL_FIRE: 3,
-	cell.FIRE:         3,
-	cell.EMBER:        10,
-	cell.ASH:          ^uint16(0),
-	cell.MEADOW:       ^uint16(0),
-	cell.SAVANNAH:     ^uint16(0),
-	cell.FOREST:       ^uint16(0),
-	cell.ROOTS:        ^uint16(0),
-	cell.WATER:        ^uint16(0),
-}
-
-var probFireSpreadTo = map[cell.CellState]float64{
-	cell.ASH:          0,
-	cell.INITIAL_FIRE: 0,
-	cell.FIRE:         0,
-	cell.EMBER:        0,
-	cell.MEADOW:       0,
-	cell.SAVANNAH:     0,
-	cell.FOREST:       0,
-	cell.ROOTS:        0,
-	cell.WATER:        0,
-}
-
-var probCentralCatchingFire = map[cell.CellState]float64{
-	cell.ASH:          0,
-	cell.INITIAL_FIRE: 0,
-	cell.FIRE:         0,
-	cell.EMBER:        0,
-	cell.MEADOW:       0,
-	cell.SAVANNAH:     0,
-	cell.FOREST:       0,
-	cell.ROOTS:        0,
-	cell.WATER:        0,
-}
-
-func Step(neighbors [][]*cell.Cell, params Parameters, windMatrix [][]float64) {
-	mu.Lock()
-	probCentralCatchingFire[cell.MEADOW] = params.InfluenciaVegetacaoCampestre
-	probCentralCatchingFire[cell.SAVANNAH] = params.InfluenciaVegetacaoSavanica
-	probCentralCatchingFire[cell.FOREST] = params.InfluenciaVegetacaoFlorestal
-
-	probFireSpreadTo[cell.EMBER] = params.ProbEspalhamentoFogoQueimaLenta
-	probFireSpreadTo[cell.FIRE] = params.ProbEspalhamentoFogoArvoreQueimando
-	probFireSpreadTo[cell.INITIAL_FIRE] = params.ProbEspalhamentoFogoInicial
-	mu.Unlock()
+func (r *ModelRunner) Step(neighbors [][]*cell.Cell) {
 	var central *cell.Cell = neighbors[len(neighbors)/2][len(neighbors)/2]
 
-	if central.State.IsFire() && central.IterationsInState >= maxTimeInState[central.State] {
-		central.SetNextState(nextState[central.State])
+	if central.State.IsFire() && central.IterationsInState >= r.maxTimeInState[central.State] {
+		central.SetNextState(r.nextState[central.State])
 		return
 	}
 	if central.State.IsBurnable() && isCloseToFire(neighbors) {
-		stepBurnable(neighbors, params, windMatrix)
+		r.stepBurnable(neighbors)
 	}
 }
 
@@ -122,20 +136,16 @@ func isCloseToFire(neighbors [][]*cell.Cell) bool {
 	return false
 }
 
-func stepBurnable(neighbors [][]*cell.Cell, params Parameters, windMatrix [][]float64) {
+func (r *ModelRunner) stepBurnable(neighbors [][]*cell.Cell) {
 	var probMatrix [][]float64 = getProbabilities(neighbors)
 	var central *cell.Cell = neighbors[len(neighbors)/2][len(neighbors)/2]
 
 	for _, typeOfFire := range cell.FireStates() {
 		for i, row := range neighbors {
 			for j, c := range row {
-				mu.RLock()
-				probability := probFireSpreadTo[typeOfFire] * probCentralCatchingFire[central.State] * params.InfluenciaUmidade * windMatrix[i][j]
-				mu.RUnlock()
+				probability := r.probFireSpreadTo[typeOfFire] * r.probCentralCatchingFire[central.State] * r.humidityInfluence * r.windMatrix[i][j]
 				if c.State == typeOfFire && probMatrix[i][j] < probability {
-					mu.RLock()
-					central.SetNextState(nextState[central.State])
-					mu.RUnlock()
+					central.SetNextState(r.nextState[central.State])
 					return
 				}
 
@@ -157,4 +167,19 @@ func getProbabilities(neighbors [][]*cell.Cell) [][]float64 {
 	}
 
 	return probabilities
+}
+
+func calculateHumidityInfluence(humidity float32) float64 {
+	switch {
+	case humidity > 0.0 && humidity <= 0.25:
+		return 1.5
+	case humidity > 0.25 && humidity <= 0.5:
+		return 1.0
+	case humidity > 0.5 && humidity <= 0.75:
+		return 0.8
+	case humidity > 0.75 && humidity <= 1.0:
+		return 0.6
+	default:
+		return 0
+	}
 }

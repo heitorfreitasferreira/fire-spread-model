@@ -24,13 +24,19 @@
         "Width": 64,
         "Humidity": 0.5,
         "Iterations": 100,
-        "WindDirection": "N",
         "InitialState": 4,
         "FireSpots": [
             {
                 "I": 32,
-                "J": 32
+                "J": 32,
+                "K": 0
             }
         ]
+    },
+    "WindParams": {
+        "Coef": 1,
+        "MultBase": 0.16,
+        "Decai": 0.03,
+        "Direction": "N"
     }
 }

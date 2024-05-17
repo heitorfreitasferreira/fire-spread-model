@@ -48,9 +48,16 @@ Execute the binary (should be at ./bin/fire-spread-simulator if you builded with
         "FireSpots": [
             {
                 "I": 32, // lINE
-                "J": 32 // COLUMN
+                "J": 32, // COLUMN
+                "K": 0 // TIME STEP
             }
         ]
+    },
+    "WindParams": {
+        "Coef": 1,
+        "MultBase": 0.16,
+        "Decai": 0.03,
+        "Direction": "N"
     }
 }
 ```

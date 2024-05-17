@@ -17,9 +17,9 @@ type evolver struct {
 	newIndividual  func(Cromossome) *Individual
 }
 
-func Evolve(geneticParams GeneticAlgorithmParams, latticeParams lattice.LatticeParams, goal lattice.SimulationResult) {
+func Evolve(geneticParams GeneticAlgorithmParams, latticeParams lattice.LatticeParams, windMatrix model.MatrixParams, goal lattice.SimulationResult) {
 
-	newIndividual := individualCreator(geneticParams, latticeParams, goal)
+	newIndividual := individualCreator(geneticParams, latticeParams, windMatrix, goal)
 	selector := getSelector(geneticParams)
 	parentSelector := getMatingPoolSelector(geneticParams)
 	crossover := getCrossover(geneticParams)

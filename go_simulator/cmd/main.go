@@ -31,11 +31,14 @@ const (
 type args struct {
 	GeneticParams genetic.GeneticAlgorithmParams
 	LatticeParams lattice.LatticeParams
-	Mode          runMode
-	Seed          int64
-	InputFile     string
-	OutputType    outputType
-	OutputFile    string
+	WindParams    model.MatrixParams
+
+	Mode       runMode
+	OutputType outputType
+
+	Seed       int64
+	InputFile  string
+	OutputFile string
 }
 
 func main() {
@@ -66,9 +69,9 @@ func acClaudiney(fileargs args) {
 		InfluenciaVegetacaoFlorestal:        0.8,
 	}
 
-	l := lattice.CreateLattice(fileargs.LatticeParams)
+	l := lattice.CreateLattice(fileargs.LatticeParams, fileargs.WindParams, modelParams)
 
-	simulation := l.Run(modelParams)
+	simulation := l.Run()
 	if fileargs.OutputType == folderOfTxt {
 		loggers.SalveSimulationInManyFilesInFolder(simulation, fileargs.LatticeParams)
 	}
@@ -88,8 +91,8 @@ func ag(fileargs args) {
 	}
 
 	startTime := time.Now()
-	var goal lattice.SimulationResult = lattice.CreateAndRunLatticesParallel(fileargs.LatticeParams, modelParams, 1)[0]
-	genetic.Evolve(fileargs.GeneticParams, fileargs.LatticeParams, goal)
+	var goal lattice.SimulationResult = lattice.CreateAndRunLatticesParallel(fileargs.LatticeParams, modelParams, fileargs.WindParams, 1)[0]
+	genetic.Evolve(fileargs.GeneticParams, fileargs.LatticeParams, fileargs.WindParams, goal)
 	fmt.Println("Tempo total: ", time.Since(startTime))
 }
 

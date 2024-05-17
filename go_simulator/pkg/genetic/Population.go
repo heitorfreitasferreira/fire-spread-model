@@ -13,6 +13,7 @@ type Individual struct {
 func individualCreator(
 	params GeneticAlgorithmParams,
 	latticeParams lattice.LatticeParams,
+	windParams model.MatrixParams,
 	goal lattice.SimulationResult,
 ) func(cromossome Cromossome) *Individual {
 
@@ -26,7 +27,7 @@ func individualCreator(
 				Fenotype: 0,
 			}
 		}
-		results := lattice.CreateAndRunLatticesParallel(latticeParams, model.Parameters(modelParam), params.SimulationsPerFitness)
+		results := lattice.CreateAndRunLatticesParallel(latticeParams, model.Parameters(modelParam), windParams, params.SimulationsPerFitness)
 		fenotype := fitnessCalculator(&results)
 		return &Individual{
 			Genotype: cromossome,

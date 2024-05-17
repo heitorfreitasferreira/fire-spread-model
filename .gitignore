@@ -265,3 +265,7 @@ simulator/target/
 fire_source_detection/dados_inmet_2023
 
 fire_source_detection/**.csv
+
+# Saidas do claudiney
+
+*/**/bin/20**
