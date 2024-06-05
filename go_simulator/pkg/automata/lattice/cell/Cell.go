@@ -11,6 +11,7 @@ type Cell struct {
 	InitialState      CellState
 	IterationsInState uint16
 	Altitude          float32
+	HasFireSeed       bool
 }
 
 func (cell *Cell) Update() {
@@ -20,6 +21,10 @@ func (cell *Cell) Update() {
 		cell.NextState = NONE
 	} else {
 		cell.IterationsInState++
+	}
+
+	if cell.HasFireSeed {
+		cell.HasFireSeed = false // A faísca só dura um passo
 	}
 }
 

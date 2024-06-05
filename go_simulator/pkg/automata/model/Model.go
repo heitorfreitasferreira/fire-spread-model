@@ -1,9 +1,11 @@
 package model
 
 import (
+	"fmt"
 	"math/rand"
 
 	"github.com/heitorfreitasferreira/fireSpreadSimultor/pkg/automata/lattice/cell"
+	"github.com/heitorfreitasferreira/fireSpreadSimultor/utils"
 )
 
 type Parameters struct {
@@ -27,6 +29,8 @@ type ModelRunner struct {
 	maxTimeInState          map[cell.CellState]uint16
 	probFireSpreadTo        map[cell.CellState]float64
 	probCentralCatchingFire map[cell.CellState]float64
+
+	probFireSeedCatchingFire map[cell.CellState]float64 //
 }
 
 func NewRunner(modelParams Parameters, windParams MatrixParams, humidity float32) ModelRunner {
@@ -79,14 +83,27 @@ func NewRunner(modelParams Parameters, windParams MatrixParams, humidity float32
 		cell.WATER:        0,
 	}
 
+	var probFireSeedCatchingFire = map[cell.CellState]float64{
+		cell.ASH:          0,
+		cell.INITIAL_FIRE: 0,
+		cell.FIRE:         0,
+		cell.EMBER:        0,
+		cell.ROOTS:        0,
+		cell.WATER:        0,
+
+		cell.MEADOW:   0.1,
+		cell.SAVANNAH: 0.2,
+		cell.FOREST:   0.05,
+	}
 	return ModelRunner{
-		params:                  modelParams,
-		nextState:               nextState,
-		maxTimeInState:          maxTimeInState,
-		probFireSpreadTo:        probFireSpreadTo,
-		probCentralCatchingFire: probCentralCatchingFire,
-		humidityInfluence:       calculateHumidityInfluence(humidity),
-		windMatrix:              windParams.CreateMatrix(),
+		params:                   modelParams,
+		nextState:                nextState,
+		maxTimeInState:           maxTimeInState,
+		probFireSpreadTo:         probFireSpreadTo,
+		probCentralCatchingFire:  probCentralCatchingFire,
+		humidityInfluence:        calculateHumidityInfluence(humidity),
+		windMatrix:               windParams.CreateMatrix(),
+		probFireSeedCatchingFire: probFireSeedCatchingFire,
 	}
 }
 
@@ -120,8 +137,51 @@ func (r *ModelRunner) Step(neighbors [][]*cell.Cell) {
 		central.SetNextState(r.nextState[central.State])
 		return
 	}
-	if central.State.IsBurnable() && isCloseToFire(neighbors) {
-		r.stepBurnable(neighbors)
+	if central.State.IsBurnable() {
+		if central.HasFireSeed && (rand.Float64() < r.probFireSeedCatchingFire[central.State]) {
+			fmt.Printf("Fire seed caught fire\n")
+			central.SetNextState(r.nextState[central.State])
+		}
+		if isCloseToFire(neighbors) {
+			r.stepBurnable(neighbors)
+		}
+	}
+}
+
+func (r *ModelRunner) PlantFireSeeds(cells [][]*cell.Cell) {
+	for i, row := range cells {
+		for j, c := range row {
+			if c.State == cell.FIRE {
+				r.plantFireSeedFrom(i, j, cells)
+			}
+		}
+	}
+}
+
+func (r *ModelRunner) plantFireSeedFrom(i, j int, cells [][]*cell.Cell) {
+	const fireSeedCreationProbabilityTreshold = 0.1
+	// Se não for criar já encerra o processamento
+	if rand.Float64() > fireSeedCreationProbabilityTreshold {
+		return
+	}
+
+	positions := NLowestPositions(3, r.windMatrix)
+	latticeHeight := len(cells)
+	latticeWidth := len((cells)[0])
+
+	maxDistance := 3
+	for _, pos := range positions {
+		iRange := uint16(rand.Intn(maxDistance))
+		iDeltaUnClamped := int((pos.I - 1) * iRange)
+		iDelta := utils.Clamp(iDeltaUnClamped, 0, (latticeHeight - 1))
+
+		jRange := uint16(rand.Intn(maxDistance))
+		jDeltaUnClamped := int((pos.J - 1) * jRange)
+		jDelta := utils.Clamp(jDeltaUnClamped, 0, (latticeWidth - 1))
+
+		cells[i+iDelta][j+jDelta].HasFireSeed = true
+
+		fmt.Printf("Planting fire seed at i:%d, j:%d\n", i+iDelta, j+jDelta)
 	}
 }
 

@@ -1,5 +1,11 @@
 package model
 
+import (
+	"math"
+
+	"github.com/heitorfreitasferreira/fireSpreadSimultor/utils"
+)
+
 type WindDirection string
 
 const (
@@ -54,6 +60,60 @@ func rotate(matrix [][]float64, times int) {
 	for i := 0; i < times; i++ {
 		rotateOnce(matrix)
 	}
+}
+
+// Retorna as posições dos n maiores valores da matriz (posição de onde o vento está vindo)
+func NBigestPositions(n int, matrix [][]float64) []utils.Vector2D {
+	biggests := make([]utils.Vector2D, n)
+	avaliables := make(map[utils.Vector2D]bool)
+	for i := 0; i < len(matrix); i++ {
+		for j := 0; j < len(matrix[i]); j++ {
+			avaliables[utils.Vector2D{I: uint16(i), J: uint16(j)}] = true
+		}
+	}
+	for i := 0; i < n; i++ {
+		biggest := utils.Vector2D{I: 0, J: 0}
+		biggestValue := 0.0
+		for pos, isAv := range avaliables {
+			if !isAv {
+				continue
+			}
+			if matrix[pos.I][pos.J] > biggestValue {
+				biggest = pos
+				biggestValue = matrix[pos.I][pos.J]
+			}
+		}
+		biggests[i] = biggest
+		avaliables[biggest] = false
+	}
+	return biggests
+}
+
+// Retorna as posições dos n menores valores da matriz (posição de onde o vento está indo)
+func NLowestPositions(n int, matrix [][]float64) []utils.Vector2D {
+	lowests := make([]utils.Vector2D, n)
+	avaliables := make(map[utils.Vector2D]bool)
+	for i := 0; i < len(matrix); i++ {
+		for j := 0; j < len(matrix[i]); j++ {
+			avaliables[utils.Vector2D{I: uint16(i), J: uint16(j)}] = true
+		}
+	}
+	for i := 0; i < n; i++ {
+		lowest := utils.Vector2D{I: 0, J: 0}
+		lowestValue := math.MaxFloat64
+		for pos, isAv := range avaliables {
+			if !isAv {
+				continue
+			}
+			if matrix[pos.I][pos.J] < lowestValue {
+				lowest = pos
+				lowestValue = matrix[pos.I][pos.J]
+			}
+		}
+		lowests[i] = lowest
+		avaliables[lowest] = false
+	}
+	return lowests
 }
 
 func rotateOnce(matrizVento [][]float64) {

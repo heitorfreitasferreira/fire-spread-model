@@ -69,13 +69,6 @@ func CreateLattice(p LatticeParams, windParams model.MatrixParams, modelParams m
 func (lattice *Lattice) Run() SimulationResult {
 	returnable := make([][][]cell.CellState, lattice.Iterations)
 
-	// windMatrix := model.MatrixParams{
-	// 	Direction: lattice.WindDirection,
-	// 	Coef:      1,
-	// 	MultBase:  0.16,
-	// 	Decai:     0.03,
-	// }.CreateMatrix()
-
 	for i := uint16(0); i < lattice.Iterations; i++ {
 		returnable[i] = lattice.runOneIteration(i)
 	}
@@ -97,6 +90,9 @@ func (lattice *Lattice) runOneIteration(iteration uint16) [][]cell.CellState {
 		}
 	}
 	lattice.updateAllCells()
+
+	lattice.modelRunner.PlantFireSeeds(lattice.Cells)
+
 	return lattice.getCellsStates()
 }
 

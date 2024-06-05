@@ -14,7 +14,7 @@ run: build
 	./bin/$(BINARY_NAME) --config ./input.json
 
 test:
-	$(GOTEST) ./...
+	$(GOTEST) ./... -v
 
 clean:
 	$(GOCLEAN)
