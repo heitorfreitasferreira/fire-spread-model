@@ -9,7 +9,7 @@ import (
 type WindMatrix [][]float64
 
 var verticalHorizontalDecai float64 = .5
-var diagonalDecai float64 = verticalHorizontalDecai * math.Sqrt2
+var diagonalDecai float64 = verticalHorizontalDecai * (math.Sqrt2 / 2)
 
 func (ogMatrix WindMatrix) Expand(newRadius int) WindMatrix {
 	if len(ogMatrix) != 3 {
