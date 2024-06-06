@@ -31,3 +31,9 @@
 
 - [ ] Daniele
 - [ ] ENIAC
+
+## Ideias de experimento
+
+### Faisca
+
+colocar rio no meio do mapa, colocar fogo no meio da metade, com vento apontando pra outra metade, rodar X passos de tempo, contar em qual iteração o fogo atravessou o rio, e quanto queimou no lado q n começou com fogo
