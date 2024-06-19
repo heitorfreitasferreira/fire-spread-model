@@ -11,10 +11,10 @@ type LatticeParams struct {
 	Height     int
 	Width      int
 	Humidity   float32
-	Iterations uint16
+	Iterations int
 	// WindDirection model.WindDirection
 	InitialState [][]cell.CellState
-	FireSpots    []utils.Vector3D
+	FireSpots    []utils.Vector3D[int]
 }
 
 func (p LatticeParams) ToString() string {

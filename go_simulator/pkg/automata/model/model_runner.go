@@ -147,12 +147,12 @@ func (r *ModelRunner) plantFireSeedFrom(i, j int) {
 	maxDistance := 3
 	pos := positions[rand.Intn(len(positions))]
 
-	iRange := uint16(rand.Intn(maxDistance))
-	iDeltaUnClamped := int((pos.I - 1) * iRange)
+	iRange := rand.Intn(maxDistance)
+	iDeltaUnClamped := (pos.I - 1) * iRange
 	iDelta := utils.Clamp(iDeltaUnClamped, 0, (latticeHeight - 1))
 
-	jRange := uint16(rand.Intn(maxDistance))
-	jDeltaUnClamped := int((pos.J - 1) * jRange)
+	jRange := rand.Intn(maxDistance)
+	jDeltaUnClamped := (pos.J - 1) * jRange
 	jDelta := utils.Clamp(jDeltaUnClamped, 0, (latticeWidth - 1))
 
 	(*r.board)[i+iDelta][j+jDelta].HasFireSeed = true
@@ -176,6 +176,7 @@ func (r *ModelRunner) stepBurnable(i, j int) {
 		}
 	}
 }
+
 func (r *ModelRunner) getStateByRelativePosition(currI, deltaI, currJ, deltaJ int) cell.CellState {
 	i := currI + deltaI
 	j := currJ + deltaJ

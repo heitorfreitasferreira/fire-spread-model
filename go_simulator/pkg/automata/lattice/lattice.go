@@ -10,11 +10,11 @@ type Lattice struct {
 	Height        int
 	Width         int
 	Humidity      float32
-	Iterations    uint16
+	Iterations    int
 	WindDirection model.WindDirection
 	Cells         [][]*cell.Cell
 	InitialState  cell.CellState
-	fireStarters  [][]utils.Vector2D
+	fireStarters  [][]utils.Vector2D[int]
 
 	modelRunner model.ModelRunner
 }
@@ -28,13 +28,13 @@ func CreateLattice(p LatticeParams, windParams model.MatrixParams, modelParams m
 		}
 	}
 
-	fires := make([][]utils.Vector2D, p.Iterations)
+	fires := make([][]utils.Vector2D[int], p.Iterations)
 	for i := 0; i < int(p.Iterations); i++ {
-		fires[i] = make([]utils.Vector2D, 0)
+		fires[i] = make([]utils.Vector2D[int], 0)
 	}
 
 	for _, spot := range p.FireSpots {
-		fires[spot.K] = append(fires[spot.K], utils.Vector2D{
+		fires[spot.K] = append(fires[spot.K], utils.Vector2D[int]{
 			I: spot.I,
 			J: spot.J,
 		})
@@ -63,14 +63,14 @@ func CreateLattice(p LatticeParams, windParams model.MatrixParams, modelParams m
 func (lattice *Lattice) Run() SimulationResult {
 	returnable := make([][][]cell.CellState, lattice.Iterations)
 
-	for i := uint16(0); i < lattice.Iterations; i++ {
+	for i := 0; i < lattice.Iterations; i++ {
 		returnable[i] = lattice.runOneIteration(i)
 	}
 
 	return returnable
 }
 
-func (lattice *Lattice) runOneIteration(iteration uint16) [][]cell.CellState {
+func (lattice *Lattice) runOneIteration(iteration int) [][]cell.CellState {
 	for _, spot := range lattice.fireStarters[iteration] {
 		lattice.Cells[spot.I][spot.J].State = cell.INITIAL_FIRE
 		lattice.Cells[spot.I][spot.J].NextState = cell.INITIAL_FIRE
@@ -115,7 +115,7 @@ func createCellMatrix(
 	width int,
 	initialStates [][]cell.CellState,
 	altitudeMatrix [][]float32,
-	fireSpots []utils.Vector2D) [][]*cell.Cell {
+	fireSpots []utils.Vector2D[int]) [][]*cell.Cell {
 	cells := make([][]*cell.Cell, height)
 	for i := range cells {
 		cells[i] = make([]*cell.Cell, width)

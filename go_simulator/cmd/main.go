@@ -24,8 +24,9 @@ const (
 type outputType string
 
 const (
-	singleJson  outputType = "single-json"
-	folderOfTxt outputType = "multiple-txt"
+	singleJson    outputType = "single-json"
+	folderOfTxt   outputType = "multiple-txt"
+	viewSparkData outputType = "view-spark-data"
 )
 
 type args struct {
@@ -74,6 +75,10 @@ func ac(fileargs args) {
 	simulation := l.Run()
 	if fileargs.OutputType == folderOfTxt {
 		loggers.SalveSimulationInManyFilesInFolder(simulation, fileargs.LatticeParams)
+	}
+	if fileargs.OutputType == viewSparkData {
+		loggers.ViewSparkData(simulation, fileargs.LatticeParams)
+
 	}
 	fmt.Println("Tempo total: ", time.Since(startTime))
 }

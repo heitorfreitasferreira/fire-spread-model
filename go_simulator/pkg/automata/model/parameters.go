@@ -2,6 +2,7 @@ package model
 
 import "math/rand"
 
+// Este arquivo contém a definição de um struct que armazena os parâmetros do modelo de propagação de fogo. Eles são os mesmos parametros que estão sendo utilizados nos modelos genéticos que tentam otimizar o modelo de propagação de fogo, logo cuidado ao alterar a struct.
 type Parameters struct {
 	InfluenciaUmidade                   float64
 	ProbEspalhamentoFogoInicial         float64
@@ -13,24 +14,24 @@ type Parameters struct {
 }
 
 func RandomParams() Parameters {
-	modelParameters := Parameters{}
-	modelParameters.InfluenciaUmidade = rand.Float64()
-	modelParameters.ProbEspalhamentoFogoInicial = rand.Float64()
-	modelParameters.ProbEspalhamentoFogoArvoreQueimando = rand.Float64()
-	modelParameters.ProbEspalhamentoFogoQueimaLenta = rand.Float64()
-	modelParameters.InfluenciaVegetacaoCampestre = rand.Float64()
-	modelParameters.InfluenciaVegetacaoSavanica = rand.Float64()
-	modelParameters.InfluenciaVegetacaoFlorestal = rand.Float64()
-	return modelParameters
+	params := Parameters{}
+	params.InfluenciaUmidade = rand.Float64()
+	params.ProbEspalhamentoFogoInicial = rand.Float64()
+	params.ProbEspalhamentoFogoArvoreQueimando = rand.Float64()
+	params.ProbEspalhamentoFogoQueimaLenta = rand.Float64()
+	params.InfluenciaVegetacaoCampestre = rand.Float64()
+	params.InfluenciaVegetacaoSavanica = rand.Float64()
+	params.InfluenciaVegetacaoFlorestal = rand.Float64()
+	return params
 }
 
-func (modelParameters *Parameters) AreValuesInOrder() bool {
-	return modelParameters.InfluenciaVegetacaoCampestre <
-		modelParameters.InfluenciaVegetacaoFlorestal &&
-		modelParameters.InfluenciaVegetacaoFlorestal <
-			modelParameters.InfluenciaVegetacaoSavanica &&
-		modelParameters.ProbEspalhamentoFogoQueimaLenta <
-			modelParameters.ProbEspalhamentoFogoInicial &&
-		modelParameters.ProbEspalhamentoFogoInicial <
-			modelParameters.ProbEspalhamentoFogoArvoreQueimando
+func (params *Parameters) AreValuesInOrder() bool {
+	return params.InfluenciaVegetacaoCampestre <
+		params.InfluenciaVegetacaoFlorestal &&
+		params.InfluenciaVegetacaoFlorestal <
+			params.InfluenciaVegetacaoSavanica &&
+		params.ProbEspalhamentoFogoQueimaLenta <
+			params.ProbEspalhamentoFogoInicial &&
+		params.ProbEspalhamentoFogoInicial <
+			params.ProbEspalhamentoFogoArvoreQueimando
 }

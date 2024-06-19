@@ -7,19 +7,19 @@ import (
 )
 
 func GetFitnessCalculator(goal lattice.SimulationResult) func(simulations *[]lattice.SimulationResult) float64 {
-	var fireMaks []utils.Vector3D = make([]utils.Vector3D, 0)
-	for i := uint16(0); i < uint16(len(goal)); i++ {
-		for j := uint16(0); j < uint16(len(goal[i])); j++ {
-			for k := uint16(0); k < uint16(len(goal[i][j])); k++ {
+	var fireMaks []utils.Vector3D[int] = make([]utils.Vector3D[int], 0)
+	for i := 0; i < len(goal); i++ {
+		for j := 0; j < len(goal[i]); j++ {
+			for k := 0; k < len(goal[i][j]); k++ {
 				if goal[i][j][k].IsFire() {
-					fireMaks = append(fireMaks, utils.Vector3D{I: i, J: j, K: k})
+					fireMaks = append(fireMaks, utils.Vector3D[int]{I: i, J: j, K: k})
 				}
 			}
 		}
 	}
 
 	return func(simulations *[]lattice.SimulationResult) float64 {
-		var totalFitness uint16 = 0
+		var totalFitness int = 0
 		actualSimulation := getModeOfSimulations(*simulations)
 		for _, fireMak := range fireMaks {
 			if actualSimulation[fireMak.I][fireMak.J][fireMak.K].IsFire() {
