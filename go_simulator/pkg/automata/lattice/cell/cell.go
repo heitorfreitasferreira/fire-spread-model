@@ -32,7 +32,7 @@ func (cell *Cell) SetNextState(state CellState) {
 	cell.NextState = state
 }
 
-func CreateCell(state CellState, i, j uint8, altitude float32) *Cell {
+func CreateCell(state CellState, altitude float32) *Cell {
 	return &Cell{
 		State:             state,
 		NextState:         NONE,

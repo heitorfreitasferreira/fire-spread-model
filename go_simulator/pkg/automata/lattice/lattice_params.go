@@ -8,12 +8,12 @@ import (
 )
 
 type LatticeParams struct {
-	Height     uint8
-	Width      uint8
+	Height     int
+	Width      int
 	Humidity   float32
 	Iterations uint16
 	// WindDirection model.WindDirection
-	InitialState cell.CellState
+	InitialState [][]cell.CellState
 	FireSpots    []utils.Vector3D
 }
 

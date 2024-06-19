@@ -21,7 +21,7 @@ type Parameters struct {
 type ModelRunner struct {
 	params Parameters
 
-	windMatrix [][]float64
+	windMatrix WindMatrix
 
 	humidityInfluence float64
 
@@ -31,9 +31,15 @@ type ModelRunner struct {
 	probCentralCatchingFire map[cell.CellState]float64
 
 	probFireSeedCatchingFire map[cell.CellState]float64 //
+
+	deltaPos [][]int
+
+	radius int
+
+	board *[][]*cell.Cell
 }
 
-func NewRunner(modelParams Parameters, windParams MatrixParams, humidity float32) ModelRunner {
+func NewRunner(modelParams Parameters, windParams MatrixParams, humidity float32, board *[][]*cell.Cell) ModelRunner {
 
 	var nextState = map[cell.CellState]cell.CellState{
 		cell.ASH:          cell.ASH,
@@ -61,9 +67,9 @@ func NewRunner(modelParams Parameters, windParams MatrixParams, humidity float32
 
 	var probFireSpreadTo = map[cell.CellState]float64{
 		cell.ASH:          0,
-		cell.INITIAL_FIRE: 0,
-		cell.FIRE:         0,
-		cell.EMBER:        0,
+		cell.INITIAL_FIRE: 0.6,
+		cell.FIRE:         1.0,
+		cell.EMBER:        0.2,
 		cell.MEADOW:       0,
 		cell.SAVANNAH:     0,
 		cell.FOREST:       0,
@@ -76,10 +82,10 @@ func NewRunner(modelParams Parameters, windParams MatrixParams, humidity float32
 		cell.INITIAL_FIRE: 0,
 		cell.FIRE:         0,
 		cell.EMBER:        0,
-		cell.MEADOW:       0,
-		cell.SAVANNAH:     0,
-		cell.FOREST:       0,
-		cell.ROOTS:        0,
+		cell.MEADOW:       0.6,
+		cell.SAVANNAH:     1.0,
+		cell.FOREST:       0.8,
+		cell.ROOTS:        0.1,
 		cell.WATER:        0,
 	}
 
@@ -96,14 +102,20 @@ func NewRunner(modelParams Parameters, windParams MatrixParams, humidity float32
 		cell.FOREST:   0.05,
 	}
 	return ModelRunner{
-		params:                   modelParams,
-		nextState:                nextState,
-		maxTimeInState:           maxTimeInState,
+		params:         modelParams,
+		nextState:      nextState,
+		maxTimeInState: maxTimeInState,
+
 		probFireSpreadTo:         probFireSpreadTo,
 		probCentralCatchingFire:  probCentralCatchingFire,
-		humidityInfluence:        calculateHumidityInfluence(humidity),
-		windMatrix:               windParams.CreateMatrix(),
 		probFireSeedCatchingFire: probFireSeedCatchingFire,
+
+		humidityInfluence: calculateHumidityInfluence(humidity),
+		windMatrix:        windParams.CreateMatrix(),
+
+		board:    board,
+		deltaPos: positionsToLook(windParams.Radius),
+		radius:   windParams.Radius,
 	}
 }
 
@@ -130,8 +142,8 @@ func (modelParameters *Parameters) AreValuesInOrder() bool {
 			modelParameters.ProbEspalhamentoFogoArvoreQueimando
 }
 
-func (r *ModelRunner) Step(neighbors [][]*cell.Cell) {
-	var central *cell.Cell = neighbors[len(neighbors)/2][len(neighbors)/2]
+func (r *ModelRunner) Step(i, j int) {
+	var central *cell.Cell = (*r.board)[i][j]
 
 	if central.State.IsFire() && central.IterationsInState >= r.maxTimeInState[central.State] {
 		central.SetNextState(r.nextState[central.State])
@@ -142,91 +154,61 @@ func (r *ModelRunner) Step(neighbors [][]*cell.Cell) {
 			fmt.Printf("Fire seed caught fire\n")
 			central.SetNextState(r.nextState[central.State])
 		}
-		if isCloseToFire(neighbors) {
-			r.stepBurnable(neighbors)
-		}
+		r.stepBurnable(i, j)
 	}
 }
 
-func (r *ModelRunner) PlantFireSeeds(cells [][]*cell.Cell) {
-	for i, row := range cells {
+func (r *ModelRunner) PlantFireSeeds() {
+	for i, row := range *r.board {
 		for j, c := range row {
 			if c.State == cell.FIRE {
-				r.plantFireSeedFrom(i, j, cells)
+				r.plantFireSeedFrom(i, j)
 			}
 		}
 	}
 }
 
-func (r *ModelRunner) plantFireSeedFrom(i, j int, cells [][]*cell.Cell) {
-	const fireSeedCreationProbabilityTreshold = 0.1
-	// Se não for criar já encerra o processamento
+func (r *ModelRunner) plantFireSeedFrom(i, j int) {
+	const fireSeedCreationProbabilityTreshold = 0.0
 	if rand.Float64() > fireSeedCreationProbabilityTreshold {
 		return
 	}
 
 	positions := NLowestPositions(3, r.windMatrix)
-	latticeHeight := len(cells)
-	latticeWidth := len((cells)[0])
+	latticeHeight := len(*r.board)
+	latticeWidth := len((*r.board)[0])
 
 	maxDistance := 3
-	for _, pos := range positions {
-		iRange := uint16(rand.Intn(maxDistance))
-		iDeltaUnClamped := int((pos.I - 1) * iRange)
-		iDelta := utils.Clamp(iDeltaUnClamped, 0, (latticeHeight - 1))
+	pos := positions[rand.Intn(len(positions))]
 
-		jRange := uint16(rand.Intn(maxDistance))
-		jDeltaUnClamped := int((pos.J - 1) * jRange)
-		jDelta := utils.Clamp(jDeltaUnClamped, 0, (latticeWidth - 1))
+	iRange := uint16(rand.Intn(maxDistance))
+	iDeltaUnClamped := int((pos.I - 1) * iRange)
+	iDelta := utils.Clamp(iDeltaUnClamped, 0, (latticeHeight - 1))
 
-		cells[i+iDelta][j+jDelta].HasFireSeed = true
+	jRange := uint16(rand.Intn(maxDistance))
+	jDeltaUnClamped := int((pos.J - 1) * jRange)
+	jDelta := utils.Clamp(jDeltaUnClamped, 0, (latticeWidth - 1))
 
-		fmt.Printf("Planting fire seed at i:%d, j:%d\n", i+iDelta, j+jDelta)
-	}
+	(*r.board)[i+iDelta][j+jDelta].HasFireSeed = true
+
+	fmt.Printf("Planting fire seed at i:%d, j:%d\n", i+iDelta, j+jDelta)
 }
 
-func isCloseToFire(neighbors [][]*cell.Cell) bool {
-	for _, row := range neighbors {
-		for _, c := range row {
-			if c.State.IsFire() {
-				return true
-			}
-		}
-	}
-	return false
-}
+func (r *ModelRunner) stepBurnable(i, j int) {
+	central := (*r.board)[i][j]
 
-func (r *ModelRunner) stepBurnable(neighbors [][]*cell.Cell) {
-	var probMatrix [][]float64 = getProbabilities(neighbors)
-	var central *cell.Cell = neighbors[len(neighbors)/2][len(neighbors)/2]
-
-	for _, typeOfFire := range cell.FireStates() {
-		for i, row := range neighbors {
-			for j, c := range row {
-				probability := r.probFireSpreadTo[typeOfFire] * r.probCentralCatchingFire[central.State] * r.humidityInfluence * r.windMatrix[i][j]
-				if c.State == typeOfFire && probMatrix[i][j] < probability {
-					central.SetNextState(r.nextState[central.State])
-					return
-				}
-
-			}
+	for _, tuple := range r.deltaPos {
+		neighborState := r.getStateByRelativePosition(i, tuple[0], j, tuple[1])
+		if !neighborState.IsFire() {
+			continue
 		}
 
-	}
-}
-
-func getProbabilities(neighbors [][]*cell.Cell) [][]float64 {
-	var numRows, numCols int = len(neighbors), len(neighbors[0])
-	probabilities := make([][]float64, len(neighbors))
-
-	for i := 0; i < numRows; i++ {
-		probabilities[i] = make([]float64, len(neighbors[i]))
-		for j := 0; j < numCols; j++ {
-			probabilities[i][j] = rand.Float64()
+		probability := r.probFireSpreadTo[neighborState] * r.probCentralCatchingFire[central.State] * r.humidityInfluence * r.windMatrix.GetByRelativeNeighborhoodPosition(tuple[0], tuple[1])
+		if rand.Float64() < probability {
+			central.SetNextState(r.nextState[central.State])
+			return
 		}
 	}
-
-	return probabilities
 }
 
 func calculateHumidityInfluence(humidity float32) float64 {
@@ -242,4 +224,26 @@ func calculateHumidityInfluence(humidity float32) float64 {
 	default:
 		return 0
 	}
+}
+
+func (r *ModelRunner) getStateByRelativePosition(currI, deltaI, currJ, deltaJ int) cell.CellState {
+	i := currI + deltaI
+	j := currJ + deltaJ
+	if i < 0 || i >= len(*r.board) || j < 0 || j >= len((*r.board)[0]) {
+		return cell.WATER
+	}
+	return (*r.board)[i][j].State
+}
+
+func positionsToLook(radius int) [][]int {
+	positions := make([][]int, 0)
+	for i := -radius; i <= radius; i++ {
+		for j := -radius; j <= radius; j++ {
+			if i == 0 && j == 0 {
+				continue
+			}
+			positions = append(positions, []int{i, j})
+		}
+	}
+	return positions
 }

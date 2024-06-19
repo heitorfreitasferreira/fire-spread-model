@@ -50,13 +50,13 @@ func main() {
 
 	switch fileargs.Mode {
 	case automata:
-		acClaudiney(fileargs)
+		ac(fileargs)
 	case evolve:
 		ag(fileargs)
 	}
 }
 
-func acClaudiney(fileargs args) {
+func ac(fileargs args) {
 	startTime := time.Now()
 
 	modelParams := model.Parameters{

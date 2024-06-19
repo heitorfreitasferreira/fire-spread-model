@@ -24,10 +24,11 @@ type MatrixParams struct {
 	MultBase  float64
 	Decai     float64
 	Direction WindDirection
+	Radius    int
 }
 
-func (params MatrixParams) CreateMatrix() [][]float64 {
-	matrizVento := make([][]float64, 3)
+func (params MatrixParams) CreateMatrix() WindMatrix {
+	var matrizVento WindMatrix = make([][]float64, 3)
 	for i := range matrizVento {
 		matrizVento[i] = make([]float64, 3)
 	}
@@ -52,8 +53,7 @@ func (params MatrixParams) CreateMatrix() [][]float64 {
 		SE: 7,
 	}
 	rotate(matrizVento, rotationTimesPerDirection[params.Direction])
-
-	return matrizVento
+	return matrizVento.Expand(params.Radius)
 }
 
 func rotate(matrix [][]float64, times int) {
