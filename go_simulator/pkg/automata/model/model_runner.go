@@ -8,16 +8,6 @@ import (
 	"github.com/heitorfreitasferreira/fireSpreadSimultor/utils"
 )
 
-type Parameters struct {
-	InfluenciaUmidade                   float64
-	ProbEspalhamentoFogoInicial         float64
-	ProbEspalhamentoFogoArvoreQueimando float64
-	ProbEspalhamentoFogoQueimaLenta     float64
-	InfluenciaVegetacaoCampestre        float64
-	InfluenciaVegetacaoSavanica         float64
-	InfluenciaVegetacaoFlorestal        float64
-}
-
 type ModelRunner struct {
 	params Parameters
 
@@ -118,30 +108,6 @@ func NewRunner(modelParams Parameters, windParams MatrixParams, humidity float32
 		radius:   windParams.Radius,
 	}
 }
-
-func RandomParams() Parameters {
-	modelParameters := Parameters{}
-	modelParameters.InfluenciaUmidade = rand.Float64()
-	modelParameters.ProbEspalhamentoFogoInicial = rand.Float64()
-	modelParameters.ProbEspalhamentoFogoArvoreQueimando = rand.Float64()
-	modelParameters.ProbEspalhamentoFogoQueimaLenta = rand.Float64()
-	modelParameters.InfluenciaVegetacaoCampestre = rand.Float64()
-	modelParameters.InfluenciaVegetacaoSavanica = rand.Float64()
-	modelParameters.InfluenciaVegetacaoFlorestal = rand.Float64()
-	return modelParameters
-}
-
-func (modelParameters *Parameters) AreValuesInOrder() bool {
-	return modelParameters.InfluenciaVegetacaoCampestre <
-		modelParameters.InfluenciaVegetacaoFlorestal &&
-		modelParameters.InfluenciaVegetacaoFlorestal <
-			modelParameters.InfluenciaVegetacaoSavanica &&
-		modelParameters.ProbEspalhamentoFogoQueimaLenta <
-			modelParameters.ProbEspalhamentoFogoInicial &&
-		modelParameters.ProbEspalhamentoFogoInicial <
-			modelParameters.ProbEspalhamentoFogoArvoreQueimando
-}
-
 func (r *ModelRunner) Step(i, j int) {
 	var central *cell.Cell = (*r.board)[i][j]
 
@@ -210,22 +176,6 @@ func (r *ModelRunner) stepBurnable(i, j int) {
 		}
 	}
 }
-
-func calculateHumidityInfluence(humidity float32) float64 {
-	switch {
-	case humidity > 0.0 && humidity <= 0.25:
-		return 1.5
-	case humidity > 0.25 && humidity <= 0.5:
-		return 1.0
-	case humidity > 0.5 && humidity <= 0.75:
-		return 0.8
-	case humidity > 0.75 && humidity <= 1.0:
-		return 0.6
-	default:
-		return 0
-	}
-}
-
 func (r *ModelRunner) getStateByRelativePosition(currI, deltaI, currJ, deltaJ int) cell.CellState {
 	i := currI + deltaI
 	j := currJ + deltaJ
