@@ -3,7 +3,8 @@
 
 # Simulações
 simulacoes/*
-
+./go_simulator/bin/*
+*/**/*2024*/*
 # Vscode
 .vscode/*
 
