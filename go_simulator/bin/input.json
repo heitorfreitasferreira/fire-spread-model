@@ -2,7 +2,7 @@
     "Mode": "automata",
     "Seed": 0,
     "InputFile": "./input.json",
-    "OutputType": "multiple-txt",
+    "OutputType": "console-end",
     "OutputFile": "./output.json",
     "GeneticParams": {
         "Generations": 10,

@@ -21,21 +21,13 @@ const (
 	evolve   runMode = "genetic"
 )
 
-type outputType string
-
-const (
-	singleJson    outputType = "single-json"
-	folderOfTxt   outputType = "multiple-txt"
-	viewSparkData outputType = "view-spark-data"
-)
-
 type args struct {
 	GeneticParams genetic.GeneticAlgorithmParams
 	LatticeParams lattice.LatticeParams
 	WindParams    model.MatrixParams
 
 	Mode       runMode
-	OutputType outputType
+	OutputType loggers.OutputType
 
 	Seed       int64
 	InputFile  string
@@ -73,12 +65,17 @@ func ac(fileargs args) {
 	l := lattice.CreateLattice(fileargs.LatticeParams, fileargs.WindParams, modelParams)
 
 	simulation := l.Run()
-	if fileargs.OutputType == folderOfTxt {
+	switch fileargs.OutputType {
+	case loggers.FolderOfTxt:
 		loggers.SalveSimulationInManyFilesInFolder(simulation, fileargs.LatticeParams)
-	}
-	if fileargs.OutputType == viewSparkData {
-		loggers.ViewSparkData(simulation, fileargs.LatticeParams)
-
+	case loggers.ViewSparkData:
+		loggers.ViewFirstSparkPos(simulation, fileargs.LatticeParams)
+	case loggers.SingleJson:
+		loggers.SaveSimulationInSingleJsonFile(simulation, fileargs.LatticeParams, fileargs.OutputFile)
+	case loggers.ViewInConsole:
+		simulation.ViewLattice()
+	case loggers.ViewInConsoleEndOfLattice:
+		simulation.ViewLastIteration()
 	}
 	fmt.Println("Tempo total: ", time.Since(startTime))
 }
