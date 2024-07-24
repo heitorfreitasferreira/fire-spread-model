@@ -5,7 +5,6 @@ import (
 	"math/rand"
 
 	"github.com/heitorfreitasferreira/fireSpreadSimultor/pkg/automata/lattice/cell"
-	"github.com/heitorfreitasferreira/fireSpreadSimultor/utils"
 )
 
 type ModelRunner struct {
@@ -124,42 +123,6 @@ func (r *ModelRunner) Step(i, j int) {
 	}
 }
 
-func (r *ModelRunner) PlantFireSeeds() {
-	for i, row := range *r.board {
-		for j, c := range row {
-			if c.State == cell.FIRE {
-				r.plantFireSeedFrom(i, j)
-			}
-		}
-	}
-}
-
-func (r *ModelRunner) plantFireSeedFrom(i, j int) {
-	const fireSeedCreationProbabilityTreshold = 0.0
-	if rand.Float64() > fireSeedCreationProbabilityTreshold {
-		return
-	}
-
-	positions := NLowestPositions(3, r.windMatrix)
-	latticeHeight := len(*r.board)
-	latticeWidth := len((*r.board)[0])
-
-	maxDistance := 3
-	pos := positions[rand.Intn(len(positions))]
-
-	iRange := rand.Intn(maxDistance)
-	iDeltaUnClamped := (pos.I - 1) * iRange
-	iDelta := utils.Clamp(iDeltaUnClamped, 0, (latticeHeight - 1))
-
-	jRange := rand.Intn(maxDistance)
-	jDeltaUnClamped := (pos.J - 1) * jRange
-	jDelta := utils.Clamp(jDeltaUnClamped, 0, (latticeWidth - 1))
-
-	(*r.board)[i+iDelta][j+jDelta].HasFireSeed = true
-
-	fmt.Printf("Planting fire seed at i:%d, j:%d\n", i+iDelta, j+jDelta)
-}
-
 func (r *ModelRunner) stepBurnable(i, j int) {
 	central := (*r.board)[i][j]
 
@@ -175,26 +138,4 @@ func (r *ModelRunner) stepBurnable(i, j int) {
 			return
 		}
 	}
-}
-
-func (r *ModelRunner) getStateByRelativePosition(currI, deltaI, currJ, deltaJ int) cell.CellState {
-	i := currI + deltaI
-	j := currJ + deltaJ
-	if i < 0 || i >= len(*r.board) || j < 0 || j >= len((*r.board)[0]) {
-		return cell.WATER
-	}
-	return (*r.board)[i][j].State
-}
-
-func positionsToLook(radius int) [][]int {
-	positions := make([][]int, 0)
-	for i := -radius; i <= radius; i++ {
-		for j := -radius; j <= radius; j++ {
-			if i == 0 && j == 0 {
-				continue
-			}
-			positions = append(positions, []int{i, j})
-		}
-	}
-	return positions
 }

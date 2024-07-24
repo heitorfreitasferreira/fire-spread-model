@@ -1,5 +1,7 @@
 package model
 
+import "github.com/heitorfreitasferreira/fireSpreadSimultor/pkg/automata/lattice/cell"
+
 func calculateHumidityInfluence(humidity float32) float64 {
 	switch {
 	case humidity > 0.0 && humidity <= 0.25:
@@ -13,4 +15,25 @@ func calculateHumidityInfluence(humidity float32) float64 {
 	default:
 		return 0
 	}
+}
+func (r *ModelRunner) getStateByRelativePosition(currI, deltaI, currJ, deltaJ int) cell.CellState {
+	i := currI + deltaI
+	j := currJ + deltaJ
+	if i < 0 || i >= len(*r.board) || j < 0 || j >= len((*r.board)[0]) {
+		return cell.WATER
+	}
+	return (*r.board)[i][j].State
+}
+
+func positionsToLook(radius int) [][]int {
+	positions := make([][]int, 0)
+	for i := -radius; i <= radius; i++ {
+		for j := -radius; j <= radius; j++ {
+			if i == 0 && j == 0 {
+				continue
+			}
+			positions = append(positions, []int{i, j})
+		}
+	}
+	return positions
 }
