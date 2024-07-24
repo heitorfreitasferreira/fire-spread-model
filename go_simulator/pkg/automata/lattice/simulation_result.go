@@ -15,7 +15,6 @@ func (result *SimulationResult) ViewLattice() {
 }
 
 func (result SimulationResult) ToString() string {
-	fmt.Printf("Cheguei aqui\n")
 	var separator string
 	var sb = strings.Builder{}
 	for i := 0; i < len(result[0]); i++ {
@@ -33,9 +32,8 @@ func (result SimulationResult) ToString() string {
 			// str += "\n"
 		}
 		// str += fmt.Sprintf("\n%s\n\n", separator)
-		sb.WriteString(fmt.Sprintf("\n%s\n\n", separator))
+		sb.WriteString(fmt.Sprintf("%s\n", separator))
 	}
-	// return str
 	return sb.String()
 }
 
