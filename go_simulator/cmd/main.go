@@ -5,6 +5,7 @@ import (
 	"flag"
 	"fmt"
 	"log"
+	"math/rand"
 	"os"
 	"time"
 
@@ -36,7 +37,13 @@ type args struct {
 
 func main() {
 	var filepath string
+	var seed int64
 	flag.StringVar(&filepath, "config", "./input.json", "Path to the config file")
+	flag.Int64Var(&seed, "seed", -1, "Seed for random number generation")
+
+	if seed != -1 {
+		rand.Seed(seed)
+	}
 	flag.Parse()
 
 	fileargs := getArgsFromFile(filepath)
@@ -50,8 +57,6 @@ func main() {
 }
 
 func ac(fileargs args) {
-	startTime := time.Now()
-
 	modelParams := model.Parameters{
 		InfluenciaUmidade:                   1,
 		ProbEspalhamentoFogoInicial:         0.6,
@@ -77,7 +82,6 @@ func ac(fileargs args) {
 	case loggers.ViewInConsoleEndOfLattice:
 		simulation.ViewLastIteration()
 	}
-	fmt.Println("Tempo total: ", time.Since(startTime))
 }
 
 func ag(fileargs args) {
