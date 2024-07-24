@@ -7,22 +7,19 @@ import (
 )
 
 type Lattice struct {
-	Height        uint8
-	Width         uint8
+	Height        int
+	Width         int
 	Humidity      float32
-	Iterations    uint16
+	Iterations    int
 	WindDirection model.WindDirection
 	Cells         [][]*cell.Cell
 	InitialState  cell.CellState
-	fireStarters  [][]utils.Vector2D
+	fireStarters  [][]utils.Vector2D[int]
 
 	modelRunner model.ModelRunner
 }
 
-var watterCell = cell.CreateCell(cell.WATER, 0, 0, 0)
-
 func CreateLattice(p LatticeParams, windParams model.MatrixParams, modelParams model.Parameters) Lattice {
-
 	altitudeMatrix := make([][]float32, p.Height)
 	for i := range altitudeMatrix {
 		altitudeMatrix[i] = make([]float32, p.Width)
@@ -31,67 +28,63 @@ func CreateLattice(p LatticeParams, windParams model.MatrixParams, modelParams m
 		}
 	}
 
-	initialStates := make([][]cell.CellState, p.Height)
-	for i := range initialStates {
-		initialStates[i] = make([]cell.CellState, p.Width)
-		for j := range initialStates[i] {
-			initialStates[i][j] = p.InitialState
-		}
+	fires := make([][]utils.Vector2D[int], p.Iterations)
+	for i := 0; i < int(p.Iterations); i++ {
+		fires[i] = make([]utils.Vector2D[int], 0)
 	}
 
-	fires := make([][]utils.Vector2D, p.Iterations)
-	for i := 0; i < int(p.Iterations); i++ {
-		fires[i] = make([]utils.Vector2D, 0)
-	}
 	for _, spot := range p.FireSpots {
-		fires[spot.K] = append(fires[spot.K], utils.Vector2D{
+		fires[spot.K] = append(fires[spot.K], utils.Vector2D[int]{
 			I: spot.I,
 			J: spot.J,
 		})
 	}
 
+	if len(p.InitialState) != int(p.Height) || len(p.InitialState[0]) != int(p.Width) {
+		panic("Initial state matrix does not match the lattice dimensions")
+	}
+	board := createCellMatrix(
+		p.Height,
+		p.Width,
+		p.InitialState,
+		altitudeMatrix,
+		fires[0])
 	return Lattice{
 		Height:       p.Height,
 		Width:        p.Width,
 		Humidity:     p.Humidity,
 		Iterations:   p.Iterations,
 		fireStarters: fires,
-		modelRunner:  model.NewRunner(modelParams, windParams, p.Humidity),
-		Cells: createCellMatrix(
-			p.Height,
-			p.Width,
-			initialStates,
-			altitudeMatrix,
-			fires[0]),
+		modelRunner:  model.NewRunner(modelParams, windParams, p.Humidity, &board),
+		Cells:        board,
 	}
 }
 
 func (lattice *Lattice) Run() SimulationResult {
 	returnable := make([][][]cell.CellState, lattice.Iterations)
 
-	for i := uint16(0); i < lattice.Iterations; i++ {
+	for i := 0; i < lattice.Iterations; i++ {
 		returnable[i] = lattice.runOneIteration(i)
 	}
+
 	return returnable
 }
 
-func (lattice *Lattice) runOneIteration(iteration uint16) [][]cell.CellState {
+func (lattice *Lattice) runOneIteration(iteration int) [][]cell.CellState {
 	for _, spot := range lattice.fireStarters[iteration] {
 		lattice.Cells[spot.I][spot.J].State = cell.INITIAL_FIRE
 		lattice.Cells[spot.I][spot.J].NextState = cell.INITIAL_FIRE
 		lattice.Cells[spot.I][spot.J].IterationsInState = 0
 	}
 
-	for i := int16(0); i < int16(lattice.Height); i++ {
-		for j := int16(0); j < int16(lattice.Width); j++ {
-
-			neighborhood := lattice.determineNeighborhood(i, j)
-			lattice.modelRunner.Step(neighborhood)
+	for i := 0; i < lattice.Height; i++ {
+		for j := 0; j < lattice.Width; j++ {
+			lattice.modelRunner.Step(i, j)
 		}
 	}
 	lattice.updateAllCells()
 
-	lattice.modelRunner.PlantFireSeeds(lattice.Cells)
+	lattice.modelRunner.PlantFireSeeds()
 
 	return lattice.getCellsStates()
 }
@@ -117,39 +110,17 @@ func (lattice *Lattice) getCellsStates() [][]cell.CellState {
 	return states
 }
 
-func (lattice *Lattice) determineNeighborhood(i, j int16) [][]*cell.Cell {
-	neighborhoodSize := 3
-	halfSize := int16(neighborhoodSize / 2)
-	neighborhood := make([][]*cell.Cell, neighborhoodSize)
-	for k := range neighborhood {
-		neighborhood[k] = make([]*cell.Cell, neighborhoodSize)
-	}
-	for di := -halfSize; di <= halfSize; di++ {
-		for dj := -halfSize; dj <= halfSize; dj++ {
-			neighborI := i + di
-			neighborJ := j + dj
-
-			if neighborI < 0 || neighborI >= int16(lattice.Height) || neighborJ < 0 || neighborJ >= int16(lattice.Width) {
-				neighborhood[di+halfSize][dj+halfSize] = watterCell
-				continue
-			}
-			neighborhood[di+halfSize][dj+halfSize] = lattice.Cells[neighborI][neighborJ]
-		}
-	}
-	return neighborhood
-}
-
 func createCellMatrix(
-	height uint8,
-	width uint8,
+	height int,
+	width int,
 	initialStates [][]cell.CellState,
 	altitudeMatrix [][]float32,
-	fireSpots []utils.Vector2D) [][]*cell.Cell {
+	fireSpots []utils.Vector2D[int]) [][]*cell.Cell {
 	cells := make([][]*cell.Cell, height)
 	for i := range cells {
 		cells[i] = make([]*cell.Cell, width)
 		for j := range cells[i] {
-			cells[i][j] = cell.CreateCell(initialStates[i][j], uint8(i), uint8(j), altitudeMatrix[i][j])
+			cells[i][j] = cell.CreateCell(initialStates[i][j], altitudeMatrix[i][j])
 		}
 	}
 

@@ -8,13 +8,13 @@ import (
 )
 
 type LatticeParams struct {
-	Height     uint8
-	Width      uint8
+	Height     int
+	Width      int
 	Humidity   float32
-	Iterations uint16
+	Iterations int
 	// WindDirection model.WindDirection
-	InitialState cell.CellState
-	FireSpots    []utils.Vector3D
+	InitialState [][]cell.CellState
+	FireSpots    []utils.Vector3D[int]
 }
 
 func (p LatticeParams) ToString() string {

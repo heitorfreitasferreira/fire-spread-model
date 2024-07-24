@@ -1,8 +1,9 @@
 package utils
 
-type Vector3D struct {
-	I, J, K uint16
+type Vector3D[T any] struct {
+	I, J, K T
 }
-type Vector2D struct {
-	I, J uint16
+
+type Vector2D[T any] struct {
+	I, J T
 }

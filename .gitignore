@@ -3,7 +3,9 @@
 
 # Simulações
 simulacoes/*
-
+./go_simulator/bin/*
+*/**/*2024*/*
+model_evolution/river_test
 # Vscode
 .vscode/*
 

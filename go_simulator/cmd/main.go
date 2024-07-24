@@ -5,6 +5,7 @@ import (
 	"flag"
 	"fmt"
 	"log"
+	"math/rand"
 	"os"
 	"time"
 
@@ -21,20 +22,13 @@ const (
 	evolve   runMode = "genetic"
 )
 
-type outputType string
-
-const (
-	singleJson  outputType = "single-json"
-	folderOfTxt outputType = "multiple-txt"
-)
-
 type args struct {
 	GeneticParams genetic.GeneticAlgorithmParams
 	LatticeParams lattice.LatticeParams
 	WindParams    model.MatrixParams
 
 	Mode       runMode
-	OutputType outputType
+	OutputType loggers.OutputType
 
 	Seed       int64
 	InputFile  string
@@ -43,22 +37,26 @@ type args struct {
 
 func main() {
 	var filepath string
+	var seed int64
 	flag.StringVar(&filepath, "config", "./input.json", "Path to the config file")
+	flag.Int64Var(&seed, "seed", -1, "Seed for random number generation")
+
+	if seed != -1 {
+		rand.Seed(seed)
+	}
 	flag.Parse()
 
 	fileargs := getArgsFromFile(filepath)
 
 	switch fileargs.Mode {
 	case automata:
-		acClaudiney(fileargs)
+		ac(fileargs)
 	case evolve:
 		ag(fileargs)
 	}
 }
 
-func acClaudiney(fileargs args) {
-	startTime := time.Now()
-
+func ac(fileargs args) {
 	modelParams := model.Parameters{
 		InfluenciaUmidade:                   1,
 		ProbEspalhamentoFogoInicial:         0.6,
@@ -72,10 +70,18 @@ func acClaudiney(fileargs args) {
 	l := lattice.CreateLattice(fileargs.LatticeParams, fileargs.WindParams, modelParams)
 
 	simulation := l.Run()
-	if fileargs.OutputType == folderOfTxt {
+	switch fileargs.OutputType {
+	case loggers.FolderOfTxt:
 		loggers.SalveSimulationInManyFilesInFolder(simulation, fileargs.LatticeParams)
+	case loggers.ViewSparkData:
+		loggers.ViewFirstSparkPos(simulation, fileargs.LatticeParams)
+	case loggers.SingleJson:
+		loggers.SaveSimulationInSingleJsonFile(simulation, fileargs.LatticeParams, fileargs.OutputFile)
+	case loggers.ViewInConsole:
+		simulation.ViewLattice()
+	case loggers.ViewInConsoleEndOfLattice:
+		simulation.ViewLastIteration()
 	}
-	fmt.Println("Tempo total: ", time.Since(startTime))
 }
 
 func ag(fileargs args) {

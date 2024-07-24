@@ -24,10 +24,11 @@ type MatrixParams struct {
 	MultBase  float64
 	Decai     float64
 	Direction WindDirection
+	Radius    int
 }
 
-func (params MatrixParams) CreateMatrix() [][]float64 {
-	matrizVento := make([][]float64, 3)
+func (params MatrixParams) CreateMatrix() WindMatrix {
+	var matrizVento WindMatrix = make([][]float64, 3)
 	for i := range matrizVento {
 		matrizVento[i] = make([]float64, 3)
 	}
@@ -52,8 +53,7 @@ func (params MatrixParams) CreateMatrix() [][]float64 {
 		SE: 7,
 	}
 	rotate(matrizVento, rotationTimesPerDirection[params.Direction])
-
-	return matrizVento
+	return matrizVento.Expand(params.Radius)
 }
 
 func rotate(matrix [][]float64, times int) {
@@ -63,16 +63,16 @@ func rotate(matrix [][]float64, times int) {
 }
 
 // Retorna as posições dos n maiores valores da matriz (posição de onde o vento está vindo)
-func NBigestPositions(n int, matrix [][]float64) []utils.Vector2D {
-	biggests := make([]utils.Vector2D, n)
-	avaliables := make(map[utils.Vector2D]bool)
+func NBigestPositions(n int, matrix [][]float64) []utils.Vector2D[int] {
+	biggests := make([]utils.Vector2D[int], n)
+	avaliables := make(map[utils.Vector2D[int]]bool)
 	for i := 0; i < len(matrix); i++ {
 		for j := 0; j < len(matrix[i]); j++ {
-			avaliables[utils.Vector2D{I: uint16(i), J: uint16(j)}] = true
+			avaliables[utils.Vector2D[int]{I: i, J: j}] = true
 		}
 	}
 	for i := 0; i < n; i++ {
-		biggest := utils.Vector2D{I: 0, J: 0}
+		biggest := utils.Vector2D[int]{I: 0, J: 0}
 		biggestValue := 0.0
 		for pos, isAv := range avaliables {
 			if !isAv {
@@ -90,16 +90,16 @@ func NBigestPositions(n int, matrix [][]float64) []utils.Vector2D {
 }
 
 // Retorna as posições dos n menores valores da matriz (posição de onde o vento está indo)
-func NLowestPositions(n int, matrix [][]float64) []utils.Vector2D {
-	lowests := make([]utils.Vector2D, n)
-	avaliables := make(map[utils.Vector2D]bool)
+func NLowestPositions(n int, matrix [][]float64) []utils.Vector2D[int] {
+	lowests := make([]utils.Vector2D[int], n)
+	avaliables := make(map[utils.Vector2D[int]]bool)
 	for i := 0; i < len(matrix); i++ {
 		for j := 0; j < len(matrix[i]); j++ {
-			avaliables[utils.Vector2D{I: uint16(i), J: uint16(j)}] = true
+			avaliables[utils.Vector2D[int]{I: i, J: j}] = true
 		}
 	}
 	for i := 0; i < n; i++ {
-		lowest := utils.Vector2D{I: 0, J: 0}
+		lowest := utils.Vector2D[int]{I: 0, J: 0}
 		lowestValue := math.MaxFloat64
 		for pos, isAv := range avaliables {
 			if !isAv {

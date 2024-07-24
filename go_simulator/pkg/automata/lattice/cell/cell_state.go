@@ -1,5 +1,7 @@
 package cell
 
+import "encoding/json"
+
 type CellState uint8
 
 const (
@@ -33,4 +35,19 @@ func BurnableStates() []CellState {
 
 func AllStates() []CellState {
 	return []CellState{ASH, INITIAL_FIRE, FIRE, EMBER, MEADOW, SAVANNAH, FOREST, WATER, ROOTS}
+}
+
+// Método MarshalJSON para CellState
+func (c CellState) MarshalJSON() ([]byte, error) {
+	return json.Marshal(uint8(c))
+}
+
+// Método UnmarshalJSON para CellState (para referência futura)
+func (c *CellState) UnmarshalJSON(data []byte) error {
+	var value uint8
+	if err := json.Unmarshal(data, &value); err != nil {
+		return err
+	}
+	*c = CellState(value)
+	return nil
 }

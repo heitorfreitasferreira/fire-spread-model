@@ -2,7 +2,7 @@
     "Mode": "automata",
     "Seed": 0,
     "InputFile": "./input.json",
-    "OutputType": "console-end",
+    "OutputType": "console",
     "OutputFile": "./output.json",
     "GeneticParams": {
         "Generations": 10,
@@ -23,7 +23,7 @@
         "Height": 64,
         "Width": 64,
         "Humidity": 0.5,
-        "Iterations": 100,
+        "Iterations": 50,
         "InitialState": [
             [
                 5,
@@ -4263,6 +4263,6 @@
         "MultBase": 0.16,
         "Decai": 0.03,
         "Direction": "W",
-        "Radius": 1
+        "Radius": 2
     }
 }
