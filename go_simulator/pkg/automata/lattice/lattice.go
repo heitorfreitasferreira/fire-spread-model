@@ -1,6 +1,8 @@
 package lattice
 
 import (
+	"math/rand"
+
 	"github.com/heitorfreitasferreira/fireSpreadSimultor/pkg/automata/lattice/cell"
 	"github.com/heitorfreitasferreira/fireSpreadSimultor/pkg/automata/model"
 	"github.com/heitorfreitasferreira/fireSpreadSimultor/utils"
@@ -19,7 +21,7 @@ type Lattice struct {
 	model.ModelRunner
 }
 
-func CreateLattice(p LatticeParams, windParams model.WindParams, modelParams model.Parameters) Lattice {
+func CreateLattice(p LatticeParams, windParams model.WindParams, modelParams model.Parameters, numberGenerator *rand.Rand) Lattice {
 	altitudeMatrix := make([][]float32, p.Height)
 	for i := range altitudeMatrix {
 		altitudeMatrix[i] = make([]float32, p.Width)
@@ -55,7 +57,7 @@ func CreateLattice(p LatticeParams, windParams model.WindParams, modelParams mod
 		Humidity:     p.Humidity,
 		Iterations:   p.Iterations,
 		fireStarters: fires,
-		ModelRunner:  model.NewRunner(modelParams, windParams, p.Humidity, &board),
+		ModelRunner:  model.NewRunner(modelParams, windParams, p.Humidity, &board, numberGenerator),
 		Cells:        board,
 	}
 }

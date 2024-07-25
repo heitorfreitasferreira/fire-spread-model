@@ -31,10 +31,12 @@ var singleSimulationCmd = &cobra.Command{
 		seed, _ := cmd.Flags().GetInt64("seed")
 		persist, _ := cmd.Flags().GetBool("persist")
 		file := getArgsFromFile(filepath)
-		if seed != -1 {
-			rand.Seed(seed)
+		var randGenerator *rand.Rand
+		if seed == -1 {
+			randGenerator = &rand.Rand{}
+		} else {
+			randGenerator = rand.New(rand.NewSource(seed))
 		}
-
 		modelParams := model.Parameters{
 			InfluenciaUmidade:                   1,
 			ProbEspalhamentoFogoInicial:         0.6,
@@ -44,7 +46,7 @@ var singleSimulationCmd = &cobra.Command{
 			InfluenciaVegetacaoSavanica:         1,
 			InfluenciaVegetacaoFlorestal:        0.8,
 		}
-		runner := lattice.CreateLattice(file.LatticeParams, file.WindParams, modelParams)
+		runner := lattice.CreateLattice(file.LatticeParams, file.WindParams, modelParams, randGenerator)
 		simulation := runner.Run()
 
 		if persist {

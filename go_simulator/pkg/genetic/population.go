@@ -20,7 +20,7 @@ func individualCreator(
 	fitnessCalculator := GetFitnessCalculator(goal)
 
 	return func(cromossome Cromossome) *Individual {
-		err, modelParam := cromossome.toModelParams()
+		modelParam, err := cromossome.toModelParams()
 		if err != nil || !cromossome.isValid() {
 			return &Individual{
 				Genotype: cromossome,

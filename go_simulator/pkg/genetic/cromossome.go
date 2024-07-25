@@ -19,11 +19,11 @@ func (cromossome *Cromossome) ToString(separator string) string {
 	return str
 }
 
-func (cromossome *Cromossome) toModelParams() (error, model.Parameters) {
+func (cromossome *Cromossome) toModelParams() (model.Parameters, error) {
 	if len(*cromossome) != 7 {
-		return &InvalidCromossomeError{}, model.Parameters{}
+		return model.Parameters{}, &InvalidCromossomeError{}
 	}
-	return nil, model.Parameters{
+	return model.Parameters{
 		InfluenciaUmidade:                   (*cromossome)[0],
 		ProbEspalhamentoFogoInicial:         (*cromossome)[1],
 		ProbEspalhamentoFogoArvoreQueimando: (*cromossome)[2],
@@ -31,7 +31,7 @@ func (cromossome *Cromossome) toModelParams() (error, model.Parameters) {
 		InfluenciaVegetacaoCampestre:        (*cromossome)[4],
 		InfluenciaVegetacaoSavanica:         (*cromossome)[5],
 		InfluenciaVegetacaoFlorestal:        (*cromossome)[6],
-	}
+	}, nil
 }
 
 func fromModelParams(params model.Parameters) Cromossome {
@@ -46,17 +46,17 @@ func fromModelParams(params model.Parameters) Cromossome {
 	}
 }
 
-func modelParamsToArray(params model.Parameters) []float64 {
-	return []float64{
-		params.InfluenciaUmidade,
-		params.ProbEspalhamentoFogoInicial,
-		params.ProbEspalhamentoFogoArvoreQueimando,
-		params.ProbEspalhamentoFogoQueimaLenta,
-		params.InfluenciaVegetacaoCampestre,
-		params.InfluenciaVegetacaoSavanica,
-		params.InfluenciaVegetacaoFlorestal,
-	}
-}
+// func modelParamsToArray(params model.Parameters) []float64 {
+// 	return []float64{
+// 		params.InfluenciaUmidade,
+// 		params.ProbEspalhamentoFogoInicial,
+// 		params.ProbEspalhamentoFogoArvoreQueimando,
+// 		params.ProbEspalhamentoFogoQueimaLenta,
+// 		params.InfluenciaVegetacaoCampestre,
+// 		params.InfluenciaVegetacaoSavanica,
+// 		params.InfluenciaVegetacaoFlorestal,
+// 	}
+// }
 
 func (c *Cromossome) isValid() bool {
 	correctAmout := len(*c) == 7
@@ -68,7 +68,7 @@ func (c *Cromossome) isValid() bool {
 			break
 		}
 	}
-	err, mParams := c.toModelParams()
+	mParams, err := c.toModelParams()
 	if err != nil {
 		return false
 	}
@@ -79,8 +79,4 @@ type InvalidCromossomeError struct{}
 
 func (e *InvalidCromossomeError) Error() string {
 	return "Invalid cromossome length"
-}
-
-func NewRandomCromossome() Cromossome {
-	return fromModelParams(model.RandomParams())
 }

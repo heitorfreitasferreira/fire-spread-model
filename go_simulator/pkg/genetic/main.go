@@ -69,6 +69,6 @@ func (e *evolver) stepOneGeneration() {
 		childern[i] = e.newIndividual(cromossome)
 	}
 	e.population = append(e.population, childern...)
-	e.selector.killWeak(e.population)
+	e.selector.killWeak(&e.population)
 
 }

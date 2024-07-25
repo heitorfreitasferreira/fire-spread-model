@@ -45,9 +45,9 @@ func (s TournamentMatingPoolSelectorWithoutReposition) matingPool(
 	selected := make(Population, s.matingPoolSize)
 	avaliablesIndexes := make([]int, len(population)) // 0 (default) is avaliable
 	for i := range selected {
-		selectedIdx := tournamentSelection(population, s.k)
+		selectedIdx := tournamentSelection(&population, s.k)
 		for avaliablesIndexes[selectedIdx] != 0 { // Sem reposição
-			selectedIdx = tournamentSelection(population, s.k)
+			selectedIdx = tournamentSelection(&population, s.k)
 		}
 		selected[i] = population[selectedIdx]
 		avaliablesIndexes[selectedIdx] = 1
