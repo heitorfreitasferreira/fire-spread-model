@@ -7,7 +7,7 @@ import (
 func CreateAndRunLatticesParallel(
 	params LatticeParams,
 	modelParams model.Parameters,
-	windParams model.MatrixParams,
+	windParams model.WindParams,
 	numberOfSimulations uint16,
 
 ) []SimulationResult {

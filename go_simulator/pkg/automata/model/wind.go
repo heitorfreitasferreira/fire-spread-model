@@ -19,7 +19,7 @@ const (
 	NW WindDirection = "NW"
 )
 
-type MatrixParams struct {
+type WindParams struct {
 	Coef      float64
 	MultBase  float64
 	Decai     float64
@@ -27,7 +27,7 @@ type MatrixParams struct {
 	Radius    int
 }
 
-func (params MatrixParams) CreateMatrix() WindMatrix {
+func (params WindParams) CreateMatrix() WindMatrix {
 	var matrizVento WindMatrix = make([][]float64, 3)
 	for i := range matrizVento {
 		matrizVento[i] = make([]float64, 3)

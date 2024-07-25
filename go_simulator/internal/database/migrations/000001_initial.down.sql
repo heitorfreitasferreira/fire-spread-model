@@ -1,0 +1,5 @@
+DROP TABLE IF EXISTS lattice;
+
+DROP TABLE IF EXISTS wind;
+
+DROP TABLE IF EXISTS model_params;

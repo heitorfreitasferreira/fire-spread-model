@@ -8,9 +8,9 @@ import (
 )
 
 type ModelRunner struct {
-	params Parameters
+	Parameters
 
-	windMatrix WindMatrix
+	WindMatrix
 
 	humidityInfluence float64
 
@@ -28,7 +28,7 @@ type ModelRunner struct {
 	board *[][]*cell.Cell
 }
 
-func NewRunner(modelParams Parameters, windParams MatrixParams, humidity float32, board *[][]*cell.Cell) ModelRunner {
+func NewRunner(modelParams Parameters, windParams WindParams, humidity float32, board *[][]*cell.Cell) ModelRunner {
 
 	var nextState = map[cell.CellState]cell.CellState{
 		cell.ASH:          cell.ASH,
@@ -91,7 +91,7 @@ func NewRunner(modelParams Parameters, windParams MatrixParams, humidity float32
 		cell.FOREST:   0.05,
 	}
 	return ModelRunner{
-		params:         modelParams,
+		Parameters:     modelParams,
 		nextState:      nextState,
 		maxTimeInState: maxTimeInState,
 
@@ -100,7 +100,7 @@ func NewRunner(modelParams Parameters, windParams MatrixParams, humidity float32
 		probFireSeedCatchingFire: probFireSeedCatchingFire,
 
 		humidityInfluence: calculateHumidityInfluence(humidity),
-		windMatrix:        windParams.CreateMatrix(),
+		WindMatrix:        windParams.CreateMatrix(),
 
 		board:    board,
 		deltaPos: positionsToLook(windParams.Radius),
@@ -132,7 +132,7 @@ func (r *ModelRunner) stepBurnable(i, j int) {
 			continue
 		}
 
-		probability := r.probFireSpreadTo[neighborState] * r.probCentralCatchingFire[central.State] * r.humidityInfluence * r.windMatrix.GetByRelativeNeighborhoodPosition(tuple[0], tuple[1])
+		probability := r.probFireSpreadTo[neighborState] * r.probCentralCatchingFire[central.State] * r.humidityInfluence * r.WindMatrix.GetByRelativeNeighborhoodPosition(tuple[0], tuple[1])
 		if rand.Float64() < probability {
 			central.SetNextState(r.nextState[central.State])
 			return

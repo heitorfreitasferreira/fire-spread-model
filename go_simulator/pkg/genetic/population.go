@@ -13,7 +13,7 @@ type Individual struct {
 func individualCreator(
 	params GeneticAlgorithmParams,
 	latticeParams lattice.LatticeParams,
-	windParams model.MatrixParams,
+	windParams model.WindParams,
 	goal lattice.SimulationResult,
 ) func(cromossome Cromossome) *Individual {
 
