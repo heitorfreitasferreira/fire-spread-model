@@ -8,9 +8,11 @@ import (
 )
 
 type ModelRunner struct {
-	params Parameters
+	Parameters
 
-	windMatrix WindMatrix
+	WindMatrix
+
+	*rand.Rand
 
 	humidityInfluence float64
 
@@ -28,7 +30,7 @@ type ModelRunner struct {
 	board *[][]*cell.Cell
 }
 
-func NewRunner(modelParams Parameters, windParams MatrixParams, humidity float32, board *[][]*cell.Cell) ModelRunner {
+func NewRunner(modelParams Parameters, windParams WindParams, humidity float32, board *[][]*cell.Cell, numberGenerator *rand.Rand) ModelRunner {
 
 	var nextState = map[cell.CellState]cell.CellState{
 		cell.ASH:          cell.ASH,
@@ -91,7 +93,7 @@ func NewRunner(modelParams Parameters, windParams MatrixParams, humidity float32
 		cell.FOREST:   0.05,
 	}
 	return ModelRunner{
-		params:         modelParams,
+		Parameters:     modelParams,
 		nextState:      nextState,
 		maxTimeInState: maxTimeInState,
 
@@ -100,11 +102,12 @@ func NewRunner(modelParams Parameters, windParams MatrixParams, humidity float32
 		probFireSeedCatchingFire: probFireSeedCatchingFire,
 
 		humidityInfluence: calculateHumidityInfluence(humidity),
-		windMatrix:        windParams.CreateMatrix(),
+		WindMatrix:        windParams.CreateMatrix(),
 
 		board:    board,
 		deltaPos: positionsToLook(windParams.Radius),
 		radius:   windParams.Radius,
+		Rand:     numberGenerator,
 	}
 }
 func (r *ModelRunner) Step(i, j int) {
@@ -115,7 +118,7 @@ func (r *ModelRunner) Step(i, j int) {
 		return
 	}
 	if central.State.IsBurnable() {
-		if central.HasFireSeed && (rand.Float64() < r.probFireSeedCatchingFire[central.State]) {
+		if central.HasFireSeed && (r.Rand.Float64() < r.probFireSeedCatchingFire[central.State]) {
 			fmt.Printf("Fire seed caught fire\n")
 			central.SetNextState(r.nextState[central.State])
 		}
@@ -132,8 +135,8 @@ func (r *ModelRunner) stepBurnable(i, j int) {
 			continue
 		}
 
-		probability := r.probFireSpreadTo[neighborState] * r.probCentralCatchingFire[central.State] * r.humidityInfluence * r.windMatrix.GetByRelativeNeighborhoodPosition(tuple[0], tuple[1])
-		if rand.Float64() < probability {
+		probability := r.probFireSpreadTo[neighborState] * r.probCentralCatchingFire[central.State] * r.humidityInfluence * r.WindMatrix.GetByRelativeNeighborhoodPosition(tuple[0], tuple[1])
+		if r.Rand.Float64() < probability {
 			central.SetNextState(r.nextState[central.State])
 			return
 		}

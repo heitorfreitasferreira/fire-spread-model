@@ -1,25 +1,27 @@
 package lattice
 
 import (
+	"math/rand"
+
 	"github.com/heitorfreitasferreira/fireSpreadSimultor/pkg/automata/lattice/cell"
 	"github.com/heitorfreitasferreira/fireSpreadSimultor/pkg/automata/model"
 	"github.com/heitorfreitasferreira/fireSpreadSimultor/utils"
 )
 
 type Lattice struct {
-	Height        int
-	Width         int
-	Humidity      float32
-	Iterations    int
-	WindDirection model.WindDirection
-	Cells         [][]*cell.Cell
-	InitialState  cell.CellState
-	fireStarters  [][]utils.Vector2D[int]
+	Height       int
+	Width        int
+	Humidity     float32
+	Iterations   int
+	Cells        [][]*cell.Cell
+	InitialState cell.CellState
+	fireStarters [][]utils.Vector2D[int]
 
-	modelRunner model.ModelRunner
+	model.WindDirection
+	model.ModelRunner
 }
 
-func CreateLattice(p LatticeParams, windParams model.MatrixParams, modelParams model.Parameters) Lattice {
+func CreateLattice(p LatticeParams, windParams model.WindParams, modelParams model.Parameters, numberGenerator *rand.Rand) Lattice {
 	altitudeMatrix := make([][]float32, p.Height)
 	for i := range altitudeMatrix {
 		altitudeMatrix[i] = make([]float32, p.Width)
@@ -55,7 +57,7 @@ func CreateLattice(p LatticeParams, windParams model.MatrixParams, modelParams m
 		Humidity:     p.Humidity,
 		Iterations:   p.Iterations,
 		fireStarters: fires,
-		modelRunner:  model.NewRunner(modelParams, windParams, p.Humidity, &board),
+		ModelRunner:  model.NewRunner(modelParams, windParams, p.Humidity, &board, numberGenerator),
 		Cells:        board,
 	}
 }
@@ -79,12 +81,12 @@ func (lattice *Lattice) runOneIteration(iteration int) [][]cell.CellState {
 
 	for i := 0; i < lattice.Height; i++ {
 		for j := 0; j < lattice.Width; j++ {
-			lattice.modelRunner.Step(i, j)
+			lattice.ModelRunner.Step(i, j)
 		}
 	}
 	lattice.updateAllCells()
 
-	lattice.modelRunner.PlantFireSeeds()
+	lattice.ModelRunner.PlantFireSeeds()
 
 	return lattice.getCellsStates()
 }

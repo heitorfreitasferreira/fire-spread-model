@@ -24,7 +24,7 @@ func (r *ModelRunner) plantFireSeedFrom(i, j int) {
 		return
 	}
 
-	positions := NLowestPositions(3, r.windMatrix)
+	positions := NLowestPositions(3, r.WindMatrix)
 	latticeHeight := len(*r.board)
 	latticeWidth := len((*r.board)[0])
 

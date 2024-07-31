@@ -1,20 +1,22 @@
 package lattice
 
 import (
+	"math/rand"
+
 	"github.com/heitorfreitasferreira/fireSpreadSimultor/pkg/automata/model"
 )
 
 func CreateAndRunLatticesParallel(
 	params LatticeParams,
 	modelParams model.Parameters,
-	windParams model.MatrixParams,
+	windParams model.WindParams,
 	numberOfSimulations uint16,
 
 ) []SimulationResult {
 
 	var lattices []Lattice = make([]Lattice, numberOfSimulations)
 	for i := uint16(0); i < numberOfSimulations; i++ {
-		lattices[i] = CreateLattice(params, windParams, modelParams)
+		lattices[i] = CreateLattice(params, windParams, modelParams, &rand.Rand{})
 	}
 
 	var results []SimulationResult = make([]SimulationResult, numberOfSimulations)

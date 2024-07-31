@@ -25,7 +25,7 @@ func (result SimulationResult) ToString() string {
 	for _, iteration := range result {
 		for _, row := range iteration {
 			for _, c := range row {
-				sb.WriteString(fmt.Sprintf("%d ", c))
+				sb.WriteString(c.ToColoredString())
 				// str += fmt.Sprintf("%d ", c)
 			}
 			sb.WriteString("\n")

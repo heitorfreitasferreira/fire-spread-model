@@ -1,6 +1,9 @@
 package cell
 
-import "encoding/json"
+import (
+	"encoding/json"
+	"fmt"
+)
 
 type CellState uint8
 
@@ -50,4 +53,19 @@ func (c *CellState) UnmarshalJSON(data []byte) error {
 	}
 	*c = CellState(value)
 	return nil
+}
+
+func (c CellState) ToColoredString() string {
+	colors := []int{
+		235, // ASH
+		203, // INITIAL_FIRE
+		196, // FIRE
+		124, // EMBER
+		100, // MEADOW
+		106, // SAVANNAH
+		22,  // FOREST
+		27,  // WATER
+		130, // ROOTS
+	}
+	return fmt.Sprintf("\033[48;5;%dm  \033[0m", colors[c])
 }

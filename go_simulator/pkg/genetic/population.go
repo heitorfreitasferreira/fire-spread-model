@@ -13,14 +13,14 @@ type Individual struct {
 func individualCreator(
 	params GeneticAlgorithmParams,
 	latticeParams lattice.LatticeParams,
-	windParams model.MatrixParams,
+	windParams model.WindParams,
 	goal lattice.SimulationResult,
 ) func(cromossome Cromossome) *Individual {
 
 	fitnessCalculator := GetFitnessCalculator(goal)
 
 	return func(cromossome Cromossome) *Individual {
-		err, modelParam := cromossome.toModelParams()
+		modelParam, err := cromossome.toModelParams()
 		if err != nil || !cromossome.isValid() {
 			return &Individual{
 				Genotype: cromossome,
