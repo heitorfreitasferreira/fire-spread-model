@@ -3,6 +3,7 @@ package cmd
 import (
 	"log"
 	"math/rand"
+	"time"
 
 	"github.com/heitorfreitasferreira/fireSpreadSimultor/internal/database"
 	"github.com/heitorfreitasferreira/fireSpreadSimultor/internal/loggers"
@@ -12,7 +13,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-type args struct {
+type config struct {
 	genetic.GeneticAlgorithmParams `json:"GeneticAlgorithmParams"`
 	lattice.LatticeParams          `json:"LatticeParams"`
 	model.WindParams               `json:"WindParams"`
@@ -33,7 +34,7 @@ var singleSimulationCmd = &cobra.Command{
 		file := getArgsFromFile(filepath)
 		var randGenerator *rand.Rand
 		if seed == -1 {
-			randGenerator = &rand.Rand{}
+			randGenerator = rand.New(rand.NewSource(time.Now().UnixMicro()))
 		} else {
 			randGenerator = rand.New(rand.NewSource(seed))
 		}
@@ -52,10 +53,11 @@ var singleSimulationCmd = &cobra.Command{
 		if persist {
 			db := database.New()
 
-			err := db.StoreSimulation(file.LatticeParams, file.WindParams, model.DefaultParams, runner.ModelRunner.WindMatrix, simulation)
+			id, err := db.StoreSimulation(file.LatticeParams, file.WindParams, model.DefaultParams, runner.ModelRunner.WindMatrix, simulation)
 			if err != nil {
 				log.Fatal(err)
 			}
+			log.Printf("Simulation persisted with id: %d", id)
 		} else {
 			switch file.OutputType {
 			case loggers.FolderOfTxt:

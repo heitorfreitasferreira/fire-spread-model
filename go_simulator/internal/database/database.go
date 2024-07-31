@@ -9,14 +9,14 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/heitorfreitasferreira/fireSpreadSimultor/internal/repository"
 	_ "github.com/joho/godotenv/autoload"
 	_ "github.com/mattn/go-sqlite3"
 )
 
 // Service represents a service that interacts with a database.
 type Service interface {
-	repository.LatticeRepository
+	LatticeRepository
+	SparkRepository
 	// Health returns a map of health status information.
 	// The keys and values in the map are service-specific.
 	Health() map[string]string

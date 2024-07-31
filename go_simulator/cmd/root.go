@@ -25,4 +25,9 @@ func init() {
 	singleSimulationCmd.Flags().String("config", "./input.json", "Path to the config file")
 	singleSimulationCmd.Flags().Int64("seed", -1, "Seed for random number generation")
 	singleSimulationCmd.Flags().Bool("persist", false, "Persist the simulation in the database")
+
+	rootCmd.AddCommand(riverCmd)
+
+	riverCmd.Flags().String("config", "./input.json", "Path to the config file")
+	riverCmd.Flags().Int("simulations", 100, "Number of simulations to run")
 }

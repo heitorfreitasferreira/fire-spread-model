@@ -6,14 +6,14 @@ import (
 	"os"
 )
 
-func getArgsFromFile(relativePath string) args {
+func getArgsFromFile(relativePath string) config {
 	file, err := os.Open(relativePath)
 	if err != nil {
 		log.Fatalf("Erro ao abrir o arquivo: %v", err)
 	}
 	defer file.Close()
 
-	args := args{}
+	args := config{}
 
 	decoder := json.NewDecoder(file)
 	err = decoder.Decode(&args)

@@ -1,0 +1,1 @@
+DROP TABLE IF EXISTS spark_simulation_seed;
