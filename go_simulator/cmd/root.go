@@ -30,4 +30,9 @@ func init() {
 
 	riverCmd.Flags().String("config", "./input.json", "Path to the config file")
 	riverCmd.Flags().Int("simulations", 100, "Number of simulations to run")
+
+	rootCmd.AddCommand(queryByWindCmd)
+
+	queryByWindCmd.Flags().StringSliceP("direction", "d", []string{"N", "NE", "E", "SE", "S", "SW", "W", "NW"}, "Wind direction. Can be N, NE, E, SE, S, SW, W, NW. Default is all directions.")
+	queryByWindCmd.Flags().IntSlice("radius", []int{1, 2, 3, 4, 5}, "Spark radius. Default is [1,5].")
 }

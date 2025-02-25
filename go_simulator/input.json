@@ -4259,7 +4259,7 @@
         ]
     },
     "WindParams": {
-        "Coef": 1,
+        "Coef": 0.6,
         "MultBase": 0.16,
         "Decai": 0.03,
         "Direction": "W",

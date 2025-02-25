@@ -40,6 +40,28 @@ func TestGettingValueByRelativePos(t *testing.T) {
 		t.Errorf("Expected 7, got %f", ogMatrix.GetByRelativeNeighborhoodPosition(1, -1))
 	}
 }
+func TestNadaSoQueroVerAMatriz(t *testing.T) {
+	/**
+		"WindParams": {
+	        "Coef": 1,
+	        "MultBase": 0.16,
+	        "Decai": 0.03,
+	        "Direction": "W",
+	        "Radius": 2
+	    }
+	*/
+	windP := WindParams{
+		Coef:      1,
+		MultBase:  0.16,
+		Decai:     0.03,
+		Direction: "W",
+		Radius:    2,
+	}
+	og := windP.CreateMatrix()
+	_ = og
+	// expanded := og.Expand(2)
+	// _ = expanded
+}
 
 func TestFillingWindMatrixValues(t *testing.T) {
 	ogMatrix := WindMatrix{

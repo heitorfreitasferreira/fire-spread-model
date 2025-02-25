@@ -3,6 +3,7 @@ package lattice
 import (
 	"fmt"
 	"strings"
+	"time"
 
 	"github.com/heitorfreitasferreira/fireSpreadSimultor/pkg/automata/lattice/cell"
 	"github.com/heitorfreitasferreira/fireSpreadSimultor/utils"
@@ -10,8 +11,29 @@ import (
 
 type SimulationResult [][][]cell.CellState
 
-func (result *SimulationResult) ViewLattice() {
-	fmt.Printf("%s", result.ToString())
+func (result SimulationResult) ViewLattice() {
+	// fmt.Printf("%s", result.ToString())
+	// var separator string
+	// for i := 0; i < len(result[0]); i++ {
+	// 	separator += "- "
+	// }
+
+	for i, iteration := range result {
+		if i%10 != 0 {
+			continue
+		}
+
+		var str string
+		for _, row := range iteration {
+			for _, c := range row {
+				str += c.ToColoredString()
+			}
+			str += "\n"
+		}
+		fmt.Printf("\033[H\033[2J%s\n", str)
+		// Wait 0.1 seconds
+		time.Sleep(50 * time.Millisecond)
+	}
 }
 
 func (result SimulationResult) ToString() string {

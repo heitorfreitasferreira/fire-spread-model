@@ -1,7 +1,6 @@
 package model
 
 import (
-	"fmt"
 	"math/rand"
 
 	"github.com/heitorfreitasferreira/fireSpreadSimultor/pkg/automata/lattice/cell"
@@ -119,7 +118,6 @@ func (r *ModelRunner) Step(i, j int) {
 	}
 	if central.State.IsBurnable() {
 		if central.HasFireSeed && (r.Rand.Float64() < r.probFireSeedCatchingFire[central.State]) {
-			fmt.Printf("Fire seed caught fire\n")
 			central.SetNextState(r.nextState[central.State])
 		}
 		r.stepBurnable(i, j)
